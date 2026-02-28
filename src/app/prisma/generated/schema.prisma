@@ -1,0 +1,32 @@
+// Prisma Schema for Cadena24 WMS
+// Database: MariaDB
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/app/prisma/generated"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Example model - User
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+}

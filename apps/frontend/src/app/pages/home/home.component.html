@@ -1,0 +1,90 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">
+          <i class="bi bi-box-seam text-primary"></i>
+          Bienvenido a Cadena24 WMS
+        </h1>
+        <p class="lead text-muted">Sistema de Gestión de Almacenes</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-speedometer2 text-primary" style="font-size: 3rem"></i>
+          <h5 class="card-title mt-3">Dashboard</h5>
+          <p class="card-text text-muted">Visualiza métricas y estadísticas en tiempo real</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-boxes text-success" style="font-size: 3rem"></i>
+          <h5 class="card-title mt-3">Inventario</h5>
+          <p class="card-text text-muted">Gestiona productos y existencias del almacén</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-bar-chart text-info" style="font-size: 3rem"></i>
+          <h5 class="card-title mt-3">Reportes</h5>
+          <p class="card-text text-muted">Genera reportes detallados de operaciones</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Status Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-server me-2"></i>
+            Estado del API
+          </h5>
+        </div>
+        <div class="card-body">
+          @if (loading()) {
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (error()) {
+            <div class="alert alert-danger mb-0">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              {{ error() }}
+            </div>
+          } @else if (apiStatus()) {
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-2">
+                  <strong>Estado:</strong>
+                  <span class="badge bg-success ms-2">{{ apiStatus()!.status }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-2">
+                  <strong>Versión:</strong>
+                  <span class="badge bg-info ms-2">{{ apiStatus()!.version }}</span>
+                </p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm mt-3" (click)="checkApiHealth()">
+              <i class="bi bi-arrow-clockwise me-1"></i>
+              Verificar nuevamente
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

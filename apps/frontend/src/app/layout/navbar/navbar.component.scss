@@ -1,0 +1,24 @@
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.25rem;
+
+  i {
+    font-size: 1.5rem;
+  }
+}
+
+.nav-link {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    font-weight: 600;
+  }
+}

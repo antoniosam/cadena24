@@ -1,0 +1,36 @@
+# Backend API Documentation
+
+## Base URL
+http://localhost:3000/api
+
+## Endpoints
+
+### Health Check
+**GET** /
+
+Returns the health status of the API.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Cadena24 WMS API is running",
+  "data": {
+    "status": "healthy",
+    "version": "1.0.0"
+  },
+  "timestamp": "2026-02-27T00:00:00.000Z"
+}
+```
+
+**Status Codes:**
+- 200: Success
+
+---
+
+## Development Notes
+
+- All endpoints use the `/api` prefix
+- CORS is enabled globally
+- Global validation pipe is active
+- All responses follow the `ApiResponse<T>` interface from `@cadena24-wms/shared`
