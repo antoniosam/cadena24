@@ -1,8 +1,7 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "npm ci --legacy-peer-deps && npx prisma generate --schema=apps/backend/prisma/schema.prisma && npm run build:backend"
+builder = "DOCKERFILE"
+dockerfilePath = "apps/backend/Dockerfile"
 
 [deploy]
-startCommand = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && node dist/apps/backend/main.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
