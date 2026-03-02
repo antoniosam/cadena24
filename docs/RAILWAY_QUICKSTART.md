@@ -54,8 +54,10 @@ npm ci --legacy-peer-deps && npx prisma generate --schema=apps/backend/prisma/sc
 **Custom Start Command:**
 
 ```bash
-npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && node dist/apps/backend/main.js
+npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start
 ```
+
+> **Nota:** Railway detectará automáticamente el comando `start` del package.json
 
 #### Variables de entorno (tab "Variables"):
 
@@ -101,8 +103,10 @@ npm ci --legacy-peer-deps && npm run build:prod:frontend
 **Custom Start Command:**
 
 ```bash
-npx http-server dist/apps/frontend/browser -p $PORT --gzip -c-1
+npm run start:frontend
 ```
+
+> **Nota:** Railway detectará automáticamente el comando `start:frontend` del package.json
 
 #### Variables de entorno (tab "Variables"):
 
@@ -168,7 +172,11 @@ Deberías ver tu aplicación Angular funcionando.
 
 ### ❌ Error: "No start command was found"
 
-**Solución:** Verifica que configuraste el **Custom Start Command** en Settings
+**Solución:**
+
+- **Opción 1 (Recomendada):** Deja que Railway use el `nixpacks.toml` automáticamente (no configures custom commands)
+- **Opción 2:** Configura el **Custom Start Command** en Settings como se indica arriba
+- El `package.json` ahora tiene un script `start` que Railway puede detectar automáticamente
 
 ---
 

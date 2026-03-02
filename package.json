@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "start": "node dist/apps/backend/main.js",
+    "start:backend": "node dist/apps/backend/main.js",
+    "start:frontend": "npx http-server dist/apps/frontend/browser -p ${PORT:-8080} --gzip -c-1",
     "dev": "nx run-many --targets=serve --projects=backend,frontend --parallel=2",
     "dev:backend": "nx serve backend",
     "dev:frontend": "nx serve frontend --port 4300",

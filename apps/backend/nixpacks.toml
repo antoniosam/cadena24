@@ -13,4 +13,4 @@ cmds = [
 ]
 
 [start]
-cmd = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start:prod:backend"
+cmd = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start"
