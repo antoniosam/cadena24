@@ -30,6 +30,10 @@
     "postinstall": "prisma generate --schema=apps/backend/prisma/schema.prisma"
   },
   "private": true,
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=8.0.0"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.2.0",
     "@angular-devkit/core": "^21.2.0",
