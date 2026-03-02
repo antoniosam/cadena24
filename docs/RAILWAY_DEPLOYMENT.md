@@ -1,431 +1,259 @@
 # 🚂 Railway Deployment Guide - Cadena24 WMS
 
-Complete guide to deploy the NestJS + Angular monorepo to Railway.
+Guía completa y actualizada para desplegar el monorepo NestJS + Angular en Railway.
+Última actualización: 2026-03-02
 
 ---
 
-## 📋 Prerequisites
-
-- ✅ Railway account (sign up at https://railway.app)
-- ✅ GitHub repository connected to Railway
-- ✅ Project pushed to GitHub
-
----
-
-## 🏗️ Architecture Overview
+## 📐 Arquitectura de producción
 
 ```
 Railway Project: cadena24-wms
-├── Service 1: PostgreSQL Database (managed)
-├── Service 2: Backend (NestJS API)
-└── Service 3: Frontend (Angular SPA)
+├── Service: Postgres   → Base de datos PostgreSQL (managed by Railway)
+└── Service: cadena24   → NestJS sirve API + Angular estático (UN SOLO SERVICIO)
+```
+
+### ¿Por qué un solo servicio?
+
+Anteriormente el proyecto usaba dos servicios separados:
+
+- `backend` → NestJS con nixpacks
+- `frontend` → Angular con `http-server`
+
+**Esto fue consolidado** porque NestJS puede servir los archivos estáticos de Angular
+directamente usando `@nestjs/serve-static`. Ventajas:
+
+- Un solo servicio → menos costo en Railway
+- Sin problemas de CORS en producción (mismo origen)
+- Despliegue más simple
+- Se eliminó la dependencia `http-server`
+
+---
+
+## 🛠️ Stack de tecnologías y versiones clave
+
+| Tecnología | Versión | Notas                                                |
+| ---------- | ------- | ---------------------------------------------------- |
+| Node.js    | 20.19.0 | Mínimo requerido por Angular 21. Ver `.node-version` |
+| Angular    | 21.x    | Requiere Node `^20.19.0 \|\| ^22.12.0 \|\| >=24`     |
+| NestJS     | 11.x    | Compatible con Node 16+                              |
+| Prisma     | 6.x     | PostgreSQL provider                                  |
+
+### ⚠️ Por qué Node 20.19.0 exacto
+
+Angular 21 usa `@angular/compiler-cli` como módulo ESM puro. Node versiones anteriores
+a `20.19.0` (ej. `20.11.x`) no tienen el fix de ESM y lanzan:
+
+```
+Error [ERR_REQUIRE_ESM]: require() of ES Module .../compiler-cli/bundles/index.js not supported
+```
+
+La versión se fija en tres lugares para que Railway no la ignore:
+
+- `.node-version` → `20.19.0` (máxima prioridad en Railway)
+- `package.json` → `engines.node: ">=20.19.0"`
+- `Dockerfile` → `FROM node:20.19.0-alpine`
+
+---
+
+## 🐳 Dockerfile (estrategia multi-stage)
+
+El proyecto usa un `Dockerfile` explícito en la raíz. Railway lo detecta automáticamente
+y lo usa en lugar de su auto-generado (que usaba Node 18).
+
+```
+Stage 1 — builder:
+  - Node 20.19.0-alpine
+  - npm ci (instala devDeps + deps)
+  - Copia schema Prisma → prisma generate con DATABASE_URL dummy
+  - Copia todo el fuente → build frontend + backend
+
+Stage 2 — runtime:
+  - Node 20.19.0-alpine (imagen limpia)
+  - npm ci --omit=dev (solo deps de producción)
+  - Copia desde builder: dist/ + prisma/ + .prisma/
+  - CMD: prisma migrate deploy → node main.js
+```
+
+### ¿Por qué DATABASE_URL dummy en el build?
+
+`prisma generate` no se conecta a la base de datos, solo lee el schema para generar
+el client TypeScript. Sin embargo, Prisma valida que la variable `DATABASE_URL` exista
+en el entorno. Se pasa una URL dummy solo para satisfacer esa validación:
+
+```dockerfile
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
+    npx prisma generate --schema=apps/backend/prisma/schema.prisma
 ```
 
 ---
 
-## 🚀 Deployment Steps
+## 📦 Dependencias importantes
 
-### **Step 1: Create Railway Project**
+### `@nestjs/serve-static`
 
-1. Go to https://railway.app/dashboard
-2. Click **"New Project"**
-3. Select **"Deploy from GitHub repo"**
-4. Choose your `cadena24` repository
-5. Name your project: `cadena24-wms`
+Permite que NestJS sirva los archivos estáticos del build de Angular.
+Configurado en `app.module.ts`:
+
+```typescript
+ServeStaticModule.forRoot({
+  rootPath: join(__dirname, '..', 'frontend', 'browser'),
+  exclude: ['/api/(.*)'],
+});
+```
+
+- `__dirname` en el build compilado apunta a `dist/apps/backend`
+- Por lo tanto la ruta resuelve a `dist/apps/frontend/browser`
+- Cualquier ruta que no sea `/api/*` devuelve el `index.html` de Angular (SPA fallback)
+
+### `@angular/compiler-cli`
+
+Compilador AOT de Angular. Estaba ausente del `package.json` original.
+Es `devDependency` porque solo se necesita en build-time, no en runtime.
+Sin este paquete el build falla con el error de ESM mencionado arriba.
 
 ---
 
-### **Step 2: Add PostgreSQL Database**
-
-1. In your Railway project, click **"New"** → **"Database"** → **"PostgreSQL"**
-2. Railway will automatically create a PostgreSQL instance
-3. Copy the `DATABASE_URL` from the PostgreSQL service variables (you'll need it for the backend)
-
----
-
-### **Step 3: Deploy Backend Service**
-
-#### 3.1 Create Backend Service
-
-1. Click **"New"** → **"GitHub Repo"** → Select your repo
-2. Name the service: `backend`
-3. Click **"Add service"**
-
-#### 3.2 Configure Backend Settings
-
-Go to **Settings** tab:
-
-- **Root Directory**: Leave empty (monorepo root)
-- **Custom Build Command**: `npm ci --legacy-peer-deps && npx prisma generate --schema=apps/backend/prisma/schema.prisma && npm run build:backend`
-- **Custom Start Command**: `npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && node dist/apps/backend/main.js`
-
-**Note:** Railway will detect the `nixpacks.toml` file, but we're overriding with custom commands to ensure proper execution order.
-
-#### 3.3 Set Backend Environment Variables
-
-Go to **Variables** tab and add:
-
-```bash
-NODE_ENV=production
-PORT=3000
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-JWT_SECRET=sxX4l1I4ywIYnMj5L4TJWuL9+kJtyTyY7GoLvBQB2ts=
-FRONTEND_URL=https://your-frontend-url.up.railway.app
-```
-
-**Important Notes:**
-
-- Replace `JWT_SECRET` with your generated secret (see generation command below)
-- `DATABASE_URL` will automatically reference the PostgreSQL service
-- Update `FRONTEND_URL` after deploying frontend (Step 4)
-
-**Generate a strong JWT_SECRET:**
-
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-```
-
-#### 3.4 Deploy Backend
-
-1. Railway will automatically detect the `nixpacks.toml` configuration
-2. The build process will:
-   - Install dependencies
-   - Generate Prisma client
-   - Build the NestJS application
-   - Run database migrations
-   - Start the server
-3. Check the **Deployments** tab for build logs
-4. Once deployed, note the **public URL** (e.g., `https://backend-production-xxxx.up.railway.app`)
-
----
-
-### **Step 4: Deploy Frontend Service**
-
-#### 4.1 Create Frontend Service
-
-1. Click **"New"** → **"GitHub Repo"** → Select your repo
-2. Name the service: `frontend`
-3. Click **"Add service"**
-
-#### 4.2 Configure Frontend Settings
-
-Go to **Settings** tab:
-
-- **Root Directory**: `apps/frontend`
-- **Build Command**: `npm ci --legacy-peer-deps && npm run build:prod:frontend`
-- **Start Command**: `npx http-server dist/apps/frontend/browser -p $PORT --gzip`
-
-#### 4.3 Set Frontend Environment Variables
-
-Go to **Variables** tab and add:
-
-```bash
-NODE_ENV=production
-PORT=8080
-API_URL=https://backend-production-xxxx.up.railway.app/api
-```
-
-**Important:**
-
-- Replace `API_URL` with your actual backend public URL from Step 3.4
-
-#### 4.4 Deploy Frontend
-
-1. Railway will build the Angular application in production mode
-2. Static files will be served with http-server
-3. Check the **Deployments** tab for build logs
-4. Once deployed, note the **public URL** (e.g., `https://frontend-production-xxxx.up.railway.app`)
-
-#### 4.5 Update Backend CORS
-
-Go back to **Backend service** → **Variables** tab:
-
-Update `FRONTEND_URL` with the frontend public URL:
-
-```bash
-FRONTEND_URL=https://frontend-production-xxxx.up.railway.app
-```
-
-Railway will automatically redeploy the backend with updated CORS settings.
-
----
-
-## 🔍 Verification & Testing
-
-### **1. Check Backend Health**
-
-```bash
-curl https://backend-production-xxxx.up.railway.app/api/health
-```
-
-Expected response:
+## 🔧 Scripts relevantes en package.json
 
 ```json
-{
-  "status": "ok",
-  "timestamp": "2026-03-02T...",
-  "service": "cadena24-wms-backend",
-  "version": "1.0.0",
-  "environment": "production"
+"start": "prisma migrate deploy && node dist/apps/backend/main.js",
+"build": "npm run build:prod:frontend && npm run build:prod:backend",
+"build:prod:frontend": "nx build frontend --configuration=production",
+"build:prod:backend": "nx build backend --configuration=production"
+```
+
+**Nota:** El script `start` ya no tiene lógica condicional `RAILWAY_SERVICE_NAME`
+porque ahora solo hay un servicio.
+
+---
+
+## 🔒 CORS
+
+En desarrollo: activo para `localhost:4200` y `localhost:4300`.
+En producción: **deshabilitado** — no es necesario porque frontend y backend
+corren en el mismo origen (mismo proceso NestJS).
+
+```typescript
+// main.ts
+if (!isProd) {
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:4300'],
+    ...
+  });
 }
 ```
 
-### **2. Check Database Connection**
+---
+
+## 🚀 Pasos para desplegar en Railway
+
+### 1. Crear proyecto en Railway
+
+1. https://railway.app/dashboard → **New Project**
+2. **Deploy from GitHub repo** → seleccionar `cadena24`
+
+### 2. Agregar PostgreSQL
+
+1. **New** → **Database** → **PostgreSQL**
+2. Railway crea la instancia y expone `DATABASE_URL` automáticamente
+
+### 3. Configurar el servicio de la app
+
+En **Variables** del servicio `cadena24`, agregar:
+
+| Variable       | Valor                        | Notas                            |
+| -------------- | ---------------------------- | -------------------------------- |
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` | Referencia automática a Postgres |
+| `NODE_ENV`     | `production`                 |                                  |
+| `API_VERSION`  | `v1`                         | o la versión que corresponda     |
+
+> ⚠️ Asegurarse de hacer **Deploy** después de agregar variables.
+> El panel muestra "N Changes" si hay cambios pendientes sin desplegar.
+
+### 4. Generar dominio público
+
+1. **Settings** → **Networking** → **Generate Domain**
+2. Railway pregunta el puerto — ingresar **`8080`** (Railway asigna `PORT=8080` por defecto)
+3. Hacer clic en **Generate Domain**
+
+> ⚠️ **Puerto importante:** Railway inyecta la variable `PORT` automáticamente.
+> NestJS la toma con `process.env['PORT'] || 3000`. En Railway el valor real es `8080`,
+> por eso al generar el dominio hay que especificar `8080` y NO `3000`.
+> No agregar `PORT` manualmente en Variables — Railway lo gestiona solo.
+
+### 5. Verificar el despliegue
 
 ```bash
-curl https://backend-production-xxxx.up.railway.app/api/health/ready
-```
+# Health check
+curl https://tu-app.up.railway.app/api/health
 
-Expected response:
-
-```json
-{
-  "status": "ready",
-  "timestamp": "2026-03-02T...",
-  "checks": {
-    "database": "connected"
-  }
-}
-```
-
-### **3. Test Frontend**
-
-Open the frontend URL in your browser:
-
-```
-https://frontend-production-xxxx.up.railway.app
-```
-
-The Angular application should load and be able to communicate with the backend API.
-
----
-
-## 🔄 Continuous Deployment
-
-Railway automatically deploys on every push to your main branch.
-
-**Workflow:**
-
-1. Make changes locally
-2. Commit and push to GitHub
-3. Railway detects the push
-4. Automatically builds and deploys both services
-5. Check deployment logs in Railway dashboard
-
-**Disable auto-deploy (optional):**
-
-Go to **Settings** → **Service** → Toggle **"Auto Deploy"** off
-
----
-
-## 📊 Monitoring & Logs
-
-### **View Logs**
-
-1. Go to your service in Railway dashboard
-2. Click **"Deployments"** tab
-3. Select the active deployment
-4. View real-time logs
-
-### **Health Check Endpoints**
-
-- **General health**: `/api/health`
-- **Readiness probe**: `/api/health/ready` (includes DB check)
-- **Liveness probe**: `/api/health/live` (simple alive check)
-
-### **Database Management**
-
-**Option 1: Railway Dashboard**
-
-- Click on PostgreSQL service
-- Go to **"Data"** tab
-- Use built-in query editor
-
-**Option 2: Prisma Studio (via Railway CLI)**
-
-```bash
-railway run npx prisma studio --schema=apps/backend/prisma/schema.prisma
-```
-
-**Option 3: External Client**
-
-- Use the `DATABASE_URL` from Railway
-- Connect with tools like pgAdmin, DBeaver, or TablePlus
-
----
-
-## 🔐 Environment Variables Reference
-
-### **Backend Service**
-
-| Variable       | Description                         | Example                               |
-| -------------- | ----------------------------------- | ------------------------------------- |
-| `NODE_ENV`     | Environment mode                    | `production`                          |
-| `PORT`         | Server port (Railway provides this) | `3000`                                |
-| `DATABASE_URL` | PostgreSQL connection string        | `${{Postgres.DATABASE_URL}}`          |
-| `JWT_SECRET`   | Secret for JWT tokens               | `your-generated-secret`               |
-| `FRONTEND_URL` | Frontend URL for CORS               | `https://frontend-xxx.up.railway.app` |
-
-### **Frontend Service**
-
-| Variable   | Description          | Example                                  |
-| ---------- | -------------------- | ---------------------------------------- |
-| `NODE_ENV` | Environment mode     | `production`                             |
-| `PORT`     | Server port          | `8080`                                   |
-| `API_URL`  | Backend API base URL | `https://backend-xxx.up.railway.app/api` |
-
-### **PostgreSQL Service**
-
-Railway automatically provides:
-
-- `DATABASE_URL`
-- `PGHOST`
-- `PGPORT`
-- `PGUSER`
-- `PGPASSWORD`
-- `PGDATABASE`
-
----
-
-## 🛠️ Troubleshooting
-
-### **Backend fails to start**
-
-**Check logs:**
-
-1. Go to Backend service → Deployments
-2. Look for error messages
-
-**Common issues:**
-
-- Missing `DATABASE_URL` variable
-- Invalid Prisma schema
-- Migration failures
-
-**Solution:**
-
-```bash
-# Run migrations manually via Railway CLI
-railway run npm run prisma:migrate:deploy
+# La app Angular debe cargar en:
+# https://tu-app.up.railway.app
 ```
 
 ---
 
-### **Frontend can't connect to backend**
+## 🐛 Errores conocidos y soluciones
 
-**Check:**
+### `ERR_REQUIRE_ESM` en build de Angular
 
-1. `API_URL` in frontend variables matches backend public URL
-2. Backend `FRONTEND_URL` includes frontend public URL
-3. Backend CORS is properly configured
+**Causa:** Node < 20.19.0  
+**Solución:** Asegurarse que `.node-version` tenga `20.19.0` y que Railway use el Dockerfile
 
-**Test backend directly:**
+### `Cannot find module '@angular/compiler-cli'`
 
-```bash
-curl https://backend-xxx.up.railway.app/api/health
+**Causa:** Paquete no declarado en `package.json`  
+**Solución:** Está en `devDependencies` como `@angular/compiler-cli: ^21.2.0`
+
+### `Environment variable not found: DATABASE_URL` en build
+
+**Causa:** `prisma generate` valida la variable aunque no la use  
+**Solución:** Pasar `DATABASE_URL=dummy` como variable de entorno en el comando del Dockerfile
+
+### `Environment variable not found: DATABASE_URL` en runtime
+
+**Causa:** Variables no desplegadas en Railway (cambios pendientes)  
+**Solución:** Hacer Deploy desde el panel de Railway para aplicar los cambios
+
+### Railway ignora `.node-version` y usa Node 18
+
+**Causa:** Railway auto-genera un Dockerfile con imagen Node 18 por defecto  
+**Solución:** Tener un `Dockerfile` explícito en la raíz con `FROM node:20.19.0-alpine`
+
+### `Application failed to respond` al abrir la URL
+
+**Causa:** El dominio fue generado con puerto `3000` pero Railway asigna `PORT=8080`  
+**Solución:** Eliminar el dominio y regenerarlo especificando el puerto **`8080`**  
+**Detalle:** No agregar `PORT` manualmente en Variables — Railway lo inyecta solo con valor `8080`
+
+---
+
+## 📁 Archivos clave de despliegue
+
+```
+cadena24/
+├── Dockerfile                        # Build multi-stage, fuerza Node 20.19.0
+├── .node-version                     # Node 20.19.0 (para Railway y desarrollo local)
+├── package.json                      # engines.node >= 20.19.0
+├── apps/
+│   └── backend/
+│       ├── nixpacks.toml             # Fallback si Railway no usa Dockerfile
+│       └── src/
+│           ├── main.ts               # CORS solo en desarrollo
+│           └── app/app.module.ts     # ServeStaticModule registrado aquí
 ```
 
 ---
 
-### **Database connection errors**
+## 📚 Historial de decisiones de arquitectura
 
-**Check:**
-
-1. PostgreSQL service is running
-2. `DATABASE_URL` is correctly set in backend variables
-3. Migrations have been applied
-
-**View database logs:**
-Go to PostgreSQL service → Deployments → Logs
-
----
-
-### **Build failures**
-
-**Common causes:**
-
-- Missing dependencies
-- TypeScript compilation errors
-- Prisma generation failures
-
-**Check build logs carefully** and fix errors locally first.
-
-**Rebuild:**
-Go to Deployments → Click "Redeploy"
-
----
-
-## 💰 Pricing & Usage
-
-### **Free Tier**
-
-- $5 USD free credits per month
-- Enough for development/testing
-- ~140 hours of service uptime
-
-### **Usage Monitoring**
-
-- Railway dashboard shows credit usage
-- Monitor in **Settings** → **Usage**
-
-### **Optimize Costs**
-
-1. Delete unused services
-2. Pause services not in use
-3. Use smaller database instances for testing
-4. Upgrade to paid plan for production
-
----
-
-## 🎯 Next Steps
-
-### **Custom Domains**
-
-1. Go to service → **Settings** → **Domains**
-2. Click **"Add Domain"**
-3. Follow DNS configuration instructions
-
-### **SSL Certificates**
-
-- Automatically provided by Railway
-- HTTPS enabled by default
-
-### **CI/CD Integration**
-
-- Already configured via GitHub integration
-- Optional: Add GitHub Actions for testing before deploy
-
-### **Staging Environment**
-
-1. Create separate Railway project: `cadena24-wms-staging`
-2. Connect to a different branch (e.g., `develop`)
-3. Use separate database instance
-
----
-
-## 📚 Additional Resources
-
-- **Railway Docs**: https://docs.railway.app
-- **Railway CLI**: https://docs.railway.app/develop/cli
-- **Prisma + Railway**: https://www.prisma.io/docs/guides/deployment/deployment-guides/deploying-to-railway
-- **NestJS Production**: https://docs.nestjs.com/techniques/performance
-
----
-
-## ✅ Deployment Checklist
-
-- [ ] Railway project created
-- [ ] PostgreSQL database added
-- [ ] Backend service deployed with correct environment variables
-- [ ] Database migrations applied successfully
-- [ ] Frontend service deployed with correct API_URL
-- [ ] Backend CORS updated with frontend URL
-- [ ] Health checks passing (`/api/health`, `/api/health/ready`)
-- [ ] Frontend loads and connects to backend
-- [ ] Continuous deployment working (push to trigger deploy)
-
----
-
-**🎉 Your Cadena24 WMS is now live on Railway!**
-
-For support, check Railway documentation or open an issue in the repository.
+| Fecha      | Decisión                                          | Motivo                                      |
+| ---------- | ------------------------------------------------- | ------------------------------------------- |
+| 2026-03-02 | Consolidar frontend + backend en un solo servicio | Reducir costo y complejidad en Railway      |
+| 2026-03-02 | Usar `@nestjs/serve-static` para Angular          | Eliminar servicio frontend + `http-server`  |
+| 2026-03-02 | Fijar Node 20.19.0 con Dockerfile explícito       | Angular 21 requiere ESM fix de Node 20.19   |
+| 2026-03-02 | Agregar `@angular/compiler-cli` a devDependencies | Faltaba en package.json, rompía el build    |
+| 2026-03-02 | Multi-stage Dockerfile                            | Imagen de producción sin devDependencies    |
+| 2026-03-02 | DATABASE_URL dummy en prisma generate del builder | Prisma valida la variable aunque no conecte |
+| 2026-03-02 | Puerto del dominio Railway es 8080, no 3000       | Railway inyecta PORT=8080 automáticamente   |
