@@ -3,13 +3,13 @@ nixPkgs = ["nodejs_20", "openssl"]
 
 [phases.install]
 cmds = [
-  "npm ci --legacy-peer-deps"
+  "npm ci --legacy-peer-deps",
+  "npx prisma generate --schema=apps/backend/prisma/schema.prisma"
 ]
 
 [phases.build]
 cmds = [
-  "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
-  "npm run build:backend"
+  "npm run build:prod:backend"
 ]
 
 [start]

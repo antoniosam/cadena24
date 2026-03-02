@@ -43,21 +43,26 @@ Guía rápida para desplegar en Railway en 10 minutos.
 
 #### Configurar en Settings:
 
-**Root Directory:** (dejar vacío)
+**⚠️ IMPORTANTE - Root Directory:**
 
-**Custom Build Command:**
-
-```bash
-npm ci --legacy-peer-deps && npx prisma generate --schema=apps/backend/prisma/schema.prisma && npm run build:backend
+```
+apps/backend
 ```
 
-**Custom Start Command:**
+**Watch Paths:**
 
-```bash
-npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start
+```
+apps/backend/**
+libs/shared/**
 ```
 
-> **Nota:** Railway detectará automáticamente el comando `start` del package.json
+Railway detectará automáticamente `nixpacks.toml` en `apps/backend/` y ejecutará:
+
+- Install: `npm ci --legacy-peer-deps`
+- Build: `npm run build:prod:backend`
+- Start: `npx prisma migrate deploy && npm run start`
+
+> **Nota:** No necesitas configurar Custom Build/Start Commands si Railway detecta el `nixpacks.toml` correctamente
 
 #### Variables de entorno (tab "Variables"):
 
@@ -92,21 +97,26 @@ FRONTEND_URL=https://tu-frontend.up.railway.app
 
 #### Configurar en Settings:
 
-**Root Directory:** (dejar vacío)
+**⚠️ IMPORTANTE - Root Directory:**
 
-**Custom Build Command:**
-
-```bash
-npm ci --legacy-peer-deps && npm run build:prod:frontend
+```
+apps/frontend
 ```
 
-**Custom Start Command:**
+**Watch Paths:**
 
-```bash
-npm run start:frontend
+```
+apps/frontend/**
+libs/shared/**
 ```
 
-> **Nota:** Railway detectará automáticamente el comando `start:frontend` del package.json
+Railway detectará automáticamente `nixpacks.toml` en `apps/frontend/` y ejecutará:
+
+- Install: `npm ci --legacy-peer-deps`
+- Build: `npm run build:prod:frontend`
+- Start: `npm run start:frontend`
+
+> **Nota:** No necesitas configurar Custom Build/Start Commands si Railway detecta el `nixpacks.toml` correctamente
 
 #### Variables de entorno (tab "Variables"):
 

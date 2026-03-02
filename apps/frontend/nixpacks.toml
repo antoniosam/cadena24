@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = [
+  "npm ci --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = [
+  "npm run build:prod:frontend"
+]
+
+[start]
+cmd = "npm run start:frontend"

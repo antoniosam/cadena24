@@ -25,7 +25,7 @@ export class HealthService {
   async readiness() {
     try {
       // Check database connection
-      await this.prisma.$queryRaw`SELECT 1`;
+      await this.prisma['$queryRaw']`SELECT 1`;
 
       return {
         status: 'ready',
