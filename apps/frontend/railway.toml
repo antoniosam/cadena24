@@ -1,0 +1,6 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm ci --legacy-peer-deps && npm run build:prod:frontend"
+
+[deploy]
+startCommand = "npx http-server dist/apps/frontend/browser -p $PORT -g --proxy https://your-backend-url.up.railway.app/api"

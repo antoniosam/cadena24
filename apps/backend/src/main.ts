@@ -1,15 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+  const isProd = process.env['NODE_ENV'] === 'production';
+
+  const app = await NestFactory.create(AppModule, {
+    logger: isProd ? ['error', 'warn', 'log'] : ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
 
   // Global prefix
   app.setGlobalPrefix('api');
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS with production-safe settings
+  app.enableCors({
+    origin: isProd
+      ? process.env['FRONTEND_URL'] || '*'
+      : ['http://localhost:4200', 'http://localhost:4300'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -17,13 +28,24 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     })
   );
+
+  // Graceful shutdown
+  app.enableShutdownHooks();
 
   const port = process.env['PORT'] || 3000;
   await app.listen(port);
 
-  console.log(`🚀 Backend running on: http://localhost:${port}/api`);
+  logger.log(`🚀 Backend running on: http://localhost:${port}/api`);
+  logger.log(`🏥 Health check: http://localhost:${port}/api/health`);
+  logger.log(`📊 Environment: ${process.env['NODE_ENV'] || 'development'}`);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});

@@ -1,0 +1,16 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "openssl"]
+
+[phases.install]
+cmds = [
+  "npm ci --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = [
+  "npx prisma generate --schema=apps/backend/prisma/schema.prisma",
+  "npm run build:backend"
+]
+
+[start]
+cmd = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start:prod:backend"

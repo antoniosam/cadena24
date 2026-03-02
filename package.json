@@ -9,6 +9,9 @@
     "build": "nx run-many --targets=build --projects=backend,frontend --parallel=2",
     "build:backend": "nx build backend",
     "build:frontend": "nx build frontend",
+    "build:prod:backend": "nx build backend --configuration=production",
+    "build:prod:frontend": "nx build frontend --configuration=production",
+    "start:prod:backend": "NODE_ENV=production node dist/apps/backend/main.js",
     "test": "nx run-many --targets=test --projects=backend,frontend",
     "test:backend": "nx test backend",
     "test:frontend": "nx test frontend",
@@ -20,6 +23,7 @@
     "prisma:generate": "prisma generate --schema=apps/backend/prisma/schema.prisma",
     "prisma:push": "prisma db push --schema=apps/backend/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema=apps/backend/prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema=apps/backend/prisma/schema.prisma"
   },
   "private": true,
@@ -82,6 +86,7 @@
     "bootstrap-icons": "^1.13.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "http-server": "^14.1.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   }
