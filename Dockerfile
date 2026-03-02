@@ -5,9 +5,13 @@ WORKDIR /app
 # Install openssl for Prisma
 RUN apk add --no-cache openssl
 
-# Install dependencies (postinstall runs prisma generate)
+# Install dependencies
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
+
+# Generate Prisma client (schema needed before full source copy)
+COPY apps/backend/prisma ./apps/backend/prisma
+RUN npx prisma generate --schema=apps/backend/prisma/schema.prisma
 
 # Copy source and build
 COPY . .
@@ -21,9 +25,8 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Only production dependencies
-# --ignore-scripts skips postinstall (prisma generate) — client already built in builder stage
 COPY package*.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy built artifacts and prisma client from builder
 COPY --from=builder /app/dist ./dist
