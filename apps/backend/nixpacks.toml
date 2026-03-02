@@ -9,8 +9,9 @@ cmds = [
 
 [phases.build]
 cmds = [
+  "npm run build:prod:frontend",
   "npm run build:prod:backend"
 ]
 
 [start]
-cmd = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && npm run start"
+cmd = "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma && node dist/apps/backend/main.js"

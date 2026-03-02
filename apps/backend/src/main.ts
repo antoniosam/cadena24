@@ -13,14 +13,14 @@ async function bootstrap(): Promise<void> {
   // Global prefix
   app.setGlobalPrefix('api');
 
-  // Enable CORS with production-safe settings
-  app.enableCors({
-    origin: isProd
-      ? process.env['FRONTEND_URL'] || '*'
-      : ['http://localhost:4200', 'http://localhost:4300'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
+  // Enable CORS only in development (in production, frontend is served by NestJS itself)
+  if (!isProd) {
+    app.enableCors({
+      origin: ['http://localhost:4200', 'http://localhost:4300'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      credentials: true,
+    });
+  }
 
   // Global validation pipe
   app.useGlobalPipes(
