@@ -11,7 +11,7 @@ RUN npm ci --legacy-peer-deps
 
 # Generate Prisma client (schema needed before full source copy)
 COPY apps/backend/prisma ./apps/backend/prisma
-RUN npx prisma generate --schema=apps/backend/prisma/schema.prisma
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate --schema=apps/backend/prisma/schema.prisma
 
 # Copy source and build
 COPY . .
