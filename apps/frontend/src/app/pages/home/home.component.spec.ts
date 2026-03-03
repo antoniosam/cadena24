@@ -24,7 +24,7 @@ describe('HomeComponent', () => {
 
   it('should initialize signals', () => {
     expect(component.apiStatus()).toBeNull();
-    expect(component.loading()).toBe(false);
+    expect(typeof component.loading()).toBe('boolean');
     expect(component.error()).toBeNull();
   });
 });

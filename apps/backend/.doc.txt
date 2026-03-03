@@ -28,6 +28,69 @@ Returns the health status of the API.
 
 ---
 
+---
+
+## USERS MODULE — /api/users
+
+### GET /api/users
+Description: Get paginated list of users
+Query params:
+  - page: number (default: 1)
+  - limit: number (default: 10, max: 100)
+  - sortBy: string (default: 'createdAt')
+  - sortOrder: 'asc' | 'desc' (default: 'desc')
+  - role: RoleCode ('USER' | 'ADMIN' | 'MANAGER')
+  - search: string (searches firstName, lastName, email)
+Response: PaginatedApiResponse<IUserSummary> (200)
+
+### GET /api/users/:id
+Description: Get single user by ID
+Params: id (number)
+Response: ApiResponse<IUser> (200)
+Errors: 404 - Usuario no encontrado
+
+### POST /api/users
+Description: Create new user
+Body: CreateUserDto { email, firstName, lastName, password, birthday?, role? }
+Response: ApiResponse<IUser> (201)
+Errors: 409 - El correo electrónico ya está en uso | 400 - validation errors
+
+### PATCH /api/users/:id
+Description: Update user profile (no password)
+Params: id (number)
+Body: UpdateUserDto { email?, firstName?, lastName?, birthday? }
+Response: ApiResponse<IUser> (200)
+Errors: 404, 409 (email conflict), 400
+
+### PATCH /api/users/:id/toggle-status
+Description: Toggle user active/inactive status
+Params: id (number)
+Body: none
+Response: ApiResponse<IUser> (200) with updated active field
+Errors: 404 - Usuario no encontrado
+
+### PATCH /api/users/:id/password
+Description: Change user password (requires current password verification)
+Params: id (number)
+Body: ChangePasswordDto { currentPassword, newPassword, confirmPassword }
+Response: ApiResponse<null> (200)
+Errors: 401 - La contraseña actual es incorrecta | 400 - Las contraseñas no coinciden
+
+### DELETE /api/users/:id
+Description: Permanently delete user
+Params: id (number)
+Body: none
+Response: ApiResponse<null> (200)
+Errors: 404 - Usuario no encontrado
+
+### Notes:
+- Password is never returned in any response
+- Passwords are hashed with bcrypt (rounds: 10)
+- birthday is an ISO 8601 date string (e.g. '1990-05-15')
+- toggle-status is idempotent (can be called multiple times safely)
+
+---
+
 ## Development Notes
 
 - All endpoints use the `/api` prefix

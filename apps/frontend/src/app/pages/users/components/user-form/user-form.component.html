@@ -1,0 +1,106 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">{{ title }}</h5>
+  </div>
+  <div class="card-body">
+    @if (serverError) {
+      <div class="alert alert-danger">{{ serverError }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Row 1: firstName + lastName -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Nombre <span class="text-danger">*</span></label>
+          <input
+            class="form-control"
+            [class.is-invalid]="isInvalid('firstName')"
+            formControlName="firstName"
+            placeholder="Nombre"
+          />
+          @if (isInvalid('firstName')) {
+            <div class="invalid-feedback">{{ getError('firstName') }}</div>
+          }
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+          <input
+            class="form-control"
+            [class.is-invalid]="isInvalid('lastName')"
+            formControlName="lastName"
+            placeholder="Apellidos"
+          />
+          @if (isInvalid('lastName')) {
+            <div class="invalid-feedback">{{ getError('lastName') }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- Row 2: email + birthday -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+          <input
+            type="email"
+            class="form-control"
+            [class.is-invalid]="isInvalid('email')"
+            formControlName="email"
+            placeholder="correo@ejemplo.com"
+          />
+          @if (isInvalid('email')) {
+            <div class="invalid-feedback">{{ getError('email') }}</div>
+          }
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Fecha de cumpleaños</label>
+          <input type="date" class="form-control" formControlName="birthday" />
+        </div>
+      </div>
+
+      <!-- Row 3: role + password (password only in create mode) -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Rol <span class="text-danger">*</span></label>
+          <select class="form-select" [class.is-invalid]="isInvalid('role')" formControlName="role">
+            @for (role of roles; track role) {
+              <option [value]="role">{{ roleLabels[role] }}</option>
+            }
+          </select>
+        </div>
+        @if (mode === 'create') {
+          <div class="col-md-6">
+            <label class="form-label">Contraseña <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              class="form-control"
+              [class.is-invalid]="isInvalid('password')"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+            />
+            @if (isInvalid('password')) {
+              <div class="invalid-feedback">{{ getError('password') }}</div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex gap-2 justify-content-end">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="onCancel()"
+          [disabled]="saving"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+          @if (saving) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          {{ submitLabel }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

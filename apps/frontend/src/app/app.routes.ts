@@ -11,6 +11,12 @@ export const appRoutes: Route[] = [
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
   {
+    path: 'users',
+    loadComponent: () =>
+      import('./pages/users/users-page.component').then((m) => m.UsersPageComponent),
+    title: 'Usuarios — Cadena24 WMS',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

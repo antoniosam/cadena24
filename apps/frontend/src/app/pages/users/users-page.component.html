@@ -1,0 +1,80 @@
+<!-- Page header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Gestión de Usuarios</h2>
+  @if (mode() === 'list') {
+    <button class="btn btn-primary" (click)="showCreate()">
+      <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
+    </button>
+  }
+</div>
+
+<!-- Global success alert -->
+@if (state.successMsg()) {
+  <div class="alert alert-success alert-dismissible">
+    {{ state.successMsg() }}
+    <button type="button" class="btn-close" (click)="state.clearSuccess()"></button>
+  </div>
+}
+
+<!-- Global error alert (list mode only) -->
+@if (state.error() && mode() === 'list') {
+  <div class="alert alert-danger alert-dismissible">
+    {{ state.error() }}
+    <button type="button" class="btn-close" (click)="state.clearError()"></button>
+  </div>
+}
+
+<!-- List mode -->
+@if (mode() === 'list') {
+  @if (state.loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else {
+    <app-user-list
+      [users]="state.users()"
+      [pagination]="state.pagination()"
+      (editUser)="showEdit($event)"
+      (deleteUser)="state.deleteUser($event)"
+      (toggleStatus)="state.toggleUserStatus($event)"
+      (openPasswordModal)="state.openPasswordModal($event)"
+      (pageChange)="state.loadUsers({ page: $event })"
+    />
+  }
+}
+
+<!-- Create mode -->
+@if (mode() === 'create') {
+  <app-user-form
+    mode="create"
+    [saving]="state.saving()"
+    [serverError]="state.error()"
+    (saved)="onCreateSaved($event)"
+    (cancelled)="onCancelled()"
+  />
+}
+
+<!-- Edit mode -->
+@if (mode() === 'edit') {
+  @if (state.loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else if (state.selectedUser()) {
+    <app-user-form
+      mode="edit"
+      [user]="state.selectedUser()"
+      [saving]="state.saving()"
+      [serverError]="state.error()"
+      (saved)="onEditSaved($event)"
+      (cancelled)="onCancelled()"
+    />
+  }
+}
+
+<!-- Password modal (always in DOM) -->
+<app-password-modal />
