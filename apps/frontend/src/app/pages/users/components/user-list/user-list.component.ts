@@ -58,11 +58,11 @@ export class UserListComponent {
 
   getRoleBadgeClass(role: RoleCode): string {
     const map: Record<RoleCode, string> = {
-      [RoleCode.ADMIN]: 'bg-danger',
-      [RoleCode.MANAGER]: 'bg-warning text-dark',
-      [RoleCode.USER]: 'bg-secondary',
+      [RoleCode.ADMIN]: 'bg-danger-soft',
+      [RoleCode.MANAGER]: 'bg-warning-soft',
+      [RoleCode.USER]: 'bg-primary-soft',
     };
-    return map[role] ?? 'bg-secondary';
+    return map[role] ?? 'bg-primary-soft';
   }
 
   getPagesArray(): number[] {

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NavbarComponent } from './layout/navbar/navbar.component';
-import { FooterComponent } from './layout/footer/footer.component';
+import { SidebarComponent } from './layout/sidebar/sidebar';
+import { TopbarComponent } from './layout/topbar/topbar';
 
 @Component({
-  imports: [RouterModule, NavbarComponent, FooterComponent],
+  imports: [RouterModule, SidebarComponent, TopbarComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',

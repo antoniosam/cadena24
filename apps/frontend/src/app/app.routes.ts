@@ -3,12 +3,14 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: '',
-    loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
   },
   {
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    title: 'Dashboard — Cadena24 WMS',
   },
   {
     path: 'users',
@@ -18,6 +20,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: '',
+    redirectTo: 'dashboard',
   },
 ];

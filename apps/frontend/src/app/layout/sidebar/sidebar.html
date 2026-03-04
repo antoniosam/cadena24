@@ -1,0 +1,47 @@
+<aside class="wms-sidebar">
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <i class="bi bi-box-seam"></i>
+    </div>
+    <div>
+      <div class="brand-name">Cadena24</div>
+      <div class="brand-sub">WMS</div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Principal</div>
+
+    <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active">
+      <i class="bi bi-speedometer2"></i>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section-label">Administración</div>
+
+    <a class="sidebar-link" routerLink="/users" routerLinkActive="active">
+      <i class="bi bi-people"></i>
+      Usuarios
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <div class="sidebar-storage">
+      <div class="storage-label">Almacenamiento</div>
+      <div class="progress">
+        <div class="progress-bar bg-primary" style="width: 42%"></div>
+      </div>
+      <div class="storage-detail">42% utilizado</div>
+    </div>
+
+    <button
+      class="btn btn-danger-soft w-100 d-flex align-items-center gap-2 justify-content-center"
+    >
+      <i class="bi bi-box-arrow-right"></i>
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
