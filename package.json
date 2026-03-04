@@ -26,7 +26,8 @@
     "prisma:push": "prisma db push --schema=apps/backend/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=apps/backend/prisma/schema.prisma",
     "prisma:migrate:deploy": "prisma migrate deploy --schema=apps/backend/prisma/schema.prisma",
-    "prisma:studio": "prisma studio --schema=apps/backend/prisma/schema.prisma"
+    "prisma:studio": "prisma studio --schema=apps/backend/prisma/schema.prisma",
+    "prisma:seed": "ts-node -P apps/backend/tsconfig.app.json apps/backend/src/seed.ts"
   },
   "private": true,
   "engines": {
@@ -53,9 +54,12 @@
     "@swc-node/register": "~1.11.1",
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^4.17.25",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.3.2",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "@typescript-eslint/utils": "^8.40.0",
@@ -68,6 +72,7 @@
     "nx": "22.5.3",
     "prettier": "^3.8.1",
     "prisma": "^6.19.2",
+    "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
@@ -86,6 +91,8 @@
     "@nestjs/common": "^11.1.14",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.14",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.14",
     "@nestjs/serve-static": "^5.0.4",
     "@popperjs/core": "^2.11.8",
@@ -96,6 +103,9 @@
     "bootstrap-icons": "^1.13.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "cookie-parser": "^1.4.7",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   }

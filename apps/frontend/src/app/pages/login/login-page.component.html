@@ -1,0 +1,77 @@
+<!-- Centered card layout — full viewport height -->
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card shadow-sm" style="width: 100%; max-width: 420px">
+    <div class="card-body p-5">
+      <!-- Logo / Title -->
+      <div class="text-center mb-4">
+        <h3 class="fw-bold">Cadena24 WMS</h3>
+        <p class="text-muted">Inicia sesión para continuar</p>
+      </div>
+
+      <!-- Error alert -->
+      @if (state.error()) {
+        <div class="alert alert-danger alert-dismissible d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span>{{ state.error() }}</span>
+          <button type="button" class="btn-close ms-auto" (click)="state.clearError()"></button>
+        </div>
+      }
+
+      <!-- Login form -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Correo electrónico</label>
+          <input
+            type="email"
+            class="form-control form-control-lg"
+            [class.is-invalid]="isInvalid('email')"
+            formControlName="email"
+            placeholder="correo@ejemplo.com"
+            autocomplete="email"
+          />
+          @if (isInvalid('email')) {
+            <div class="invalid-feedback">{{ getError('email') }}</div>
+          }
+        </div>
+
+        <!-- Password with show/hide toggle -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              class="form-control form-control-lg"
+              [class.is-invalid]="isInvalid('password')"
+              formControlName="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="togglePassword()"
+              [title]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+            </button>
+            @if (isInvalid('password')) {
+              <div class="invalid-feedback">{{ getError('password') }}</div>
+            }
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="state.loading()">
+          @if (state.loading()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Iniciando sesión...
+          } @else {
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Iniciar sesión
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

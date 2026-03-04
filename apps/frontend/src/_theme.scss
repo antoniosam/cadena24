@@ -446,20 +446,22 @@ body {
 // Pattern presente en todos los dashboards: sidebar fijo + main scroll
 .wms-shell {
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .wms-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: var(--wms-sidebar-width);
-  min-width: var(--wms-sidebar-width);
+  height: 100vh;
   background-color: var(--wms-sidebar-bg);
   border-right: 1px solid var(--wms-sidebar-border);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  flex-shrink: 0;
+  z-index: 1000;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 
@@ -477,7 +479,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: hidden;
+  margin-left: var(--wms-sidebar-width);
 }
 
 .wms-topbar {

@@ -91,9 +91,76 @@ Errors: 404 - Usuario no encontrado
 
 ---
 
+## AUTH MODULE — /api/auth
+All routes under /api/auth. Login is @Public (no JWT required).
+All other app routes require valid access_token cookie (global JwtAuthGuard).
+
+### POST /api/auth/login                              [@Public]
+Description: Authenticate user and issue JWT token pair as HTTP-only cookies
+Body: LoginDto { email: string, password: string }
+Response: ApiResponse<ITokenUser> (201)
+Sets cookies:
+  - access_token  (httpOnly, secure in prod, sameSite=strict, maxAge=15min)
+  - refresh_token (httpOnly, secure in prod, sameSite=strict, maxAge=7d, path=/api/auth)
+Errors:
+  - 401 — 'Credenciales incorrectas' (email not found OR wrong password — same message, no enumeration)
+  - 401 — 'Tu cuenta está desactivada. Contacta al administrador' (inactive user)
+  - 400 — validation errors
+
+### POST /api/auth/refresh                           [RefreshAuthGuard — reads refresh_token cookie]
+Description: Rotate token pair. Issues new access + refresh tokens (refresh token rotation).
+Old refresh token is invalidated in DB.
+Body: none
+Response: ApiResponse<ITokenUser> (200)
+Sets cookies:
+  - access_token  (new 15min token)
+  - refresh_token (new 7d token — replaces old)
+Errors:
+  - 401 — 'Sesión expirada, inicia sesión nuevamente'
+
+### POST /api/auth/logout                            [JwtAuthGuard — requires access_token cookie]
+Description: Invalidate session. Clears refresh token from DB, clears both cookies.
+Body: none
+Response: ApiResponse<null> (200)
+Clears cookies: access_token, refresh_token
+Errors:
+  - 401 — if no valid access_token cookie
+
+### GET /api/auth/me                                 [JwtAuthGuard — requires access_token cookie]
+Description: Get current authenticated user.
+Used by Angular authGuard to hydrate state on page reload.
+Response: ApiResponse<ITokenUser> (200)
+Errors:
+  - 401 — if no valid access_token cookie
+
+### Security notes:
+- Tokens stored in HTTP-only cookies (immune to XSS)
+- Refresh token stored as bcrypt hash in DB (immune to DB dump)
+- Refresh token rotation: each use invalidates previous token (detects theft)
+- Login always returns same error for wrong email/password (prevents user enumeration)
+- Cookie path=/api/auth on refresh_token (limits exposure surface)
+- Cookie secure=true in production (HTTPS only)
+- Cookie sameSite=strict (CSRF protection)
+- JwtAuthGuard registered globally via APP_GUARD — all routes protected by default
+- Use @Public() decorator to opt-out specific routes from the global guard
+
+### ITokenUser shape (returned in login/refresh/me):
+{
+  id: number,
+  email: string,
+  firstName: string,
+  lastName: string,
+  role: 'USER' | 'ADMIN' | 'MANAGER',
+  active: boolean
+}
+
+---
+
 ## Development Notes
 
 - All endpoints use the `/api` prefix
 - CORS is enabled globally
 - Global validation pipe is active
 - All responses follow the `ApiResponse<T>` interface from `@cadena24-wms/shared`
+- Auth uses HTTP-only cookies (no Authorization header required)
+- All routes are protected by JwtAuthGuard by default (opt-out with @Public())

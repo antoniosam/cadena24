@@ -1,0 +1,17 @@
+// Layout shell styles - previously in app.scss
+// Styles now defined in _theme.scss with fixed sidebar
+.wms-shell {
+  min-height: 100vh;
+}
+
+.wms-main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wms-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}

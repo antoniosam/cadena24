@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -9,6 +10,9 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: isProd ? ['error', 'warn', 'log'] : ['error', 'warn', 'log', 'debug', 'verbose'],
   });
+
+  // Cookie parser middleware (needed for HTTP-only cookie auth)
+  app.use(cookieParser());
 
   // Global prefix
   app.setGlobalPrefix('api');

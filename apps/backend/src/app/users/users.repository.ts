@@ -128,4 +128,18 @@ export class UsersRepository {
     const count = await this.prisma.user.count({ where: { id } });
     return count > 0;
   }
+
+  async updateRefreshToken(id: number, hashedToken: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { refreshToken: hashedToken },
+    });
+  }
+
+  async clearRefreshToken(id: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { refreshToken: null },
+    });
+  }
 }
