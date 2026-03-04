@@ -1,0 +1,911 @@
+// ============================================================
+//  Cadena24 WMS — Consideraciones Adicionales del Tema
+//  Archivo: _theme-additional.scss
+//
+//  PROPÓSITO: Cubrir aspectos visuales que NO se resuelven
+//  únicamente con variables Bootstrap y que requieren
+//  implementación explícita en los componentes Angular.
+//
+//  ESTE ARCHIVO ES UN CONTRATO DE DISEÑO:
+//  Cada sección documenta:
+//    ① Qué hace el template original
+//    ② Qué necesitamos en Angular/Bootstrap
+//    ③ Clases CSS listas para usar (cuando aplica)
+//    ④ Notas de implementación para el componente Angular
+//
+//  ÍNDICE:
+//    1.  Google Fonts & Material Symbols (carga)
+//    2.  Dark Mode (estrategia)
+//    3.  Scrollbar custom (sidebar)
+//    4.  Skeleton / loading states
+//    5.  Chart containers (bar chart, line chart SVG)
+//    6.  Progress list (project status pattern)
+//    7.  Topbar user profile widget
+//    8.  Sidebar storage widget
+//    9.  Empty states
+//    10. Transitions de página (Angular router)
+//    11. Responsive (breakpoints Bootstrap usados)
+//    12. Accesibilidad (focus visible)
+//    13. Print styles (ocultar chrome)
+//    14. Angular CDK (overlay z-index sync)
+// ============================================================
+
+// ══════════════════════════════════════════════════════════════
+// 1. GOOGLE FONTS & MATERIAL SYMBOLS
+// ══════════════════════════════════════════════════════════════
+//
+// Los 5 templates cargan desde Google Fonts CDN:
+//   - Inter: wght 300..700
+//   - Material Symbols Outlined: wght 100..700, FILL 0..1
+//
+// ⚠ ACCIÓN REQUERIDA en index.html:
+//   Agregar en <head> ANTES del bundle Angular para evitar FOUT:
+//
+//   <link rel="preconnect" href="https://fonts.googleapis.com">
+//   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+//   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+//   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+//
+// ⚠ ALTERNATIVA offline (recomendada para producción):
+//   Descargar fuentes y servir desde /assets/fonts/
+//   Referenciando con @font-face en este mismo SCSS.
+//   Esto evita dependencia de red y mejora LCP.
+//
+// Configuración de variantes para Material Symbols:
+.material-symbols-outlined {
+  // Estilo "filled" para íconos activos (sidebar active, CTA)
+  &.icon-filled {
+    font-variation-settings:
+      'FILL' 1,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+
+  // Estilo "light" para íconos secundarios
+  &.icon-light {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 2. DARK MODE
+// ══════════════════════════════════════════════════════════════
+//
+// Todos los templates usan <html class="dark"> para activar dark mode.
+// Bootstrap 5 usa data-bs-theme="dark" en su data attribute API.
+//
+// ESTRATEGIA para Angular:
+//   a) Añadir clase "dark" al <html> dinámicamente vía ThemeService
+//   b) Usar [data-bs-theme] en Bootstrap 5.3+ O sobreescribir con CSS custom
+//
+// Los templates definen estas equivalencias de colores en dark:
+//   --wms-surface:          #1e293b  (slate-800)
+//   --wms-bg:               #101922  (background-dark)
+//   --wms-border:           #334155  (slate-700)
+//   --wms-text:             #f1f5f9  (slate-100)
+//   --wms-text-muted:       #94a3b8  (slate-400)
+//   --wms-topbar-bg:        rgba(16, 25, 34, 0.9)
+//   --wms-sidebar-bg:       #0f172a  (sin cambio — ya es oscuro)
+//
+// ⚠ ACCIÓN REQUERIDA — Crear ThemeService:
+//   apps/frontend/src/app/core/services/theme.service.ts
+//
+//   Responsabilidades:
+//     - toggleTheme(): void
+//     - isDark$: Signal<boolean>
+//     - Persistir en localStorage
+//     - Aplicar clase 'dark' al <html> element
+
+// CSS para dark mode usando clase .dark en <html>
+// Se aplica cuando html.dark
+html.dark {
+  // Reemplazar tokens CSS en dark
+  --wms-surface: #1e293b;
+  --wms-surface-dark: #0f172a;
+  --wms-bg-light: #101922;
+  --wms-topbar-bg: rgba(16, 25, 34, 0.9);
+  --wms-topbar-border: #334155;
+  --wms-card-border: #334155;
+  --wms-border: #334155;
+  --wms-text: #f1f5f9;
+  --wms-text-muted: #94a3b8;
+  --wms-text-faint: #64748b;
+
+  // Body
+  body {
+    background-color: #101922;
+    color: #f1f5f9;
+  }
+
+  // Cards
+  .card {
+    background-color: #1e293b;
+    border-color: #334155;
+
+    .card-footer {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  // Topbar
+  .wms-topbar {
+    background-color: rgba(16, 25, 34, 0.9);
+    border-color: #334155;
+  }
+
+  .navbar.navbar-light,
+  .navbar.bg-white {
+    background-color: rgba(16, 25, 34, 0.9) !important;
+  }
+
+  // Content background
+  .wms-content {
+    background-color: #101922;
+  }
+
+  // Tables en dark
+  .table > tbody > tr > td {
+    color: #f1f5f9;
+    border-color: #1e293b;
+  }
+
+  .table > thead > tr > th {
+    color: #94a3b8;
+    border-color: #334155;
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  // Forms en dark
+  .form-control,
+  .form-select {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+
+    &:focus {
+      background-color: #334155;
+    }
+
+    &::placeholder {
+      color: #64748b;
+    }
+  }
+
+  // Modal en dark
+  .modal-content {
+    background-color: #1e293b;
+    border-color: rgba(19, 127, 236, 0.25);
+  }
+
+  .modal-header,
+  .modal-footer {
+    border-color: #334155;
+  }
+
+  .modal-footer {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  // Dropdowns en dark
+  .dropdown-menu {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .dropdown-item {
+    color: #cbd5e1;
+
+    &:hover {
+      background-color: rgba(19, 127, 236, 0.12);
+    }
+  }
+
+  // Badges de estado (fondos semitransparentes — ya funcionan en dark)
+  // Solo ajustar badges de Bootstrap sólidos
+  .badge.bg-light {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  // Input groups
+  .input-group-text {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #64748b;
+  }
+
+  // Page title
+  .page-header .page-title {
+    color: #f1f5f9;
+  }
+
+  // Confirm modal
+  .modal-confirm .confirm-title {
+    color: #f1f5f9;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 3. SCROLLBARS CUSTOM
+// ══════════════════════════════════════════════════════════════
+//
+// Template sidebar: overflow-y: auto, scrollbar implícito
+// Aplicar scrollbar fino en zonas de scroll del app
+
+// Sidebar ya está cubierto en _theme.scss
+// Aquí aplicamos a zonas de contenido dinámico
+
+.wms-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.4);
+    border-radius: 3px;
+
+    &:hover {
+      background-color: rgba(148, 163, 184, 0.6);
+    }
+  }
+}
+
+// Tablas con overflow-x
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+
+  &::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 4. SKELETON / LOADING STATES
+// ══════════════════════════════════════════════════════════════
+//
+// Template confirmation_dialog muestra un fondo skeleton (gris)
+// mientras el modal está en primer plano.
+// Usar en Angular con *ngIf + @defer o señales de loading.
+
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 0%, #f1f5f9 40%, #e2e8f0 60%, #e2e8f0 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 0.375rem;
+  display: block;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+html.dark .skeleton {
+  background: linear-gradient(90deg, #1e293b 0%, #334155 40%, #1e293b 60%, #1e293b 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+// Variantes de skeleton para distintos elementos
+.skeleton-text {
+  height: 0.875rem;
+  width: 100%;
+}
+.skeleton-title {
+  height: 1.5rem;
+  width: 60%;
+}
+.skeleton-card {
+  height: 120px;
+  width: 100%;
+  border-radius: 0.75rem;
+}
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.skeleton-badge {
+  height: 1.25rem;
+  width: 60px;
+  border-radius: 9999px;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 5. CHART CONTAINERS
+// ══════════════════════════════════════════════════════════════
+//
+// Los templates incluyen:
+//   - Bar chart: divs como columnas (minimalist_modern_dashboard)
+//   - Line chart SVG: gradiente bajo la línea (professional_admin)
+//
+// Cadena24 usará Chart.js o ng2-charts.
+// Estos wrappers garantizan que los charts llenen el espacio
+// y manejen correctamente el dark mode.
+//
+// ⚠ ACCIÓN REQUERIDA:
+//   Instalar: npm install ng2-charts chart.js
+//   Importar: provideCharts() en app.config.ts
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+
+  &.chart-h-48 {
+    height: 12rem;
+  }
+  &.chart-h-64 {
+    height: 16rem;
+  }
+  &.chart-h-80 {
+    height: 20rem;
+  }
+
+  canvas {
+    display: block;
+    width: 100% !important;
+    max-height: 100%;
+  }
+}
+
+// Leyenda de chart (template: dot + label)
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--wms-text-muted);
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+// Period selector (template: 6M / 1Y botones)
+.chart-period-selector {
+  display: flex;
+  gap: 0.25rem;
+
+  button {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    border: none;
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.1s ease;
+
+    &.active,
+    &:hover {
+      background-color: var(--wms-primary);
+      color: #ffffff;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 6. PROGRESS LIST (Project Status pattern)
+// ══════════════════════════════════════════════════════════════
+//
+// Template minimalist_modern_dashboard: lista de proyectos con
+// avatar inicial coloreado + nombre + barra de progreso + %
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.progress-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  .pli-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .pli-body {
+    flex: 1;
+    min-width: 0;
+
+    .pli-name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--wms-text);
+      margin-bottom: 0.375rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pli-bar {
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+
+      .pli-fill {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 0.6s ease;
+      }
+    }
+  }
+
+  .pli-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--wms-text-muted);
+    flex-shrink: 0;
+    min-width: 2.5rem;
+    text-align: right;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 7. TOPBAR USER PROFILE WIDGET
+// ══════════════════════════════════════════════════════════════
+//
+// Template: nombre + rol (alineado a la derecha) + avatar circular
+// Presente en los 3 dashboards con variaciones menores.
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: var(--wms-transition);
+
+  &:hover {
+    background-color: rgba(19, 127, 236, 0.06);
+  }
+
+  .user-info {
+    text-align: right;
+
+    .user-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--wms-text);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: var(--wms-text-muted);
+      line-height: 1.2;
+    }
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(19, 127, 236, 0.2);
+    background-color: #e2e8f0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 8. SIDEBAR STORAGE WIDGET
+// ══════════════════════════════════════════════════════════════
+// Template professional_admin: caja en footer del sidebar con
+// barra de progreso de storage y botón logout
+
+// Ya cubierto como .sidebar-storage en _theme.scss
+// Aquí agregamos el botón logout específico
+
+.sidebar-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171; // red-400
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--wms-transition);
+  text-decoration: none;
+
+  &:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 9. EMPTY STATES
+// ══════════════════════════════════════════════════════════════
+//
+// No presente en los templates pero necesario en el sistema WMS
+// para listas vacías de módulos (clientes, productos, etc.)
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: #94a3b8;
+    margin-bottom: 1.25rem;
+  }
+
+  .empty-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-text {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    max-width: 280px;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 10. ANGULAR ROUTER TRANSITIONS
+// ══════════════════════════════════════════════════════════════
+//
+// Los templates no tienen transiciones de página, pero para una
+// experiencia profesional se recomienda fade entre rutas.
+//
+// ⚠ ACCIÓN REQUERIDA en app.config.ts:
+//   Activar animations: provideAnimations()
+//
+// ⚠ ACCIÓN REQUERIDA en el router outlet host component:
+//   Añadir trigger de animación Angular (ver docs)
+//
+// Mientras tanto, CSS para transición sin animations module:
+
+.router-outlet-container {
+  animation: pageFadeIn 0.15s ease-out;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 11. RESPONSIVE — BREAKPOINTS EN USO
+// ══════════════════════════════════════════════════════════════
+//
+// Los templates usan Tailwind breakpoints. Mapeo a Bootstrap:
+//   sm (640px)  → Bootstrap sm (576px)  — cards apiladas
+//   md (768px)  → Bootstrap md (768px)  — grid 2-col
+//   lg (1024px) → Bootstrap lg (992px)  — grid 3-4 col, sidebar visible
+//   xl (1280px) → Bootstrap xl (1200px) — layout completo
+//
+// SIDEBAR RESPONSIVO:
+// En mobile el sidebar debe ocultarse y activarse con offcanvas Bootstrap.
+//
+// ⚠ ACCIÓN REQUERIDA en sidebar.component.ts:
+//   Usar Bootstrap Offcanvas en <992px
+//   Añadir botón hamburguesa en topbar
+
+@media (max-width: 991.98px) {
+  // Ocultar sidebar fijo en mobile — usar offcanvas
+  .wms-sidebar {
+    display: none;
+  }
+
+  .wms-main {
+    margin-left: 0 !important;
+  }
+
+  // Topbar — alinear hamburguesa
+  .wms-topbar {
+    padding: 0 1rem;
+  }
+
+  // Content — menos padding en mobile
+  .wms-content {
+    padding: 1rem;
+  }
+
+  // Page header — apilar en mobile
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  // Stat cards: 1 columna en mobile
+  .stat-card .stat-value {
+    font-size: 1.375rem;
+  }
+
+  // Modal full-width en mobile
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  // Login card sin margen extremo
+  .login-card {
+    border-radius: 0.75rem;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 12. ACCESIBILIDAD — FOCUS VISIBLE
+// ══════════════════════════════════════════════════════════════
+//
+// Los templates quitan el focus outline nativo (focus:outline-none).
+// Necesitamos un outline visible accesible para navegación con teclado.
+
+:focus-visible {
+  outline: 2px solid var(--wms-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+// Botones: el ring de focus es consistente con el template
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--wms-primary-15) !important;
+  outline: none;
+}
+
+// Links en sidebar
+.sidebar-link:focus-visible {
+  outline: 2px solid var(--wms-primary);
+  outline-offset: -2px;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 13. PRINT STYLES
+// ══════════════════════════════════════════════════════════════
+
+@media print {
+  .wms-sidebar,
+  .wms-topbar,
+  .btn,
+  .modal-footer,
+  .page-actions,
+  .chart-period-selector,
+  nav {
+    display: none !important;
+  }
+
+  .wms-main {
+    margin-left: 0 !important;
+  }
+
+  .wms-content {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    break-inside: avoid;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// 14. ANGULAR CDK — Z-INDEX SYNC
+// ══════════════════════════════════════════════════════════════
+//
+// Si se usa Angular CDK (Overlay, Dialog, Select), sus overlays
+// se renderizan fuera del DOM del componente.
+// Asegurar que los z-index sean coherentes con Bootstrap.
+//
+// ⚠ ACCIÓN REQUERIDA si se usa Angular Material/CDK:
+//   Copiar estos valores en el theme de Angular Material
+
+.cdk-overlay-container {
+  z-index: 1060; // Igual que .modal en Bootstrap
+}
+
+.cdk-overlay-backdrop {
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+// ══════════════════════════════════════════════════════════════
+// 15. TOASTS / NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+//
+// El template confirmation_dialog usa un modal de éxito.
+// Para notificaciones no-blocking (toast), usar Bootstrap Toast.
+// El estilo debe ser coherente con los badges de estado.
+
+.toast {
+  border-radius: 0.625rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 280px;
+
+  &.toast-success {
+    background-color: #ffffff;
+    border-left: 4px solid #22c55e;
+
+    .toast-header {
+      color: #16a34a;
+      font-weight: 700;
+    }
+  }
+
+  &.toast-danger {
+    background-color: #ffffff;
+    border-left: 4px solid #ef4444;
+
+    .toast-header {
+      color: #dc2626;
+      font-weight: 700;
+    }
+  }
+
+  &.toast-warning {
+    background-color: #ffffff;
+    border-left: 4px solid #f59e0b;
+
+    .toast-header {
+      color: #d97706;
+      font-weight: 700;
+    }
+  }
+}
+
+// Toast container position (arriba a la derecha — estándar admin)
+.toast-container {
+  position: fixed;
+  top: calc(var(--wms-topbar-height) + 1rem);
+  right: 1.5rem;
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 16. TABLAS — ACCIONES DE FILA
+// ══════════════════════════════════════════════════════════════
+//
+// Template: botón more_vert en última columna
+// Patrón: aparece al hover de la fila + dropdown
+
+.table-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+tr:hover .table-actions {
+  opacity: 1;
+}
+
+// Columna de acciones — siempre a la derecha
+.col-actions {
+  width: 48px;
+  text-align: center;
+  padding-right: 1rem !important;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 17. NOTAS DE IMPLEMENTACIÓN ANGULAR
+// ══════════════════════════════════════════════════════════════
+//
+// Resumen de cambios necesarios en los archivos Angular:
+//
+// apps/frontend/src/index.html
+//   - Añadir preconnect + Google Fonts links (ver sección 1)
+//   - Añadir class="dark" o [class.dark] dinámico al <html>
+//
+// apps/frontend/src/app/core/services/theme.service.ts (CREAR)
+//   - Signal isDark = signal(false)
+//   - toggleTheme() → modifica document.documentElement.classList
+//   - Persistir en localStorage
+//
+// apps/frontend/src/app/layout/navbar/ (MODIFICAR)
+//   - Usar .wms-topbar + .wms-search + .topbar-user
+//   - Añadir botón hamburguesa para <lg
+//   - Integrar ThemeService para toggle dark mode
+//
+// apps/frontend/src/app/layout/ (CREAR sidebar.component.ts)
+//   - Usar .wms-sidebar + .sidebar-brand + .sidebar-nav
+//   - RouterLink con .sidebar-link [routerLinkActive]="'active'"
+//   - Offcanvas Bootstrap para mobile
+//   - Usar .sidebar-footer + .sidebar-storage + .sidebar-logout-btn
+//
+// apps/frontend/src/app/pages/ (cada page component)
+//   - Wrap con .wms-shell > .wms-sidebar + .wms-main > .wms-topbar + .wms-content
+//   - O bien layout compartido via router outlet con layout component
+//
+// Componente stat-card (CREAR como componente reutilizable)
+//   - apps/frontend/src/app/shared/components/stat-card/
+//   - Inputs: @Input() label, value, trend, trendDir, icon, iconColor
+//   - Usar .stat-card con variantes de color
+//
+// Componente confirm-modal (CREAR como componente reutilizable)
+//   - apps/frontend/src/app/shared/components/confirm-modal/
+//   - Inputs: title, text, icon, type ('success'|'danger'|'warning')
+//   - Outputs: confirmed, cancelled
+//   - Usar .modal-confirm con icono grande centrado

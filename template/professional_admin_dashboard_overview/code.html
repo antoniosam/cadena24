@@ -1,0 +1,555 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Professional Admin Dashboard Overview</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#137fec',
+              'background-light': '#f6f7f8',
+              'background-dark': '#101922',
+            },
+            fontFamily: {
+              display: ['Inter', 'sans-serif'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .sidebar-item-active {
+        background-color: rgba(19, 127, 236, 0.15);
+        border-left: 4px solid #137fec;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300"
+  >
+    <div class="flex h-screen overflow-hidden">
+      <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
+        <div class="p-6 flex items-center gap-3">
+          <div class="bg-primary rounded-lg p-1.5 flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+          </div>
+          <div class="flex flex-col">
+            <h1 class="text-white text-lg font-bold leading-none">AdminPro</h1>
+            <p class="text-slate-400 text-xs mt-1">Enterprise Edition</p>
+          </div>
+        </div>
+        <nav class="flex-1 px-4 space-y-1 mt-4">
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white sidebar-item-active"
+            href="#"
+          >
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="text-sm font-medium">Dashboard</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">analytics</span>
+            <span class="text-sm font-medium">Analytics</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span class="text-sm font-medium">Orders</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">group</span>
+            <span class="text-sm font-medium">Users</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">description</span>
+            <span class="text-sm font-medium">Reports</span>
+          </a>
+          <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            Support
+          </div>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">settings</span>
+            <span class="text-sm font-medium">Settings</span>
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">help</span>
+            <span class="text-sm font-medium">Help Center</span>
+          </a>
+        </nav>
+        <div class="p-4 mt-auto">
+          <div class="bg-slate-800/50 rounded-xl p-4 mb-4">
+            <p class="text-xs text-slate-400 mb-2">Used Storage</p>
+            <div class="w-full bg-slate-700 rounded-full h-1.5 mb-2">
+              <div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
+            </div>
+            <p class="text-[10px] text-slate-500 text-right">6.5 GB / 10 GB</p>
+          </div>
+          <button
+            class="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-medium text-sm transition-all"
+          >
+            <span class="material-symbols-outlined text-sm">logout</span>
+            Logout
+          </button>
+        </div>
+      </aside>
+      <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header
+          class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 shrink-0"
+        >
+          <div class="flex items-center gap-4 flex-1">
+            <div class="relative w-full max-w-md">
+              <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+                >search</span
+              >
+              <input
+                class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-slate-100 placeholder:text-slate-500"
+                placeholder="Search analytics, orders, or users..."
+                type="text"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              class="flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button
+              class="flex items-center justify-center w-10 h-10 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <span class="material-symbols-outlined">chat_bubble</span>
+            </button>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
+            <div class="flex items-center gap-3 cursor-pointer group">
+              <div class="text-right hidden sm:block">
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">
+                  Alexander Wright
+                </p>
+                <p class="text-xs text-slate-500 mt-1">Super Admin</p>
+              </div>
+              <div
+                class="w-10 h-10 rounded-full border-2 border-primary/20 bg-slate-200 overflow-hidden bg-cover bg-center"
+                data-alt="User profile picture of a professional man"
+                style="
+                  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCTacdMvijSyh_kFAcGJCaVXXafCxS2a_FKxProqZ57l9VYz9ysiK6PAoMrU8lYS6ayM9n_wZcUSkHcioWBN3kPlptvFiFNJ99Clc5geErYojaGqOXpJOiGfzYs02ySIzUOrSmUrevjZ3IPBhj-_ZIpoLE2q1lqTOsg8nkJzjR3-vnrQe9wUgr9nihVdGrLuDTDU4_qHVE6Qy05VNa8BTEVNnI7xLBLUj367ZfyNkM0M7x8gdRANbesSMDY6hu-zkQzLzAeDtlfFg');
+                "
+              ></div>
+            </div>
+          </div>
+        </header>
+        <div
+          class="flex-1 overflow-y-auto p-8 space-y-8 bg-background-light dark:bg-background-dark"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                Dashboard Overview
+              </h2>
+              <p class="text-slate-500 text-sm mt-1">
+                Welcome back, here's what's happening with your business today.
+              </p>
+            </div>
+            <div class="flex gap-3">
+              <button
+                class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-lg">calendar_today</span>
+                Past 30 Days
+              </button>
+              <button
+                class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-lg">download</span>
+                Export Report
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">
+                    Total Revenue
+                  </p>
+                  <h3 class="text-2xl font-bold mt-2">$54,230.00</h3>
+                </div>
+                <div
+                  class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500"
+                >
+                  <span class="material-symbols-outlined">payments</span>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center gap-2">
+                <span class="text-emerald-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_up</span>
+                  +5.2%
+                </span>
+                <span class="text-slate-400 text-xs italic">from last month</span>
+              </div>
+            </div>
+            <div
+              class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">
+                    Active Users
+                  </p>
+                  <h3 class="text-2xl font-bold mt-2">12,845</h3>
+                </div>
+                <div
+                  class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500"
+                >
+                  <span class="material-symbols-outlined">group</span>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center gap-2">
+                <span class="text-emerald-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_up</span>
+                  +3.1%
+                </span>
+                <span class="text-slate-400 text-xs italic">new registrations</span>
+              </div>
+            </div>
+            <div
+              class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">
+                    New Orders
+                  </p>
+                  <h3 class="text-2xl font-bold mt-2">452</h3>
+                </div>
+                <div
+                  class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500"
+                >
+                  <span class="material-symbols-outlined">shopping_basket</span>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center gap-2">
+                <span class="text-rose-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_down</span>
+                  -0.8%
+                </span>
+                <span class="text-slate-400 text-xs italic">vs yesterday</span>
+              </div>
+            </div>
+            <div
+              class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-slate-500 text-sm font-medium uppercase tracking-wider">
+                    Growth Rate
+                  </p>
+                  <h3 class="text-2xl font-bold mt-2">+12.5%</h3>
+                </div>
+                <div
+                  class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500"
+                >
+                  <span class="material-symbols-outlined">insights</span>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center gap-2">
+                <span class="text-emerald-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_up</span>
+                  +2.4%
+                </span>
+                <span class="text-slate-400 text-xs italic">target reached</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+          >
+            <div class="flex items-center justify-between mb-8">
+              <div>
+                <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100">
+                  Performance Over Time
+                </h4>
+                <p class="text-slate-500 text-sm">
+                  Revenue trends across major regions for the current fiscal year
+                </p>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-primary"></span>
+                  <span class="text-xs font-medium text-slate-600 dark:text-slate-400"
+                    >Net Profit</span
+                  >
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                  <span class="text-xs font-medium text-slate-600 dark:text-slate-400"
+                    >Expenses</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="h-64 w-full relative">
+              <svg class="w-full h-full overflow-visible" viewbox="0 0 1000 200">
+                <defs>
+                  <lineargradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                    <stop offset="0%" style="stop-color: rgba(19, 127, 236, 0.2)"></stop>
+                    <stop offset="100%" style="stop-color: rgba(19, 127, 236, 0)"></stop>
+                  </lineargradient>
+                </defs>
+                <path
+                  d="M0,150 Q100,140 200,100 T400,120 T600,60 T800,80 T1000,30 L1000,200 L0,200 Z"
+                  fill="url(#chartGradient)"
+                ></path>
+                <path
+                  d="M0,150 Q100,140 200,100 T400,120 T600,60 T800,80 T1000,30"
+                  fill="none"
+                  stroke="#137fec"
+                  stroke-linecap="round"
+                  stroke-width="4"
+                ></path>
+                <circle
+                  cx="200"
+                  cy="100"
+                  fill="#137fec"
+                  r="6"
+                  stroke="#fff"
+                  stroke-width="2"
+                ></circle>
+                <circle
+                  cx="600"
+                  cy="60"
+                  fill="#137fec"
+                  r="6"
+                  stroke="#fff"
+                  stroke-width="2"
+                ></circle>
+                <circle
+                  cx="1000"
+                  cy="30"
+                  fill="#137fec"
+                  r="6"
+                  stroke="#fff"
+                  stroke-width="2"
+                ></circle>
+              </svg>
+            </div>
+            <div
+              class="flex justify-between mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest px-2"
+            >
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+              <span>Sep</span>
+              <span>Oct</span>
+              <span>Nov</span>
+              <span>Dec</span>
+            </div>
+          </div>
+          <div
+            class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+          >
+            <div
+              class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between"
+            >
+              <h4 class="text-lg font-bold text-slate-900 dark:text-slate-100">Recent Activity</h4>
+              <button class="text-primary text-sm font-bold hover:underline">
+                View All Activity
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead
+                  class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 uppercase text-[10px] font-bold tracking-wider"
+                >
+                  <tr>
+                    <th class="px-6 py-4">Transaction ID</th>
+                    <th class="px-6 py-4">Customer</th>
+                    <th class="px-6 py-4">Date</th>
+                    <th class="px-6 py-4">Amount</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">
+                      #TR-8821
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold"
+                        >
+                          JD
+                        </div>
+                        <span class="text-sm font-medium text-slate-900 dark:text-slate-100"
+                          >Jane Doe</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">Oct 24, 2023</td>
+                    <td class="px-6 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">
+                      $1,240.00
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[11px] font-bold"
+                        >Completed</span
+                      >
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">
+                      #TR-8822
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 text-xs font-bold"
+                        >
+                          MS
+                        </div>
+                        <span class="text-sm font-medium text-slate-900 dark:text-slate-100"
+                          >Marcus Smith</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">Oct 23, 2023</td>
+                    <td class="px-6 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">
+                      $850.00
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[11px] font-bold"
+                        >Pending</span
+                      >
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">
+                      #TR-8823
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs font-bold"
+                        >
+                          AH
+                        </div>
+                        <span class="text-sm font-medium text-slate-900 dark:text-slate-100"
+                          >Alice Hoffman</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">Oct 23, 2023</td>
+                    <td class="px-6 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">
+                      $2,100.00
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-full text-[11px] font-bold"
+                        >Completed</span
+                      >
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">
+                      #TR-8824
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 text-xs font-bold"
+                        >
+                          RK
+                        </div>
+                        <span class="text-sm font-medium text-slate-900 dark:text-slate-100"
+                          >Robert King</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">Oct 22, 2023</td>
+                    <td class="px-6 py-4 text-sm font-bold text-slate-900 dark:text-slate-100">
+                      $45.00
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-3 py-1 bg-rose-500/10 text-rose-500 rounded-full text-[11px] font-bold"
+                        >Failed</span
+                      >
+                    </td>
+                    <td class="px-6 py-4">
+                      <button class="text-slate-400 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">more_vert</span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

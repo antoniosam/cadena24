@@ -1,46 +1,267 @@
-/* Global styles for Cadena24 WMS */
+// ============================================================
+//  Cadena24 WMS — Global Stylesheet Entry Point
+//  Archivo: styles.scss
+//
+//  ORDEN DE IMPORTACIÓN (CRÍTICO — no alterar):
+//
+//  1. _theme.scss  →  Variables Bootstrap SCSS (Parte A)
+//                     deben ir ANTES de @import bootstrap
+//  2. bootstrap    →  Framework base
+//  3. bootstrap-icons
+//  4. Google Fonts (inter)
+//  5. _theme.scss  →  Component overrides CSS (Parte B)
+//                     van DESPUÉS de bootstrap
+//  6. _theme-additional.scss → Dark mode, responsive, extras
+//
+//  ⚠  NO mover las importaciones de orden.
+//     Las variables SCSS de _theme.scss tienen efecto sólo
+//     si van antes de @import 'bootstrap/scss/bootstrap'.
+//     Los overrides CSS van siempre DESPUÉS de bootstrap.
+//
+//  Template de referencia: /template/*.html (5 screens)
+//  Estrategia: Bootstrap override + clases WMS custom
+// ============================================================
 
-/* Bootstrap */
+// ── PASO 1: Variables Bootstrap (de _theme.scss Parte A)
+//            Se extraen como forward para que Bootstrap las recoja.
+//            @use no funciona bien con Bootstrap SCSS legacy —
+//            usamos @import con el truco de partial.
+// ============================================================
+
+// Importar SÓLO las variables del tema (Parte A de _theme.scss)
+// mediante un forward explícito de las variables antes de Bootstrap.
+// Como _theme.scss contiene TANTO variables como CSS rules,
+// importamos con @use sólo las variables aquí:
+
+// Primary color — template usa #137fec en 4/5 screens
+$primary: #137fec;
+$secondary: #64748b;
+$success: #22c55e;
+$danger: #ef4444;
+$warning: #f59e0b;
+$info: #06b6d4;
+$light: #f6f7f8;
+$dark: #101922;
+
+$body-bg: #f6f7f8;
+$body-color: #0f172a;
+
+// Typography
+$font-family-sans-serif:
+  'Inter',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  sans-serif;
+$font-size-base: 0.875rem;
+$font-weight-normal: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$line-height-base: 1.5;
+$headings-font-weight: 700;
+
+// Border radius
+$border-radius: 0.375rem;
+$border-radius-sm: 0.25rem;
+$border-radius-lg: 0.5rem;
+$border-radius-xl: 0.75rem;
+$border-radius-pill: 9999px;
+
+// Shadows
+$box-shadow-sm:
+  0 1px 3px rgba(0, 0, 0, 0.06),
+  0 1px 2px rgba(0, 0, 0, 0.04);
+$box-shadow:
+  0 4px 6px rgba(0, 0, 0, 0.07),
+  0 2px 4px rgba(0, 0, 0, 0.05);
+$box-shadow-lg:
+  0 10px 25px rgba(0, 0, 0, 0.1),
+  0 4px 10px rgba(0, 0, 0, 0.06);
+
+// Transitions
+$transition-base: all 0.15s ease-in-out;
+$transition-fade: opacity 0.15s linear;
+
+// Links
+$link-color: $primary;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+// Navbar
+$navbar-padding-y: 0;
+$navbar-padding-x: 2rem;
+$navbar-brand-font-size: 1rem;
+$navbar-dark-color: rgba(255, 255, 255, 0.7);
+$navbar-dark-hover-color: #ffffff;
+$navbar-dark-active-color: #ffffff;
+$navbar-light-color: #334155;
+$navbar-light-hover-color: $primary;
+$navbar-light-active-color: $primary;
+
+// Cards
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.5rem;
+$card-border-radius: $border-radius-xl;
+$card-border-color: #e2e8f0;
+$card-box-shadow: $box-shadow-sm;
+$card-cap-bg: transparent;
+$card-cap-padding-y: 1rem;
+$card-cap-padding-x: 1.5rem;
+$card-bg: #ffffff;
+
+// Buttons
+$btn-padding-y: 0.5rem;
+$btn-padding-x: 1rem;
+$btn-font-size: 0.875rem;
+$btn-font-weight: 600;
+$btn-border-radius: $border-radius-lg;
+$btn-padding-y-sm: 0.375rem;
+$btn-padding-x-sm: 0.75rem;
+$btn-font-size-sm: 0.8125rem;
+$btn-border-radius-sm: $border-radius;
+$btn-padding-y-lg: 0.625rem;
+$btn-padding-x-lg: 1.25rem;
+$btn-border-radius-lg: $border-radius-xl;
+$btn-transition: $transition-base;
+$btn-focus-width: 0;
+$btn-box-shadow: none;
+
+// Inputs
+$input-padding-y: 0.5rem;
+$input-padding-x: 0.875rem;
+$input-font-size: 0.875rem;
+$input-bg: #f1f5f9;
+$input-disabled-bg: #e2e8f0;
+$input-border-color: transparent;
+$input-border-width: 1.5px;
+$input-border-radius: $border-radius-lg;
+$input-border-radius-sm: $border-radius;
+$input-border-radius-lg: $border-radius-lg;
+$input-focus-bg: #ffffff;
+$input-focus-border-color: $primary;
+$input-focus-box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.15);
+$input-placeholder-color: #94a3b8;
+$input-color: #0f172a;
+
+// Form labels
+$form-label-font-weight: 600;
+$form-label-font-size: 0.8125rem;
+$form-label-color: #334155;
+$form-label-margin-bottom: 0.375rem;
+
+// Form checks
+$form-check-input-bg: #f1f5f9;
+$form-check-input-border: 1px solid #94a3b8;
+$form-check-input-checked-bg-color: $primary;
+$form-check-input-checked-border-color: $primary;
+$form-check-input-focus-box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.15);
+
+// Input groups
+$input-group-addon-bg: #f1f5f9;
+$input-group-addon-border-color: transparent;
+$input-group-addon-color: #94a3b8;
+
+// Tables
+$table-cell-padding-y: 0.875rem;
+$table-cell-padding-x: 1rem;
+$table-cell-padding-y-sm: 0.5rem;
+$table-cell-padding-x-sm: 0.75rem;
+$table-bg: transparent;
+$table-striped-bg-factor: 0.025;
+$table-hover-bg-factor: 0.035;
+$table-border-color: #e2e8f0;
+$table-th-font-weight: 600;
+
+// Modals
+$modal-content-border-radius: $border-radius-xl;
+$modal-content-border-color: rgba(19, 127, 236, 0.2);
+$modal-content-box-shadow-xs: 0 20px 50px rgba(0, 0, 0, 0.25);
+$modal-content-box-shadow-sm-up: 0 20px 50px rgba(0, 0, 0, 0.3);
+$modal-backdrop-bg: #0f172a;
+$modal-backdrop-opacity: 0.65;
+$modal-header-border-color: #e2e8f0;
+$modal-header-padding-y: 1.25rem;
+$modal-header-padding-x: 1.5rem;
+$modal-inner-padding: 1.5rem;
+$modal-footer-border-color: #e2e8f0;
+$modal-sm: 400px;
+$modal-md: 600px;
+$modal-lg: 900px;
+
+// Badges
+$badge-font-size: 0.6875rem;
+$badge-font-weight: 700;
+$badge-padding-y: 0.35em;
+$badge-padding-x: 0.75em;
+$badge-border-radius: $border-radius-pill;
+
+// Alerts
+$alert-border-radius: $border-radius-lg;
+$alert-border-width: 0;
+$alert-padding-y: 0.875rem;
+$alert-padding-x: 1rem;
+
+// Dropdowns
+$dropdown-min-width: 10rem;
+$dropdown-padding-x: 0.375rem;
+$dropdown-padding-y: 0.375rem;
+$dropdown-font-size: 0.875rem;
+$dropdown-bg: #ffffff;
+$dropdown-border-color: #e2e8f0;
+$dropdown-border-radius: $border-radius-xl;
+$dropdown-border-width: 1px;
+$dropdown-box-shadow: $box-shadow-lg;
+$dropdown-link-color: #334155;
+$dropdown-link-hover-color: $primary;
+$dropdown-link-hover-bg: rgba(19, 127, 236, 0.08);
+$dropdown-link-active-color: $primary;
+$dropdown-link-active-bg: rgba(19, 127, 236, 0.12);
+$dropdown-item-padding-y: 0.5rem;
+$dropdown-item-padding-x: 0.875rem;
+$dropdown-divider-bg: #f1f5f9;
+$dropdown-divider-margin-y: 0.25rem;
+
+// Pagination
+$pagination-active-bg: $primary;
+$pagination-active-border-color: $primary;
+$pagination-hover-color: $primary;
+$pagination-hover-bg: rgba(19, 127, 236, 0.08);
+$pagination-hover-border-color: transparent;
+$pagination-disabled-color: #cbd5e1;
+$pagination-color: #334155;
+$pagination-bg: transparent;
+$pagination-border-color: #e2e8f0;
+
+// Progress
+$progress-height: 0.375rem;
+$progress-bg: #e2e8f0;
+$progress-border-radius: $border-radius-pill;
+$progress-bar-bg: $primary;
+
+// Offcanvas (mobile sidebar)
+$offcanvas-padding-y: 1.5rem;
+$offcanvas-padding-x: 1.5rem;
+$offcanvas-bg-color: #0f172a;
+$offcanvas-border-color: rgba(255, 255, 255, 0.06);
+
+// z-index
+$zindex-sticky: 100;
+$zindex-modal: 1050;
+$zindex-popover: 1060;
+$zindex-tooltip: 1070;
+
+// ── PASO 2: Bootstrap (con nuestras variables ya definidas)
+// ============================================================
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
-/* Custom variables */
-:root {
-  --primary-color: #0d6efd;
-  --secondary-color: #6c757d;
-  --success-color: #198754;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --info-color: #0dcaf0;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-}
+// ── PASO 3: Google Fonts — Inter
+// ============================================================
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Global resets */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
-body {
-  background-color: #f5f5f5;
-}
-
-/* Custom utility classes */
-.full-height {
-  height: 100vh;
-}
-
-.centered {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+// ── PASO 4: Component overrides y utilidades del tema
+//            (CSS puro — va DESPUÉS de Bootstrap)
+// ============================================================
+@import 'theme'; // _theme.scss — Parte B: component overrides
+@import 'theme-additional'; // _theme-additional.scss — dark mode, extras

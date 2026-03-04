@@ -1,0 +1,545 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Minimalist Modern Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#137fec',
+              'background-light': '#f6f7f8',
+              'background-dark': '#101922',
+            },
+            fontFamily: {
+              display: ['Inter', 'sans-serif'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display"
+  >
+    <div class="flex min-h-screen">
+      <!-- Sidebar Navigation -->
+      <aside
+        class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex flex-col fixed h-full"
+      >
+        <div class="p-6 flex items-center gap-3">
+          <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+            <span class="material-symbols-outlined">auto_graph</span>
+          </div>
+          <h1 class="text-xl font-bold tracking-tight">Nexus UI</h1>
+        </div>
+        <nav class="flex-1 px-4 space-y-1">
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium"
+            href="#"
+          >
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">assignment</span>
+            Projects
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">monitoring</span>
+            Analytics
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">group</span>
+            Team Members
+          </a>
+          <div class="pt-4 pb-2 px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            System
+          </div>
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">settings</span>
+            Settings
+          </a>
+          <a
+            class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            href="#"
+          >
+            <span class="material-symbols-outlined">help_center</span>
+            Support
+          </a>
+        </nav>
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+          <button
+            class="w-full flex items-center justify-center gap-2 bg-primary text-white py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+          >
+            <span class="material-symbols-outlined text-sm">add</span>
+            New Project
+          </button>
+        </div>
+      </aside>
+      <!-- Main Content Area -->
+      <main class="flex-1 ml-64">
+        <!-- Top Header -->
+        <header
+          class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-10 px-8 flex items-center justify-between"
+        >
+          <div class="flex items-center flex-1 max-w-md">
+            <div class="relative w-full">
+              <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+                >search</span
+              >
+              <input
+                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 text-slate-900 dark:text-slate-100"
+                placeholder="Search resources..."
+                type="text"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg relative"
+            >
+              <span class="material-symbols-outlined">notifications</span>
+              <span
+                class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"
+              ></span>
+            </button>
+            <div class="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
+            <div class="flex items-center gap-3 cursor-pointer">
+              <div class="text-right hidden sm:block">
+                <p class="text-sm font-semibold leading-none">Alex Morgan</p>
+                <p class="text-xs text-slate-500 mt-1">Administrator</p>
+              </div>
+              <div
+                class="size-10 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 overflow-hidden"
+              >
+                <img
+                  alt="Profile"
+                  class="w-full h-full object-cover"
+                  data-alt="Portrait of a professional user avatar"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuANCbbIhnO0swyJK90EqUioezkD_Lg6bjcRyEqHkOvnv2sgMtxF87O-wbD03jMtmXYtvWKzjLwhosQ5t6n28uoztJw7ySzsoQXbcosc6ZJ4iE4m9YtSpPK0W6PbDXYfLr0e5O4sSOuE5NP2Ve-R1wbOyZYNDfUGm9lgpcr-kLRFN1BHOMBkWlGklxk7Zab-I9rPBNrmAKwkd2ws8JStxte9zQd9NMQo4DhwAc64o9SiH_HLHbSaE8ttH714Ns_GlDJrSedKRf--IA"
+                />
+              </div>
+            </div>
+          </div>
+        </header>
+        <div class="p-8 space-y-8">
+          <!-- Page Title -->
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight">Performance Overview</h2>
+            <p class="text-slate-500 dark:text-slate-400">
+              Welcome back, here's what's happening today.
+            </p>
+          </div>
+          <!-- Metric Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              class="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <span class="material-symbols-outlined text-primary p-2 bg-primary/10 rounded-lg"
+                  >payments</span
+                >
+                <span class="text-emerald-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_up</span> 12%
+                </span>
+              </div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Revenue</p>
+              <p class="text-3xl font-bold mt-1">$128,430</p>
+            </div>
+            <div
+              class="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <span
+                  class="material-symbols-outlined text-purple-500 p-2 bg-purple-500/10 rounded-lg"
+                  >task_alt</span
+                >
+                <span class="text-emerald-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_up</span> 8%
+                </span>
+              </div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Active Projects</p>
+              <p class="text-3xl font-bold mt-1">42</p>
+            </div>
+            <div
+              class="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <span
+                  class="material-symbols-outlined text-amber-500 p-2 bg-amber-500/10 rounded-lg"
+                  >group_add</span
+                >
+                <span class="text-rose-500 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">trending_down</span> 3%
+                </span>
+              </div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">New Leads</p>
+              <p class="text-3xl font-bold mt-1">156</p>
+            </div>
+            <div
+              class="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <span class="material-symbols-outlined text-cyan-500 p-2 bg-cyan-500/10 rounded-lg"
+                  >timer</span
+                >
+                <span class="text-slate-400 text-xs font-bold flex items-center">
+                  <span class="material-symbols-outlined text-sm">remove</span> 0%
+                </span>
+              </div>
+              <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Avg. Response</p>
+              <p class="text-3xl font-bold mt-1">1.2h</p>
+            </div>
+          </div>
+          <!-- Main Grid Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Monthly Sales Bar Chart -->
+            <div
+              class="lg:col-span-2 p-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-center mb-8">
+                <div>
+                  <h3 class="text-lg font-bold">Revenue Distribution</h3>
+                  <p class="text-sm text-slate-500">Monthly breakdown for 2024</p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    class="px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 rounded"
+                  >
+                    6M
+                  </button>
+                  <button class="px-3 py-1 text-xs font-medium bg-primary text-white rounded">
+                    1Y
+                  </button>
+                </div>
+              </div>
+              <div class="h-64 flex items-end justify-between gap-4 px-2">
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 60%"
+                  >
+                    <div
+                      class="w-full bg-primary/40 group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 70%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">Jan</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 45%"
+                  >
+                    <div
+                      class="w-full bg-primary/40 group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 85%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">Feb</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 80%"
+                  >
+                    <div
+                      class="w-full bg-primary/40 group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 90%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">Mar</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 55%"
+                  >
+                    <div
+                      class="w-full bg-primary/40 group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 60%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">Apr</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 95%"
+                  >
+                    <div
+                      class="w-full bg-primary group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 100%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">May</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 flex-1 group">
+                  <div
+                    class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-lg relative flex items-end"
+                    style="height: 70%"
+                  >
+                    <div
+                      class="w-full bg-primary/40 group-hover:bg-primary transition-colors rounded-t-lg"
+                      style="height: 75%"
+                    ></div>
+                  </div>
+                  <span class="text-xs font-semibold text-slate-400">Jun</span>
+                </div>
+              </div>
+            </div>
+            <!-- Project Status List -->
+            <div
+              class="p-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            >
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold">Project Status</h3>
+                <button class="text-primary text-sm font-semibold hover:underline">View all</button>
+              </div>
+              <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold"
+                  >
+                    A
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold">Apollo Mobile App</p>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-2">
+                      <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 85%"></div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-slate-500">85%</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold"
+                  >
+                    N
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold">Nexus Dashboard</p>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-2">
+                      <div class="bg-primary h-1.5 rounded-full" style="width: 42%"></div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-slate-500">42%</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold"
+                  >
+                    S
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold">Saturn CRM Integration</p>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-2">
+                      <div class="bg-amber-500 h-1.5 rounded-full" style="width: 15%"></div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-slate-500">15%</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div
+                    class="size-10 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold"
+                  >
+                    V
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-sm font-bold">Venus Brand Design</p>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-2">
+                      <div class="bg-purple-500 h-1.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                  </div>
+                  <span class="material-symbols-outlined text-emerald-500 text-lg"
+                    >check_circle</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Recent Activity Table -->
+          <div
+            class="p-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+          >
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-lg font-bold">Recent Transactions</h3>
+              <div class="flex gap-2">
+                <button
+                  class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <span class="material-symbols-outlined text-sm">filter_list</span>
+                </button>
+                <button
+                  class="p-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <span class="material-symbols-outlined text-sm">file_download</span>
+                </button>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr
+                    class="text-slate-400 text-xs font-bold uppercase border-b border-slate-200 dark:border-slate-800"
+                  >
+                    <th class="pb-4 font-semibold">Client</th>
+                    <th class="pb-4 font-semibold">Status</th>
+                    <th class="pb-4 font-semibold">Date</th>
+                    <th class="pb-4 font-semibold text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr class="group">
+                    <td class="py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            alt="Client"
+                            class="w-full h-full object-cover"
+                            data-alt="Abstract minimalist company logo"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXvHhQ5zA2vxRx-Ec6dC-8mah2wJO9pFN3d4Df45V4NYAbcWzBxq2SPbWmW58Okr5-2i8eEn3r3hJc_p3H4kutkRAbVQqHD1EkNvv1nwvy7lcUm4awahOaDvh8J5Nq-BJSbLblR8DSk9Lh1T-q1kNWSFlRi0DwKEBf_35Epab0MBuDMIG579f6BtInRsPpLBe77jfGr_JksfZniBlPd5u6EG9K264xyo3etyCahl8sOfZuwBizU49cc9FhjXUXZ1D4gVCrOJyTJA"
+                          />
+                        </div>
+                        <span class="font-medium">Initech Global</span>
+                      </div>
+                    </td>
+                    <td class="py-4">
+                      <span
+                        class="px-2 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase rounded"
+                        >Completed</span
+                      >
+                    </td>
+                    <td class="py-4 text-sm text-slate-500">Oct 24, 2023</td>
+                    <td class="py-4 text-right font-bold">$12,000.00</td>
+                  </tr>
+                  <tr class="group">
+                    <td class="py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            alt="Client"
+                            class="w-full h-full object-cover"
+                            data-alt="Abstract minimalist company logo"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6RBvSqJQgkVwc1bnaPwG7xZNtxFpNRtivE4bpPkxxyX9Oyms1w7qH2yQis0__fRyuH0rpQWo56HMXdUAgBiL2GADNkhe5oacEL0z2C5XqMFr-bVlg7m39BLhgQoLcExZsjdJZCFy_BGkeqM8_sFSS2WQgFSg9EaA5AH6L35Fk6eWTA1_VW83K5_sFgZpfiAXL5oQn6Bw-FH2wZEQHf_531yfqZYzLa9vsQWBL3tooWcRHGOARK92P7hwKqfLiRcrURtE63tcQoA"
+                          />
+                        </div>
+                        <span class="font-medium">Cyberdyne Systems</span>
+                      </div>
+                    </td>
+                    <td class="py-4">
+                      <span
+                        class="px-2 py-1 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase rounded"
+                        >Pending</span
+                      >
+                    </td>
+                    <td class="py-4 text-sm text-slate-500">Oct 23, 2023</td>
+                    <td class="py-4 text-right font-bold">$4,500.00</td>
+                  </tr>
+                  <tr class="group">
+                    <td class="py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            alt="Client"
+                            class="w-full h-full object-cover"
+                            data-alt="Abstract minimalist company logo"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjT2gsotz22LmlSfm8g7kLkXOnGFSSMp9tDRyf5jG7PgOYvuud-VbbvZ6y0YinE_MYcWW1W-kTF3pxLRv27JmkQU7Mp55Ou2ELX4SMoNboD_Rvz_CzmHZryAnNt0LkBvN1dpfdrh6yIHNO_OMftbCIZtR2KS2Fcbi-oCtUNo8pvmEc21gQLJKK2GkgXQYFGU1dOMha0aBjaSPRQtO82bjHx-bP5j-MNU85gLk0vAWQ4Pi94-Ya5VQTxKyOck_55ektVtDh22XNFQ"
+                          />
+                        </div>
+                        <span class="font-medium">Stark Industries</span>
+                      </div>
+                    </td>
+                    <td class="py-4">
+                      <span
+                        class="px-2 py-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase rounded"
+                        >Completed</span
+                      >
+                    </td>
+                    <td class="py-4 text-sm text-slate-500">Oct 22, 2023</td>
+                    <td class="py-4 text-right font-bold">$32,150.00</td>
+                  </tr>
+                  <tr class="group">
+                    <td class="py-4">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            alt="Client"
+                            class="w-full h-full object-cover"
+                            data-alt="Abstract minimalist company logo"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpBD0598yMouwH05le0P0qadWLf6rJhyWgQ3LStJKWWzo0b4SDm109fdylQKaCfn9bkffVZu25dWN_VaNBoXNXZ5OPiY3dWn8Tk1LvNYXp7jB7VyaiPbV1ly_KU3YHUCCoxBBcfJPa9UfCtcf23KrCsthjDLoNpzuApfmO2JvdtaqSRaYzbGSRRh2_DQeAq2lWLrVrQZcvfYEYX_z_G8aXoURZWJdTPW4s1-ehTMkO0eYOJcccm7GUfFQPdxklCgWNaNXDTuIPBA"
+                          />
+                        </div>
+                        <span class="font-medium">Wayne Ent.</span>
+                      </div>
+                    </td>
+                    <td class="py-4">
+                      <span
+                        class="px-2 py-1 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 text-[10px] font-bold uppercase rounded"
+                        >Rejected</span
+                      >
+                    </td>
+                    <td class="py-4 text-sm text-slate-500">Oct 20, 2023</td>
+                    <td class="py-4 text-right font-bold">$1,200.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

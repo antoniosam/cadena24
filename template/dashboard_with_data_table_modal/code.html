@@ -1,0 +1,347 @@
+<!doctype html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard with Data Table Modal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#137fec',
+              'background-light': '#f6f7f8',
+              'background-dark': '#101922',
+            },
+            fontFamily: {
+              display: ['Inter', 'sans-serif'],
+            },
+            borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen"
+  >
+    <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+      <header
+        class="flex items-center justify-between border-b border-primary/20 bg-background-light dark:bg-background-dark px-10 py-3 sticky top-0 z-40"
+      >
+        <div class="flex items-center gap-8">
+          <div class="flex items-center gap-4 text-primary">
+            <div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg">
+              <span class="material-symbols-outlined text-primary text-2xl"
+                >dashboard_customize</span
+              >
+            </div>
+            <h2
+              class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]"
+            >
+              AdminCore
+            </h2>
+          </div>
+          <label class="flex flex-col min-w-40 h-10 max-w-64">
+            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+              <div
+                class="text-slate-400 flex border-none bg-primary/5 items-center justify-center pl-4 rounded-l-lg"
+              >
+                <span class="material-symbols-outlined text-xl">search</span>
+              </div>
+              <input
+                class="form-input flex w-full min-w-0 flex-1 border-none bg-primary/5 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-0 text-sm font-normal px-4 rounded-r-lg"
+                placeholder="Search data..."
+              />
+            </div>
+          </label>
+        </div>
+        <div class="flex flex-1 justify-end gap-6 items-center">
+          <nav class="flex items-center gap-6">
+            <a class="text-primary text-sm font-semibold leading-normal" href="#">Overview</a>
+            <a
+              class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium leading-normal"
+              href="#"
+              >Team</a
+            >
+            <a
+              class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium leading-normal"
+              href="#"
+              >Billing</a
+            >
+            <a
+              class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium leading-normal"
+              href="#"
+              >Support</a
+            >
+          </nav>
+          <div class="flex gap-2">
+            <button
+              class="flex items-center justify-center rounded-lg size-10 bg-primary/5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+            >
+              <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button
+              class="flex items-center justify-center rounded-lg size-10 bg-primary/5 text-slate-600 dark:text-slate-400 hover:bg-primary/10 transition-colors"
+            >
+              <span class="material-symbols-outlined">account_circle</span>
+            </button>
+          </div>
+          <div
+            class="size-10 bg-primary rounded-full bg-center bg-cover border-2 border-primary/20"
+            data-alt="User profile avatar circle"
+            style="
+              background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfEyQbltWy3aqyvp1UOIumZJMwZnw8-NeJGDcVQVNUywW2E2V3HYhJGc8ed8GLETWCUO2GGoeF7GlkqDxM_PX1wUlBdZrRlikK9t-9ZaOOXcV6Stu_YFe2Lc_Alm8wxurN05hciHbI78-UWqM6JRNA39FafsgaTFefrUF7Gjcnuo9r_HTqe9-4BGbMEdHB2ujAlR6ZwOOSbBZRQyftOWZ-IcZFkQ2of7wE-16W4Q3G1H3aFENWX689_mfNpXU0ZzSSzMe7U_edbg');
+            "
+          ></div>
+        </div>
+      </header>
+      <main class="flex-1 p-8 opacity-60 select-none pointer-events-none">
+        <div class="max-w-6xl mx-auto space-y-8">
+          <div class="flex items-end justify-between">
+            <div>
+              <h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+                Analytics Overview
+              </h1>
+              <p class="text-slate-500 mt-2">Platform performance and user engagement metrics.</p>
+            </div>
+            <button
+              class="bg-primary text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined">add</span> New Report
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              class="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-primary/10 shadow-sm"
+            >
+              <p class="text-slate-500 font-medium">Total Revenue</p>
+              <p class="text-3xl font-bold mt-1">$48,290.00</p>
+              <p class="text-emerald-500 text-sm mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_up</span> +12.5%
+              </p>
+            </div>
+            <div
+              class="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-primary/10 shadow-sm"
+            >
+              <p class="text-slate-500 font-medium">Monthly Signups</p>
+              <p class="text-3xl font-bold mt-1">2,451</p>
+              <p class="text-emerald-500 text-sm mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_up</span> +8.2%
+              </p>
+            </div>
+            <div
+              class="bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-primary/10 shadow-sm"
+            >
+              <p class="text-slate-500 font-medium">Churn Rate</p>
+              <p class="text-3xl font-bold mt-1">1.2%</p>
+              <p class="text-rose-500 text-sm mt-2 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">trending_down</span> -0.4%
+              </p>
+            </div>
+          </div>
+          <div
+            class="h-64 bg-white dark:bg-slate-800/50 rounded-xl border border-primary/10 p-4 flex items-center justify-center"
+          >
+            <span class="text-slate-400">Main Dashboard Data Visualization</span>
+          </div>
+        </div>
+      </main>
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-400/20 dark:bg-slate-300/10 backdrop-blur-md p-4"
+      >
+        <div
+          class="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-primary/30 overflow-hidden flex flex-col"
+        >
+          <div class="px-6 py-4 border-b border-primary/10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary"
+              >
+                <span class="material-symbols-outlined">group</span>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">User Management</h3>
+            </div>
+            <button
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            >
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <table
+              class="w-full border-separate border-spacing-0 rounded-lg overflow-hidden border border-primary/10"
+            >
+              <thead>
+                <tr class="bg-primary/5 dark:bg-primary/10">
+                  <th
+                    class="text-left px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300"
+                  >
+                    User Name
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300"
+                  >
+                    Role
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="text-left px-4 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300"
+                  >
+                    Last Login
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-primary/5">
+                <tr class="bg-white dark:bg-transparent hover:bg-primary/5 transition-colors">
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover"
+                        data-alt="User portrait silhouette"
+                        style="
+                          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCNr50V1eDkGsVaivdaL-z6C2C2-FWnS_Yuz9AsT1_2aV3f4rQNgT9qF0MeFc6Y4LSSDl9mYbjwQ8NEvBz2gInPsegvS_F8xMSugnAxkcdqfaNIoHYOvyMI35dGwDRWktswRP7iFWN6fOuM0nyBLfieN8Ji1KduBvSUPs2NeIIWS9PRwawSHMG-5D3q4zR1pxCOxDe16vc_DTRMYQgFftCf9yJB0fXNxYdHboEx2kOsGTh08o7O1HysEw6uo0snv9DoV6sewgjhSw');
+                        "
+                      ></div>
+                      <div class="text-sm font-medium">Alexander Wright</div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Administrator</td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                    >
+                      Active
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">2 mins ago</td>
+                </tr>
+                <tr class="bg-slate-50 dark:bg-slate-800/20 hover:bg-primary/5 transition-colors">
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover"
+                        data-alt="User portrait silhouette"
+                        style="
+                          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOjmvJR-AmnO1hlWOOdLKACEtdvf8uX4RItFCtTdSSx4e6J_0m92QKDC82SqfBtybcg2YSFtjiSeT1epdEufzYD4Q7VYi4hv8bFILTHfPYbO3weHebYqiRDzlPlGNvk8t5leCi7sNFY5iU2HHhCE7g-pZrDlVSRjL4Sv-9AMmjwV1tiWjiyuAQdYOlCkCfFbXq4UoRPTtPRVctjTqJYlyAXcRvpk6r9vmjAAkvZZ-wwMUF6wdwbM92CVDtC30YQSJdW03t9EDolQ');
+                        "
+                      ></div>
+                      <div class="text-sm font-medium">Sarah Jenkins</div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Editor</td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                    >
+                      Pending
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">4 hours ago</td>
+                </tr>
+                <tr class="bg-white dark:bg-transparent hover:bg-primary/5 transition-colors">
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover"
+                        data-alt="User portrait silhouette"
+                        style="
+                          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDpp4G_yc14n1Ima4JFAsgEGEX6N3Xuf5XiIb3JZpEr5pymxb1ZnlYnjYKMiQWe5irsJVGX-U5snBJkTar89BqaB7HGvUrpHkDLkDPKTdj__nf-KX9r6EWg0tnadZgtvloqfZ5tPc10Oa_1TfBujw_kNaEKpTFa7xv2mEA208a96oRa1lYIxFPPtiqRN3kcd0AGBYDvzFRc7eFnsmpN5w6d_JS07gERVBO4pG3ZzzRFQVJYxGtDRU-10tOfP5kaAVCqAFaKRL3WKg');
+                        "
+                      ></div>
+                      <div class="text-sm font-medium">Michael Chen</div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Viewer</td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                    >
+                      Active
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Yesterday</td>
+                </tr>
+                <tr class="bg-slate-50 dark:bg-slate-800/20 hover:bg-primary/5 transition-colors">
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover"
+                        data-alt="User portrait silhouette"
+                        style="
+                          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_4bqFJgWZj9tq_1rTNMMth77wa3kAncTS82ETRl5gAbG-dB8wjFc1uQr0WGZR9Dkjh57wyHG0a8Hd-EMmfA4SZ98FI0vQ0t-jj-rRRi7iKYvoJtXmN7QUpNCT7G_IKGwEAyOJrmYMzKmbNBvterScfP7JLn6GUaey_OCWIsXzZnu5AG8SxBc9ZZKqsMDX9GXuDRE3Lgx6MM3pJhCHxX9xDvtxYouXMpvgQx-aC-7JPdXNO_XTw4vPAjba38BXpRJeCN_lW6PN7Q');
+                        "
+                      ></div>
+                      <div class="text-sm font-medium">Emily Davis</div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Support</td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                    >
+                      Offline
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">2 days ago</td>
+                </tr>
+                <tr class="bg-white dark:bg-transparent hover:bg-primary/5 transition-colors">
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover"
+                        data-alt="User portrait silhouette"
+                        style="
+                          background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAZF6IiNwzHdkrRou0Dx90-CFlI_oWHYh-sF5b9cwUjVtgUFMEXZvazY7SB6-f42hdLp0utw5Jt-pxpbYOiWAvhgMz_j6ivQWdAJiOJk9CuH7Fjn_7tHA4b2fgxkdh_HDI-03CJ3J_2FKPpTwyvOutwO5aWjLs0Cx_hCjBZjUisLf-a66MauFzLFNcN__BZtqzv0de0H8STQ4rhE9gI0-UJjVHjBPHoTcokRRmQLI9lKrQE9kxVefSTzjt8vNAYpLVpYhewOMz-tA');
+                        "
+                      ></div>
+                      <div class="text-sm font-medium">James Wilson</div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Billing</td>
+                  <td class="px-4 py-4">
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                    >
+                      Active
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-slate-500">Just now</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-primary/10 flex items-center justify-end gap-3"
+          >
+            <button
+              class="px-5 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              Close
+            </button>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20"
+            >
+              <span class="material-symbols-outlined text-lg">file_download</span>
+              Export Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
