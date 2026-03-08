@@ -10,6 +10,7 @@ import { HealthModule } from '../health/health.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { WmsModule } from '../wms/wms.module';
 
 @Module({
   imports: [
@@ -19,12 +20,13 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'frontend', 'browser'),
-      exclude: ['/api/(.*)'],
+      exclude: ['/api/{*path}'],
     }),
     PrismaModule,
     HealthModule,
     UsersModule,
     AuthModule,
+    WmsModule,
   ],
   controllers: [AppController],
   providers: [

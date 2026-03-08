@@ -1,0 +1,428 @@
+
+> @cadena24-wms/source@0.0.0 test
+> nx run-many --targets=test --projects=backend,frontend --testPathPattern=(warehouses|locations) --passWithNoTests
+
+
+[7m[1m[36m NX [39m[22m[27m  [36mRunning target [1mtest[22m for 2 projects:[39m
+
+[2m-[22m backend
+[2m-[22m frontend
+
+[2mWith additional flags:[22m
+  --testPathPattern=(warehouses|locations)
+  --passWithNoTests=true
+
+[2m[36m[39m[22m
+
+[2m> [22m[2mnx run[22m frontend:test --testPathPattern=(warehouses|locations) --passWithNoTests
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/core/guards/[22m[1mauth.guard.spec.ts[22m ([0m[1m[41m74.622 s[49m[22m[0m)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/layout/sidebar/[22m[1msidebar.spec.ts[22m ([0m[1m[41m73.377 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mSidebar › should create[39m[22m
+
+    TypeError: Cannot read properties of undefined (reading 'hasOwnProperty')
+[2m[22m
+[2m    [0m [90m  7 |[39m[22m
+[2m     [90m  8 |[39m   beforeEach([36masync[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m  9 |[39m     [36mawait[39m [33mTestBed[39m[33m.[39mconfigureTestingModule({[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 10 |[39m       imports[33m:[39m [[33mSidebar[39m][33m,[39m[22m
+[2m     [90m 11 |[39m     })[33m.[39mcompileComponents()[33m;[39m[22m
+[2m     [90m 12 |[39m[0m[22m
+[2m[22m
+[2m      [2mat hasNgModuleDef ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1157:16)[22m[2m[22m
+[2m      [2mat queueTypesFromModulesArrayRecur ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:914:20)[22m[2m[22m
+[2m      [2mat TestBedCompiler.queueTypesFromModulesArray ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:943:5)[22m[2m[22m
+[2m      [2mat TestBedCompiler.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:567:12)[22m[2m[22m
+[2m      [2mat _TestBedImpl.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1402:19)[22m[2m[22m
+[2m      [2mat Function.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1273:33)[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/layout/sidebar/sidebar.spec.ts[39m[0m[2m:9:19[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/tslib/tslib.js[2m:170:75[22m[2m[22m
+[2m      [2mat Object.__awaiter ([22m[2m../../node_modules/tslib/tslib.js[2m:166:16)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/layout/sidebar/sidebar.spec.ts[39m[0m[2m:8:25)[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/services/[22m[1musers.service.spec.ts[22m ([0m[1m[41m80.53 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/services/[22m[1musers.state.service.spec.ts[22m ([0m[1m[41m81.505 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/login/services/[22m[1mauth.service.spec.ts[22m ([0m[1m[41m86.487 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/layout/navbar/[22m[1mnavbar.component.spec.ts[22m ([0m[1m[41m86.088 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/[22m[1mapp.spec.ts[22m ([0m[1m[41m89.66 s[49m[22m[0m)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/wms/products/services/[22m[1mproducts-state.service.spec.ts[22m ([0m[1m[41m95.694 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mProductsStateService › loadProducts › should apply search filter[39m[22m
+
+    TypeError: Cannot read properties of undefined (reading 'subscribe')
+[2m[22m
+[2m    [0m [90m 43 |[39m     }[33m;[39m[22m
+[2m     [90m 44 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 45 |[39m     [36mthis[39m[33m.[39mapi[33m.[39mgetProducts(filters)[33m.[39msubscribe({[22m
+[2m     [90m    |[39m                                  [31m[1m^[22m[2m[39m[22m
+[2m     [90m 46 |[39m       next[33m:[39m (response) [33m=>[39m {[22m
+[2m     [90m 47 |[39m         [36mthis[39m[33m.[39mproducts[33m.[39m[36mset[39m(response[33m.[39mitems)[33m;[39m[22m
+[2m     [90m 48 |[39m         [36mthis[39m[33m.[39mtotal[33m.[39m[36mset[39m(response[33m.[39mtotal)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat ProductsStateService.loadProducts ([22m[2msrc/app/wms/products/services/products-state.service.ts[2m:45:34)[22m[2m[22m
+[2m      [2mat ProductsStateService.setSearchTerm ([22m[2msrc/app/wms/products/services/products-state.service.ts[2m:78:10)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/wms/products/services/products-state.service.spec.ts[39m[0m[2m:119:15)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/layout/topbar/[22m[1mtopbar.spec.ts[22m ([0m[1m[41m100.849 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mTopbarComponent › 1 — should create[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a hook.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 21 |[39m   [36mlet[39m mockRouter[33m:[39m jest[33m.[39m[33mMocked[39m[33m<[39m[33mRouter[39m[33m>[39m[33m;[39m[22m
+[2m     [90m 22 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 23 |[39m   beforeEach([36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 24 |[39m     [90m// Mock AuthStateService[39m[22m
+[2m     [90m 25 |[39m     mockAuthState [33m=[39m {[22m
+[2m     [90m 26 |[39m       userName[33m:[39m jest[33m.[39mfn(() [33m=>[39m [32m'John Doe'[39m)[33m,[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/layout/topbar/topbar.spec.ts[39m[0m[2m:23:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/layout/topbar/topbar.spec.ts[39m[0m[2m:8:1)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/components/user-list/[22m[1muser-list.component.spec.ts[22m ([0m[1m[41m97.101 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mUserListComponent › 8 — clicking edit button emits editUser with correct IUserSummary[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 103 |[39m[22m
+[2m     [90m 104 |[39m     [36mconst[39m editBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Editar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 105 |[39m     editBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 106 |[39m[22m
+[2m     [90m 107 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m])[33m;[39m[22m
+[2m     [90m 108 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:105:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 9 — clicking password button emits openPasswordModal with user.id[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 115 |[39m[22m
+[2m     [90m 116 |[39m     [36mconst[39m pwdBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Cambiar contraseña"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 117 |[39m     pwdBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m            [31m[1m^[22m[2m[39m[22m
+[2m     [90m 118 |[39m[22m
+[2m     [90m 119 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m][33m.[39mid)[33m;[39m[22m
+[2m     [90m 120 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:117:12)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 10 — clicking delete with confirm=true emits deleteUser with user.id[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 128 |[39m[22m
+[2m     [90m 129 |[39m     [36mconst[39m deleteBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Eliminar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 130 |[39m     deleteBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 131 |[39m[22m
+[2m     [90m 132 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m][33m.[39mid)[33m;[39m[22m
+[2m     [90m 133 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:130:15)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 11 — clicking delete with confirm=false does NOT emit deleteUser[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 141 |[39m[22m
+[2m     [90m 142 |[39m     [36mconst[39m deleteBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Eliminar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 143 |[39m     deleteBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 144 |[39m[22m
+[2m     [90m 145 |[39m     expect(spy)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m     [90m 146 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:143:15)[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/components/password-modal/[22m[1mpassword-modal.component.spec.ts[22m ([0m[1m[41m103.124 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/wms/products/pages/product-list/[22m[1mproduct-list.component.spec.ts[22m ([0m[1m[41m103.896 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/login/[22m[1mlogin-page.component.spec.ts[22m ([0m[1m[41m107.207 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/components/user-form/[22m[1muser-form.component.spec.ts[22m ([0m[1m[41m114.009 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/core/services/[22m[1mapi.service.spec.ts[22m ([0m[1m[41m27.747 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/layout/footer/[22m[1mfooter.component.spec.ts[22m ([0m[1m[41m34.199 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/core/interceptors/[22m[1mauth.interceptor.spec.ts[22m ([0m[1m[41m36.123 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/users/[22m[1musers-page.component.spec.ts[22m ([0m[1m[41m109.689 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/dashboard/[22m[1mdashboard.component.spec.ts[22m ([0m[1m[41m31.954 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/home/[22m[1mhome.component.spec.ts[22m ([0m[1m[41m36.569 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m frontend [39m[27m[0m [2mapps/frontend/src/app/pages/login/services/[22m[1mauth-state.service.spec.ts[22m ([0m[1m[41m39.332 s[49m[22m[0m)
+[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+
+[1mSummary of all failing tests[22m
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/app/layout/sidebar/[22m[1msidebar.spec.ts[22m ([0m[1m[41m73.377 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mSidebar › should create[39m[22m
+
+    TypeError: Cannot read properties of undefined (reading 'hasOwnProperty')
+[2m[22m
+[2m    [0m [90m  7 |[39m[22m
+[2m     [90m  8 |[39m   beforeEach([36masync[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m  9 |[39m     [36mawait[39m [33mTestBed[39m[33m.[39mconfigureTestingModule({[22m
+[2m     [90m    |[39m                   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 10 |[39m       imports[33m:[39m [[33mSidebar[39m][33m,[39m[22m
+[2m     [90m 11 |[39m     })[33m.[39mcompileComponents()[33m;[39m[22m
+[2m     [90m 12 |[39m[0m[22m
+[2m[22m
+[2m      [2mat hasNgModuleDef ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1157:16)[22m[2m[22m
+[2m      [2mat queueTypesFromModulesArrayRecur ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:914:20)[22m[2m[22m
+[2m      [2mat TestBedCompiler.queueTypesFromModulesArray ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:943:5)[22m[2m[22m
+[2m      [2mat TestBedCompiler.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:567:12)[22m[2m[22m
+[2m      [2mat _TestBedImpl.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1402:19)[22m[2m[22m
+[2m      [2mat Function.configureTestingModule ([22m[2m../../node_modules/@angular/core/fesm2022/testing.mjs[2m:1273:33)[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/layout/sidebar/sidebar.spec.ts[39m[0m[2m:9:19[22m[2m[22m
+[2m      [2mat [22m[2m../../node_modules/tslib/tslib.js[2m:170:75[22m[2m[22m
+[2m      [2mat Object.__awaiter ([22m[2m../../node_modules/tslib/tslib.js[2m:166:16)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/layout/sidebar/sidebar.spec.ts[39m[0m[2m:8:25)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/app/wms/products/services/[22m[1mproducts-state.service.spec.ts[22m ([0m[1m[41m95.694 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mProductsStateService › loadProducts › should apply search filter[39m[22m
+
+    TypeError: Cannot read properties of undefined (reading 'subscribe')
+[2m[22m
+[2m    [0m [90m 43 |[39m     }[33m;[39m[22m
+[2m     [90m 44 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 45 |[39m     [36mthis[39m[33m.[39mapi[33m.[39mgetProducts(filters)[33m.[39msubscribe({[22m
+[2m     [90m    |[39m                                  [31m[1m^[22m[2m[39m[22m
+[2m     [90m 46 |[39m       next[33m:[39m (response) [33m=>[39m {[22m
+[2m     [90m 47 |[39m         [36mthis[39m[33m.[39mproducts[33m.[39m[36mset[39m(response[33m.[39mitems)[33m;[39m[22m
+[2m     [90m 48 |[39m         [36mthis[39m[33m.[39mtotal[33m.[39m[36mset[39m(response[33m.[39mtotal)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat ProductsStateService.loadProducts ([22m[2msrc/app/wms/products/services/products-state.service.ts[2m:45:34)[22m[2m[22m
+[2m      [2mat ProductsStateService.setSearchTerm ([22m[2msrc/app/wms/products/services/products-state.service.ts[2m:78:10)[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/wms/products/services/products-state.service.spec.ts[39m[0m[2m:119:15)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/app/layout/topbar/[22m[1mtopbar.spec.ts[22m ([0m[1m[41m100.849 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mTopbarComponent › 1 — should create[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a hook.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 21 |[39m   [36mlet[39m mockRouter[33m:[39m jest[33m.[39m[33mMocked[39m[33m<[39m[33mRouter[39m[33m>[39m[33m;[39m[22m
+[2m     [90m 22 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 23 |[39m   beforeEach([36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m   [31m[1m^[22m[2m[39m[22m
+[2m     [90m 24 |[39m     [90m// Mock AuthStateService[39m[22m
+[2m     [90m 25 |[39m     mockAuthState [33m=[39m {[22m
+[2m     [90m 26 |[39m       userName[33m:[39m jest[33m.[39mfn(() [33m=>[39m [32m'John Doe'[39m)[33m,[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/layout/topbar/topbar.spec.ts[39m[0m[2m:23:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/layout/topbar/topbar.spec.ts[39m[0m[2m:8:1)[22m[2m[22m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [2msrc/app/pages/users/components/user-list/[22m[1muser-list.component.spec.ts[22m ([0m[1m[41m97.101 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mUserListComponent › 8 — clicking edit button emits editUser with correct IUserSummary[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 103 |[39m[22m
+[2m     [90m 104 |[39m     [36mconst[39m editBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Editar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 105 |[39m     editBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m             [31m[1m^[22m[2m[39m[22m
+[2m     [90m 106 |[39m[22m
+[2m     [90m 107 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m])[33m;[39m[22m
+[2m     [90m 108 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:105:13)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 9 — clicking password button emits openPasswordModal with user.id[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 115 |[39m[22m
+[2m     [90m 116 |[39m     [36mconst[39m pwdBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Cambiar contraseña"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 117 |[39m     pwdBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m            [31m[1m^[22m[2m[39m[22m
+[2m     [90m 118 |[39m[22m
+[2m     [90m 119 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m][33m.[39mid)[33m;[39m[22m
+[2m     [90m 120 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:117:12)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 10 — clicking delete with confirm=true emits deleteUser with user.id[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 128 |[39m[22m
+[2m     [90m 129 |[39m     [36mconst[39m deleteBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Eliminar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 130 |[39m     deleteBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 131 |[39m[22m
+[2m     [90m 132 |[39m     expect(spy)[33m.[39mtoHaveBeenCalledWith(mockUsers[[35m0[39m][33m.[39mid)[33m;[39m[22m
+[2m     [90m 133 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:130:15)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mUserListComponent › 11 — clicking delete with confirm=false does NOT emit deleteUser[39m[22m
+
+    TypeError: Cannot read properties of null (reading 'click')
+[2m[22m
+[2m    [0m [90m 141 |[39m[22m
+[2m     [90m 142 |[39m     [36mconst[39m deleteBtn [33m=[39m fixture[33m.[39mnativeElement[33m.[39mquerySelector([32m'button[title="Eliminar"]'[39m)[33m;[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 143 |[39m     deleteBtn[33m.[39mclick()[33m;[39m[22m
+[2m     [90m     |[39m               [31m[1m^[22m[2m[39m[22m
+[2m     [90m 144 |[39m[22m
+[2m     [90m 145 |[39m     expect(spy)[33m.[39mnot[33m.[39mtoHaveBeenCalled()[33m;[39m[22m
+[2m     [90m 146 |[39m   })[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/pages/users/components/user-list/user-list.component.spec.ts[39m[0m[2m:143:15)[22m[2m[22m
+
+
+[1mTest Suites: [22m[1m[31m4 failed[39m[22m, [1m[32m17 passed[39m[22m, 21 total
+[1mTests:       [22m[1m[31m7 failed[39m[22m, [1m[32m224 passed[39m[22m, 231 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m177.259 s[39m[22m
+[2mRan all test suites[22m[2m.[22m
+
+[2m> [22m[2mnx run[22m backend:test --testPathPattern=(warehouses|locations) --passWithNoTests
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mlibs/shared/src/lib/privileges/[22m[1mprivilege.class.spec.ts[22m ([0m[1m[41m93.742 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mlibs/shared/src/lib/privileges/[22m[1mrole-privilege-builder.spec.ts[22m ([0m[1m[41m6.848 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mlibs/shared/src/lib/privileges/[22m[1mprivilege-registry.spec.ts[22m ([0m[1m[41m9.766 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/auth/guards/[22m[1mjwt-auth.guard.spec.ts[22m ([0m[1m[41m145.699 s[49m[22m[0m)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/users/[22m[1mpassword.service.spec.ts[22m ([0m[1m[41m167.795 s[49m[22m[0m)
+[1m[31m  [1m● [22m[1mPasswordService › hash() › should return a string different from the plain-text input[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 22 |[39m[22m
+[2m     [90m 23 |[39m   describe([32m'hash()'[39m[33m,[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 24 |[39m     it([32m'should return a string different from the plain-text input'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 25 |[39m       [36mconst[39m plain [33m=[39m [32m'MyPassword1'[39m[33m;[39m[22m
+[2m     [90m 26 |[39m       [36mconst[39m hashed [33m=[39m [36mawait[39m service[33m.[39mhash(plain)[33m;[39m[22m
+[2m     [90m 27 |[39m       expect(hashed)[33m.[39mnot[33m.[39mtoBe(plain)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:24:5[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:23:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:6:1)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mPasswordService › hash() › should produce different hashes for the same password (salt)[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 33 |[39m     })[33m;[39m[22m
+[2m     [90m 34 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 35 |[39m     it([32m'should produce different hashes for the same password (salt)'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 36 |[39m       [36mconst[39m plain [33m=[39m [32m'MyPassword1'[39m[33m;[39m[22m
+[2m     [90m 37 |[39m       [36mconst[39m hash1 [33m=[39m [36mawait[39m service[33m.[39mhash(plain)[33m;[39m[22m
+[2m     [90m 38 |[39m       [36mconst[39m hash2 [33m=[39m [36mawait[39m service[33m.[39mhash(plain)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:35:5[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:23:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:6:1)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mPasswordService › compare() › should return true when plain password matches the hash[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 44 |[39m[22m
+[2m     [90m 45 |[39m   describe([32m'compare()'[39m[33m,[39m () [33m=>[39m {[22m
+[2m    [31m[1m>[22m[2m[39m[90m 46 |[39m     it([32m'should return true when plain password matches the hash'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 47 |[39m       [36mconst[39m plain [33m=[39m [32m'MyPassword1'[39m[33m;[39m[22m
+[2m     [90m 48 |[39m       [36mconst[39m hashed [33m=[39m [36mawait[39m service[33m.[39mhash(plain)[33m;[39m[22m
+[2m     [90m 49 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mcompare(plain[33m,[39m hashed)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:46:5[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:45:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:6:1)[22m[2m[22m
+
+[1m[31m  [1m● [22m[1mPasswordService › compare() › should return false when plain password does not match the hash[39m[22m
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+[2m[22m
+[2m    [0m [90m 51 |[39m     })[33m;[39m[22m
+[2m     [90m 52 |[39m[22m
+[2m    [31m[1m>[22m[2m[39m[90m 53 |[39m     it([32m'should return false when plain password does not match the hash'[39m[33m,[39m [36masync[39m () [33m=>[39m {[22m
+[2m     [90m    |[39m     [31m[1m^[22m[2m[39m[22m
+[2m     [90m 54 |[39m       [36mconst[39m hashed [33m=[39m [36mawait[39m service[33m.[39mhash([32m'MyPassword1'[39m)[33m;[39m[22m
+[2m     [90m 55 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m service[33m.[39mcompare([32m'WrongPassword9'[39m[33m,[39m hashed)[33m;[39m[22m
+[2m     [90m 56 |[39m       expect(result)[33m.[39mtoBe([36mfalse[39m)[33m;[39m[0m[22m
+[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:53:5[22m[2m[22m
+[2m      [2mat [22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:45:3[22m[2m[22m
+[2m      [2mat Object.<anonymous> ([22m[2m[0m[36msrc/app/users/password.service.spec.ts[39m[0m[2m:6:1)[22m[2m[22m
+
+(node:4820) [JEST-01] DeprecationWarning: 'matchers' property was accessed on [Object] after it was soft deleted
+  Jest deletes objects that were set on the global scope between test files to reduce memory leaks.
+  Currently it only "soft" deletes them and emits this warning if those objects were accessed after their deletion.
+  In future versions of Jest, this behavior will change to "on", which will likely fail tests.
+  You can change the behavior in your test configuration now to reduce memory usage.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/[22m[1mapp.service.spec.ts[22m ([0m[1m[41m172.254 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/[22m[1mapp.controller.spec.ts[22m ([0m[1m[41m174.901 s[49m[22m[0m)
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/products/[22m[1mproducts.controller.spec.ts[22m
+  [1m● [22mTest suite failed to run
+
+    [96mapps/backend/src/wms/products/products.controller.spec.ts[0m:[93m157[0m:[93m40[0m - [91merror[0m[90m TS2345: [0mArgument of type 'undefined' is not assignable to parameter of type '{ name: string; code: string; description: string | null; category: string | null; uom: string; minStock: number; maxStock: number; reorderPoint: number; reorderQuantity: number; weight: number | null; ... 6 more ...; id: number; } | Promise<...>'.
+
+    [7m157[0m       service.remove.mockResolvedValue(undefined);
+    [7m   [0m [91m                                       ~~~~~~~~~[0m
+    [96mapps/backend/src/wms/products/products.controller.spec.ts[0m:[93m208[0m:[93m47[0m - [91merror[0m[90m TS2345: [0mArgument of type 'undefined' is not assignable to parameter of type '{ createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; } | Promise<{ createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }>'.
+
+    [7m208[0m       service.removeBarcode.mockResolvedValue(undefined);
+    [7m   [0m [91m                                              ~~~~~~~~~[0m
+
+[0m[7m[1m[31m FAIL [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/products/[22m[1mproducts.service.spec.ts[22m
+  [1m● [22mTest suite failed to run
+
+    [96mapps/backend/src/wms/products/products.service.spec.ts[0m:[93m142[0m:[93m50[0m - [91merror[0m[90m TS2345: [0mArgument of type 'null' is not assignable to parameter of type '({ barcodes: { createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]; inventories: { availableQuantity: number; location: { fullPath: string; }; }[]; } & { ...; }) | Promise<...> | undefined'.
+
+    [7m142[0m       repository.findByBarcode.mockResolvedValue(null);
+    [7m   [0m [91m                                                 ~~~~[0m
+    [96mapps/backend/src/wms/products/products.service.spec.ts[0m:[93m155[0m:[93m43[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ code: string; name: string; description: string; category: string; uom: string; minStock: number; maxStock: number; reorderPoint: number; reorderQuantity: number; weight: number; width: number; ... 7 more ...; inventories: never[]; }' is not assignable to parameter of type '({ barcodes: { createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]; } & { name: string; code: string; description: string | null; category: string | null; ... 12 more ...; id: number; }) | Promise<...>'.
+      Type '{ code: string; name: string; description: string; category: string; uom: string; minStock: number; maxStock: number; reorderPoint: number; reorderQuantity: number; weight: number; width: number; ... 7 more ...; inventories: never[]; }' is not assignable to type '{ barcodes: { createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]; } & { name: string; code: string; description: string | null; category: string | null; ... 12 more ...; id: number; }'.
+        Type '{ code: string; name: string; description: string; category: string; uom: string; minStock: number; maxStock: number; reorderPoint: number; reorderQuantity: number; weight: number; width: number; ... 7 more ...; inventories: never[]; }' is not assignable to type '{ barcodes: { createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]; }'.
+          Types of property 'barcodes' are incompatible.
+            Type 'CreateProductBarcodeDto[]' is not assignable to type '{ createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]'.
+              Type 'CreateProductBarcodeDto' is missing the following properties from type '{ createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }': createdAt, id, productId
+
+    [7m155[0m       repository.update.mockResolvedValue({ ...mockProduct, ...updateDto });
+    [7m   [0m [91m                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    [96mapps/backend/src/wms/products/products.service.spec.ts[0m:[93m195[0m:[93m50[0m - [91merror[0m[90m TS2345: [0mArgument of type 'null' is not assignable to parameter of type '({ barcodes: { createdAt: Date; id: number; barcode: string; type: string; isPrimary: boolean; productId: number; }[]; inventories: { availableQuantity: number; location: { fullPath: string; }; }[]; } & { ...; }) | Promise<...> | undefined'.
+
+    [7m195[0m       repository.findByBarcode.mockResolvedValue(null);
+    [7m   [0m [91m                                                 ~~~~[0m
+    [96mapps/backend/src/wms/products/products.service.spec.ts[0m:[93m229[0m:[93m56[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ minStock: number; inventories: { availableQuantity: number; }[]; id: number; code: string; name: string; description: string; category: string; uom: string; maxStock: number; reorderPoint: number; ... 8 more ...; barcodes: never[]; }[]' is not assignable to parameter of type '({ inventories: { updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }[]; } & { ...; })[] | Promise<...>'.
+      Type '{ minStock: number; inventories: { availableQuantity: number; }[]; id: number; code: string; name: string; description: string; category: string; uom: string; maxStock: number; reorderPoint: number; ... 8 more ...; barcodes: never[]; }[]' is not assignable to type '({ inventories: { updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }[]; } & { ...; })[]'.
+        Type '{ minStock: number; inventories: { availableQuantity: number; }[]; id: number; code: string; name: string; description: string; category: string; uom: string; maxStock: number; reorderPoint: number; ... 8 more ...; barcodes: never[]; }' is not assignable to type '{ inventories: { updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }[]; } & { ...; }'.
+          Type '{ minStock: number; inventories: { availableQuantity: number; }[]; id: number; code: string; name: string; description: string; category: string; uom: string; maxStock: number; reorderPoint: number; ... 8 more ...; barcodes: never[]; }' is not assignable to type '{ inventories: { updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }[]; }'.
+            Types of property 'inventories' are incompatible.
+              Type '{ availableQuantity: number; }[]' is not assignable to type '{ updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }[]'.
+                Type '{ availableQuantity: number; }' is missing the following properties from type '{ updatedAt: Date; id: number; productId: number; locationId: number; warehouseId: number; quantity: number; availableQuantity: number; reservedQuantity: number; status: string; lastCountDate: Date | null; }': updatedAt, id, productId, locationId, and 5 more.
+
+    [7m229[0m       repository.getLowStockProducts.mockResolvedValue(lowStockProducts);
+    [7m   [0m [91m                                                       ~~~~~~~~~~~~~~~~[0m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/warehouses/[22m[1mwarehouses.controller.spec.ts[22m ([0m[1m[41m70.135 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/locations/[22m[1mlocations.controller.spec.ts[22m ([0m[1m[41m39.01 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/auth/strategies/[22m[1mjwt.strategy.spec.ts[22m ([0m[1m[41m200.087 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/warehouses/[22m[1mwarehouses.service.spec.ts[22m ([0m[1m[41m204.103 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/wms/locations/[22m[1mlocations.service.spec.ts[22m ([0m[1m[41m207.873 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/users/[22m[1musers.repository.spec.ts[22m ([0m[1m[41m215.612 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/users/[22m[1musers.service.spec.ts[22m ([0m[1m[41m215.996 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/users/[22m[1musers.controller.spec.ts[22m ([0m[1m[41m222.476 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/auth/[22m[1mauth.controller.spec.ts[22m ([0m[1m[41m224.144 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m backend [39m[27m[0m [2mapps/backend/src/app/auth/[22m[1mauth.service.spec.ts[22m ([0m[1m[41m229.553 s[49m[22m[0m)
+[33mA worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.[39m
+
+[1mTest Suites: [22m[1m[31m3 failed[39m[22m, [1m[32m16 passed[39m[22m, 19 total
+[1mTests:       [22m[1m[31m4 failed[39m[22m, [1m[32m221 passed[39m[22m, 225 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        [1m[33m231.982 s[39m[22m
+[2mRan all test suites[22m[2m.[22m
+
+[2m[31m[39m[22m
+
+[7m[1m[31m NX [39m[22m[27m  [31mRunning target [1mtest[22m for 2 projects failed[39m
+
+[2mFailed tasks:[22m
+
+[2m-[22m frontend:test
+[2m-[22m backend:test
+
