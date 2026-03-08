@@ -1,0 +1,133 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Productos</h1>
+      <p class="page-subtitle">Gestión del catálogo de productos</p>
+    </div>
+    <button class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo Producto
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [value]="state.searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Buscar por código, nombre o código de barras..."
+        class="search-input"
+      />
+    </div>
+
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="state.lowStockFilter()"
+        (change)="onFilterLowStock($any($event.target).checked)"
+      />
+      Solo bajo mínimo
+    </label>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando productos...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasProducts() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Código de Barras</th>
+            <th>Categoría</th>
+            <th>UOM</th>
+            <th>Stock Mín.</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of state.products(); track product.id) {
+            <tr>
+              <td>
+                <span class="code-text">{{ product.code }}</span>
+              </td>
+              <td>{{ product.name }}</td>
+              <td>
+                <span class="code-text">{{ getBarcode(product) }}</span>
+              </td>
+              <td>{{ product.category || '—' }}</td>
+              <td>{{ product.uom }}</td>
+              <td>{{ product.minStock }}</td>
+              <td>
+                <button
+                  class="badge badge-toggle"
+                  [class.badge-active]="product.isActive"
+                  [class.badge-inactive]="!product.isActive"
+                  (click)="onToggleActive(product.id, product.isActive)"
+                  [title]="product.isActive ? 'Clic para desactivar' : 'Clic para activar'"
+                >
+                  {{ product.isActive ? 'Activo' : 'Inactivo' }}
+                </button>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="onEdit(product.id)" class="btn-action btn-edit" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    (click)="onDelete(product.id)"
+                    class="btn-action btn-delete"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
+      >
+        <i class="bi bi-chevron-left"></i> Anterior
+      </button>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
+      >
+        Siguiente <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  }
+
+  @if (!state.hasProducts() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-box-seam"></i>
+      <span>No se encontraron productos</span>
+    </div>
+  }
+</div>

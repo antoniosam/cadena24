@@ -1,0 +1,264 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}</h1>
+      <p class="page-subtitle">
+        {{
+          isEditMode
+            ? 'Modifica los datos del producto'
+            : 'Completa los datos para registrar un nuevo producto'
+        }}
+      </p>
+    </div>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="alert-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+    <!-- Sección: Información básica -->
+    <div class="form-section">
+      <h2 class="section-title">Información básica</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="code">Código <span class="required">*</span></label>
+          <input
+            id="code"
+            type="text"
+            formControlName="code"
+            class="form-control"
+            [class.is-invalid]="form.get('code')?.invalid && form.get('code')?.touched"
+            placeholder="Ej: PROD-001"
+          />
+          @if (fieldError('code')) {
+            <span class="field-error">{{ fieldError('code') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="name">Nombre <span class="required">*</span></label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="form-control"
+            [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+            placeholder="Nombre del producto"
+          />
+          @if (fieldError('name')) {
+            <span class="field-error">{{ fieldError('name') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="barcode"
+            >Código de Barras <span class="required">*</span></label
+          >
+          <input
+            id="barcode"
+            type="text"
+            formControlName="barcode"
+            class="form-control"
+            [class.is-invalid]="form.get('barcode')?.invalid && form.get('barcode')?.touched"
+            placeholder="Ej: 20260307120000 (CODE128)"
+          />
+          <small class="form-hint">Si se deja vacío, se generará automáticamente</small>
+          @if (fieldError('barcode')) {
+            <span class="field-error">{{ fieldError('barcode') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="category">Categoría</label>
+          <input
+            id="category"
+            type="text"
+            formControlName="category"
+            class="form-control"
+            placeholder="Ej: Electrónico, Ferretería..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="uom"
+            >Unidad de Medida <span class="required">*</span></label
+          >
+          <select
+            id="uom"
+            formControlName="uom"
+            class="form-control"
+            [class.is-invalid]="form.get('uom')?.invalid && form.get('uom')?.touched"
+          >
+            <option value="UND">UND — Unidad</option>
+            <option value="KG">KG — Kilogramo</option>
+            <option value="LT">LT — Litro</option>
+            <option value="MT">MT — Metro</option>
+            <option value="CJ">CJ — Caja</option>
+            <option value="BL">BL — Bulto</option>
+            <option value="PAR">PAR — Par</option>
+          </select>
+          @if (fieldError('uom')) {
+            <span class="field-error">{{ fieldError('uom') }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="description">Descripción</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          rows="3"
+          placeholder="Descripción opcional del producto"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Sección: Niveles de stock -->
+    <div class="form-section">
+      <h2 class="section-title">Niveles de stock</h2>
+      <div class="form-grid form-grid-4">
+        <div class="form-group">
+          <label class="form-label" for="minStock">Stock Mínimo</label>
+          <input
+            id="minStock"
+            type="number"
+            formControlName="minStock"
+            class="form-control"
+            [class.is-invalid]="form.get('minStock')?.invalid && form.get('minStock')?.touched"
+            min="0"
+          />
+          @if (fieldError('minStock')) {
+            <span class="field-error">{{ fieldError('minStock') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="maxStock">Stock Máximo</label>
+          <input
+            id="maxStock"
+            type="number"
+            formControlName="maxStock"
+            class="form-control"
+            [class.is-invalid]="form.get('maxStock')?.invalid && form.get('maxStock')?.touched"
+            min="0"
+          />
+          @if (fieldError('maxStock')) {
+            <span class="field-error">{{ fieldError('maxStock') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reorderPoint">Punto de Reorden</label>
+          <input
+            id="reorderPoint"
+            type="number"
+            formControlName="reorderPoint"
+            class="form-control"
+            min="0"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reorderQuantity">Cantidad de Reorden</label>
+          <input
+            id="reorderQuantity"
+            type="number"
+            formControlName="reorderQuantity"
+            class="form-control"
+            min="0"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Atributos físicos -->
+    <div class="form-section">
+      <h2 class="section-title">Atributos físicos</h2>
+      <div class="form-grid form-grid-4">
+        <div class="form-group">
+          <label class="form-label" for="weight">Peso (kg)</label>
+          <input
+            id="weight"
+            type="number"
+            formControlName="weight"
+            class="form-control"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="width">Ancho (cm)</label>
+          <input
+            id="width"
+            type="number"
+            formControlName="width"
+            class="form-control"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="height">Alto (cm)</label>
+          <input
+            id="height"
+            type="number"
+            formControlName="height"
+            class="form-control"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="depth">Profundidad (cm)</label>
+          <input
+            id="depth"
+            type="number"
+            formControlName="depth"
+            class="form-control"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Estado -->
+    <div class="form-section">
+      <h2 class="section-title">Estado</h2>
+      <label class="toggle-label">
+        <input type="checkbox" formControlName="isActive" class="toggle-input" />
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+        </span>
+        <span class="toggle-text">{{
+          form.get('isActive')?.value ? 'Producto activo' : 'Producto inactivo'
+        }}</span>
+      </label>
+    </div>
+
+    <!-- Acciones -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="onCancel()">
+        <i class="bi bi-arrow-left"></i>
+        Cancelar
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid || state.loading()">
+        <i class="bi bi-check-lg"></i>
+        {{ isEditMode ? 'Actualizar' : 'Crear Producto' }}
+      </button>
+    </div>
+  </form>
+</div>

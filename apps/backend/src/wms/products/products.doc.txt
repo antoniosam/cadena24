@@ -1,0 +1,444 @@
+# WMS - Products API Documentation
+
+## Base URL
+```
+/api/wms/products
+```
+
+---
+
+## Endpoints
+
+### 1. Create Product
+**POST** `/api/wms/products`
+
+Creates a new product with a single barcode (CODE128).
+
+**Request Body:**
+```json
+{
+  "code": "PROD-001",
+  "name": "Laptop HP 15",
+  "barcode": "20260307120000",
+  "description": "Laptop HP 15 pulgadas, 8GB RAM, 256GB SSD",
+  "category": "Electrónica",
+  "uom": "PZA",
+  "minStock": 5,
+  "maxStock": 50,
+  "reorderPoint": 10,
+  "reorderQuantity": 20,
+  "weight": 2.5,
+  "width": 35,
+  "height": 25,
+  "depth": 2,
+  "isActive": true
+}
+```
+
+**Note:** The `barcode` field is required. If left empty or not provided, a CODE128 barcode will be automatically generated using the format YYYYMMDDHHmmss (timestamp-based).
+
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "code": "PROD-001",
+  "name": "Laptop HP 15",
+  "description": "Laptop HP 15 pulgadas, 8GB RAM, 256GB SSD",
+  "category": "Electrónica",
+  "uom": "PZA",
+  "minStock": 5,
+  "maxStock": 50,
+  "reorderPoint": 10,
+  "reorderQuantity": 20,
+  "weight": 2.5,
+  "width": 35,
+  "height": 25,
+  "depth": 2,
+  "isActive": true,
+  "createdAt": "2026-03-06T15:00:00.000Z",
+  "updatedAt": "2026-03-06T15:00:00.000Z",
+  "barcodes": [
+    {
+      "id": 1,
+      "productId": 1,
+      "barcode": "7501234567890",
+      "type": "EAN13",
+      "isPrimary": true,
+      "createdAt": "2026-03-06T15:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Validations:**
+- `code` must be unique across all products
+- `barcode` must be unique across all products
+- `barcode` must contain only ASCII characters (max 48 chars for CODE128)
+- `uom` is required (unit of measure)
+- `maxStock` >= `minStock`
+- `reorderPoint` should be between `minStock` and `maxStock`
+
+**Errors:**
+- `400 Bad Request` - If validation fails (invalid barcode format, stock levels)
+- `409 Conflict` - If code or barcode already exists
+- `401 Unauthorized` - If user is not authenticated
+
+---
+
+### 2. Get All Products
+**GET** `/api/wms/products`
+
+Retrieves a paginated list of products with optional filters.
+
+**Query Parameters:**
+- `search` (string, optional) - Search by code, name, or barcode
+- `category` (string, optional) - Filter by category
+- `isActive` (boolean, optional) - Filter by active status
+- `lowStock` (boolean, optional) - Filter products below minimum stock
+- `page` (number, optional) - Page number (default: 1)
+- `limit` (number, optional) - Items per page (default: 20)
+
+**Example Request:**
+```
+GET /api/wms/products?search=laptop&category=Electrónica&page=1&limit=20
+```
+
+**Response:** `200 OK`
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "PROD-001",
+      "name": "Laptop HP 15",
+      "category": "Electrónica",
+      "uom": "PZA",
+      "minStock": 5,
+      "maxStock": 50,
+      "isActive": true,
+      "barcodes": [...],
+      "inventories": [...]
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 3. Get Product by ID
+**GET** `/api/wms/products/:id`
+
+Retrieves a single product by its ID.
+
+**Path Parameters:**
+- `id` (number) - Product ID
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "PROD-001",
+  "name": "Laptop HP 15",
+  ...
+  "barcodes": [...],
+  "inventories": [
+    {
+      "quantity": 25,
+      "availableQuantity": 20,
+      "reservedQuantity": 5,
+      "location": {
+        "fullPath": "WH01/ZONA-A/FILA-01/POS-01/NIV-A"
+      }
+    }
+  ]
+}
+```
+
+**Errors:**
+- `404 Not Found` - If product doesn't exist
+
+---
+
+### 4. Get Low Stock Products
+**GET** `/api/wms/products/low-stock`
+
+Retrieves all products where total available inventory is below minimum stock.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "code": "PROD-001",
+    "name": "Laptop HP 15",
+    "minStock": 10,
+    "inventories": [
+      {
+        "availableQuantity": 3
+      }
+    ]
+  }
+]
+```
+
+---
+
+### 5. Find Product by Barcode
+**GET** `/api/wms/products/search/barcode/:barcode`
+
+Finds a product by its barcode.
+
+**Path Parameters:**
+- `barcode` (string) - The barcode to search
+
+**Example:**
+```
+GET /api/wms/products/search/barcode/7501234567890
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "PROD-001",
+  "name": "Laptop HP 15",
+  ...
+  "barcodes": [
+    {
+      "id": 1,
+      "barcode": "7501234567890",
+      "type": "EAN13",
+      "isPrimary": true
+    }
+  ]
+}
+```
+
+**Errors:**
+- `404 Not Found` - If barcode doesn't exist
+
+---
+
+### 6. Update Product
+**PATCH** `/api/wms/products/:id`
+
+Updates an existing product (partial update). You can also update the barcode.
+
+**Path Parameters:**
+- `id` (number) - Product ID
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": "Laptop HP 15 - Updated",
+  "description": "Nueva descripción",
+  "barcode": "20260307130000",
+  "minStock": 10,
+  "maxStock": 100
+}
+```
+
+**Note:** If updating the barcode, it must be unique and valid CODE128 format.
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "PROD-001",
+  "name": "Laptop HP 15 - Updated",
+  ...
+}
+```
+
+**Errors:**
+- `404 Not Found` - If product doesn't exist
+- `400 Bad Request` - If validation fails (invalid barcode format, stock levels)
+- `409 Conflict` - If barcode is already in use by another product
+
+---
+
+### 7. Delete Product
+**DELETE** `/api/wms/products/:id`
+
+Soft deletes a product (sets `isActive` to false).
+
+**Path Parameters:**
+- `id` (number) - Product ID
+
+**Response:** `204 No Content`
+
+**Errors:**
+- `404 Not Found` - If product doesn't exist
+
+---
+
+### 8. Add Barcode to Product
+**POST** `/api/wms/products/:id/barcodes`
+
+Adds a new barcode to an existing product.
+
+**Path Parameters:**
+- `id` (number) - Product ID
+
+**Request Body:**
+```json
+{
+  "barcode": "7501234567891",
+  "type": "CODE128",
+  "isPrimary": false
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "id": 2,
+  "productId": 1,
+  "barcode": "7501234567891",
+  "type": "CODE128",
+  "isPrimary": false,
+  "createdAt": "2026-03-06T15:00:00.000Z"
+}
+```
+
+**Business Rules:**
+- If `isPrimary` is `true`, all other barcodes for this product will be set to `false`
+- Barcode must be unique across all products
+
+**Errors:**
+- `404 Not Found` - If product doesn't exist
+- `400 Bad Request` - If barcode already exists
+
+---
+
+### 9. Remove Barcode from Product
+**DELETE** `/api/wms/products/:id/barcodes/:barcodeId`
+
+Removes a barcode from a product.
+
+**Path Parameters:**
+- `id` (number) - Product ID
+- `barcodeId` (number) - Barcode ID
+
+**Response:** `204 No Content`
+
+**Errors:**
+- `404 Not Found` - If product or barcode doesn't exist
+
+---
+
+## Data Models
+
+### Product
+```typescript
+{
+  id: number;
+  code: string;              // Unique product code
+  name: string;
+  description?: string;
+  category?: string;
+  uom: string;               // Unit of measure (PZA, KG, LT, etc.)
+  
+  minStock: number;          // Minimum stock level
+  maxStock: number;          // Maximum stock level
+  reorderPoint: number;      // Reorder point
+  reorderQuantity: number;   // Quantity to order
+  
+  weight?: number;           // kg
+  width?: number;            // cm
+  height?: number;           // cm
+  depth?: number;            // cm
+  
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  
+  barcodes?: ProductBarcode[];
+  inventories?: Inventory[];
+}
+```
+
+### ProductBarcode
+```typescript
+{
+  id: number;
+  productId: number;
+  barcode: string;           // Unique barcode
+  type: string;              // EAN13, CODE128, QR, CUSTOM
+  isPrimary: boolean;
+  createdAt: Date;
+}
+```
+
+---
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+  "statusCode": 400,
+  "message": "Product with code PROD-001 already exists",
+  "error": "Bad Request"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "statusCode": 404,
+  "message": "Product with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
+---
+
+## Notes
+
+- All endpoints require authentication (JWT token)
+- Date fields are in ISO 8601 format
+- Numeric IDs are integers (not UUIDs)
+- Soft delete is used (products are not physically deleted)
+- Search is case-insensitive
+- Pagination is zero-indexed on the frontend but 1-indexed on the backend
+
+---
+
+## Barcode Management
+
+### Single Barcode Per Product
+Starting from version 1.1, each product has exactly ONE barcode:
+- Barcode type is always **CODE128**
+- Barcode is auto-generated if not provided (format: YYYYMMDDHHmmss)
+- Barcode can be updated via PATCH `/api/wms/products/:id`
+- Legacy endpoints for adding/removing barcodes are still available but not recommended
+
+### Auto-generation Format
+```
+Format: YYYYMMDDHHmmss
+Example: 20260307143022
+- YYYY: Year (2026)
+- MM: Month (03)
+- DD: Day (07)
+- HH: Hour (14)
+- mm: Minute (30)
+- ss: Second (22)
+```
+
+---
+
+**Last Updated:** 2026-03-07
+**Version:** 1.1
