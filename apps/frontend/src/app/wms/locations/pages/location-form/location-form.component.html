@@ -1,0 +1,128 @@
+<div class="form-container">
+  <div class="header">
+    <h1>{{ isEditMode ? 'Editar Ubicación' : 'Nueva Ubicación' }}</h1>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading">Cargando...</div>
+  }
+
+  @if (state.hasError()) {
+    <div class="error">Error: {{ state.error() }}</div>
+  }
+
+  <form [formGroup]="locationForm" (ngSubmit)="onSubmit()" class="location-form">
+    <div class="form-group">
+      <label for="warehouseId">Almacén *</label>
+      <select
+        id="warehouseId"
+        formControlName="warehouseId"
+        class="form-control"
+        [class.error]="
+          locationForm.get('warehouseId')?.invalid && locationForm.get('warehouseId')?.touched
+        "
+      >
+        <option [value]="null" disabled>Selecciona un almacén...</option>
+        @for (wh of warehouses(); track wh.id) {
+          <option [value]="wh.id">{{ wh.code }} — {{ wh.name }}</option>
+        }
+      </select>
+      @if (locationForm.get('warehouseId')?.invalid && locationForm.get('warehouseId')?.touched) {
+        <span class="error-message">{{ getErrorMessage('warehouseId') }}</span>
+      }
+    </div>
+
+    <div class="path-preview"><strong>Vista previa de ruta:</strong> {{ fullPathPreview() }}</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="zone">Zona *</label>
+        <input id="zone" type="text" formControlName="zone" class="form-control" />
+        @if (locationForm.get('zone')?.invalid && locationForm.get('zone')?.touched) {
+          <span class="error-message">{{ getErrorMessage('zone') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="row">Fila *</label>
+        <input id="row" type="text" formControlName="row" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="position">Posición *</label>
+        <input id="position" type="text" formControlName="position" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="level">Nivel *</label>
+        <input id="level" type="text" formControlName="level" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="barcode">Código de Barras *</label>
+        <input id="barcode" type="text" formControlName="barcode" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input id="name" type="text" formControlName="name" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="type">Tipo *</label>
+        <select id="type" formControlName="type" class="form-control">
+          <option value="receiving">Recepción</option>
+          <option value="storage">Almacenamiento</option>
+          <option value="picking">Picking</option>
+          <option value="shipping">Despacho</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="capacity">Capacidad *</label>
+        <input id="capacity" type="number" formControlName="capacity" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="maxWeight">Peso Máximo (kg)</label>
+        <input id="maxWeight" type="number" formControlName="maxWeight" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="height">Altura (m)</label>
+        <input id="height" type="number" step="0.1" formControlName="height" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="allowMixedProducts" />
+          <span>Permitir productos mixtos</span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isActive" />
+          <span>Activo</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="onCancel()">Cancelar</button>
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="locationForm.invalid || state.loading()"
+      >
+        {{ isEditMode ? 'Actualizar' : 'Crear' }}
+      </button>
+    </div>
+  </form>
+</div>

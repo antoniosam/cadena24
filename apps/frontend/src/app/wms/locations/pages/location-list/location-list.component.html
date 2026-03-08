@@ -1,0 +1,139 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Ubicaciones</h1>
+      <p class="page-subtitle">Gestión de ubicaciones y zonas de almacén</p>
+    </div>
+    <button class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nueva Ubicación
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [value]="state.searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Buscar por código de barras, zona o nombre..."
+        class="search-input"
+      />
+    </div>
+
+    <select (change)="onFilterType($event)" class="filter-select">
+      <option value="">Todos los tipos</option>
+      <option value="receiving">Recepción</option>
+      <option value="storage">Almacenamiento</option>
+      <option value="picking">Picking</option>
+      <option value="shipping">Despacho</option>
+    </select>
+
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="state.availableOnlyFilter()"
+        (change)="onFilterAvailableOnly($any($event.target).checked)"
+      />
+      Solo disponibles
+    </label>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando ubicaciones...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasLocations() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código de Barras</th>
+            <th>Ruta Completa</th>
+            <th>Nombre</th>
+            <th>Almacén</th>
+            <th>Tipo</th>
+            <th>Capacidad</th>
+            <th>Altura</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (location of state.locations(); track location.id) {
+            <tr>
+              <td>
+                <span class="code-text">{{ location.barcode }}</span>
+              </td>
+              <td>
+                <span class="path-text">{{ location.fullPath }}</span>
+              </td>
+              <td>{{ location.name }}</td>
+              <td>{{ location.warehouse?.name || '—' }}</td>
+              <td>
+                <span class="badge badge-type">{{ getTypeLabel(location.type) }}</span>
+              </td>
+              <td>{{ location.capacity }}</td>
+              <td>{{ location.height }}m</td>
+              <td>
+                <span [class]="location.isActive ? 'badge badge-active' : 'badge badge-inactive'">
+                  {{ location.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="onEdit(location.id)" class="btn-action btn-edit" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    (click)="onDelete(location.id)"
+                    class="btn-action btn-delete"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
+      >
+        <i class="bi bi-chevron-left"></i> Anterior
+      </button>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
+      >
+        Siguiente <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  }
+
+  @if (!state.hasLocations() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-diagram-3"></i>
+      <span>No se encontraron ubicaciones</span>
+    </div>
+  }
+</div>

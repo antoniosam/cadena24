@@ -1,0 +1,484 @@
+# WMS - Locations API Documentation
+
+## Base URL
+```
+/api/wms/locations
+```
+
+---
+
+## Endpoints
+
+### 1. Create Location
+**POST** `/api/wms/locations`
+
+Creates a new location in a warehouse. The `fullPath` is automatically generated in the format: `{warehouseCode}/{zone}/{row}/{position}/{level}`.
+
+**Request Body:**
+```json
+{
+  "warehouseId": 1,
+  "zone": "A",
+  "row": "01",
+  "position": "05",
+  "level": "1",
+  "barcode": "WH01-A-01-05-1",
+  "name": "Zone A - Row 1 - Position 5 - Level 1",
+  "type": "storage",
+  "sequence": 1,
+  "height": 2.5,
+  "capacity": 1000,
+  "maxWeight": 500,
+  "allowMixedProducts": false,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "warehouseId": 1,
+  "zone": "A",
+  "row": "01",
+  "position": "05",
+  "level": "1",
+  "barcode": "WH01-A-01-05-1",
+  "fullPath": "WH01/A/01/05/1",
+  "name": "Zone A - Row 1 - Position 5 - Level 1",
+  "type": "storage",
+  "sequence": 1,
+  "height": 2.5,
+  "capacity": 1000,
+  "maxWeight": 500,
+  "allowMixedProducts": false,
+  "isActive": true,
+  "createdAt": "2026-03-06T15:00:00.000Z",
+  "updatedAt": "2026-03-06T15:00:00.000Z",
+  "warehouse": {
+    "id": 1,
+    "code": "WH01",
+    "name": "Main Warehouse"
+  }
+}
+```
+
+**Validations:**
+- `barcode` must be unique
+- `warehouseId` must exist and warehouse must be active
+- `capacity` must be greater than 0
+- `maxWeight` cannot be negative
+- `type` must be one of: 'receiving', 'storage', 'picking', 'shipping'
+
+**Errors:**
+- `400 Bad Request` - If barcode already exists, warehouse is inactive, or validation fails
+- `404 Not Found` - If warehouse doesn't exist
+- `401 Unauthorized` - If user is not authenticated
+
+---
+
+### 2. Get All Locations
+**GET** `/api/wms/locations`
+
+Retrieves a paginated list of locations with optional filters.
+
+**Query Parameters:**
+- `warehouseId` (number, optional) - Filter by warehouse ID
+- `zone` (string, optional) - Filter by zone
+- `type` (string, optional) - Filter by type ('receiving', 'storage', 'picking', 'shipping')
+- `isActive` (boolean, optional) - Filter by active status
+- `search` (string, optional) - Search by name, barcode, fullPath, or zone
+- `barcode` (string, optional) - Filter by barcode (partial match)
+- `availableOnly` (boolean, optional) - Only show locations with available capacity (capacity > 0)
+- `page` (number, optional) - Page number (default: 1)
+- `limit` (number, optional) - Items per page (default: 20)
+
+**Example Request:**
+```
+GET /api/wms/locations?warehouseId=1&type=storage&availableOnly=true&page=1&limit=20
+```
+
+**Response:** `200 OK`
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "warehouseId": 1,
+      "zone": "A",
+      "row": "01",
+      "position": "05",
+      "level": "1",
+      "barcode": "WH01-A-01-05-1",
+      "fullPath": "WH01/A/01/05/1",
+      "name": "Zone A - Row 1 - Position 5 - Level 1",
+      "type": "storage",
+      "capacity": 1000,
+      "isActive": true,
+      "warehouse": {
+        "id": 1,
+        "code": "WH01",
+        "name": "Main Warehouse"
+      }
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 3. Get Location by Barcode
+**GET** `/api/wms/locations/barcode/:barcode`
+
+Retrieves a single location by its barcode.
+
+**Path Parameters:**
+- `barcode` (string) - Location barcode
+
+**Example Request:**
+```
+GET /api/wms/locations/barcode/WH01-A-01-05-1
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "warehouseId": 1,
+  "zone": "A",
+  "row": "01",
+  "position": "05",
+  "level": "1",
+  "barcode": "WH01-A-01-05-1",
+  "fullPath": "WH01/A/01/05/1",
+  "name": "Zone A - Row 1 - Position 5 - Level 1",
+  "type": "storage",
+  "capacity": 1000,
+  "isActive": true,
+  "warehouse": {
+    "id": 1,
+    "code": "WH01",
+    "name": "Main Warehouse"
+  }
+}
+```
+
+**Errors:**
+- `404 Not Found` - If location with barcode doesn't exist
+
+---
+
+### 4. Get Warehouse Locations Tree
+**GET** `/api/wms/locations/warehouse/:warehouseId/tree`
+
+Retrieves all active locations for a warehouse grouped hierarchically (zone -> row -> position -> levels) for tree view display.
+
+**Path Parameters:**
+- `warehouseId` (number) - Warehouse ID
+
+**Example Request:**
+```
+GET /api/wms/locations/warehouse/1/tree
+```
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "zone": "A",
+    "rows": [
+      {
+        "row": "01",
+        "positions": [
+          {
+            "position": "05",
+            "levels": [
+              {
+                "id": 1,
+                "level": "1",
+                "barcode": "WH01-A-01-05-1",
+                "fullPath": "WH01/A/01/05/1",
+                "name": "Zone A - Row 1 - Position 5 - Level 1",
+                "type": "storage",
+                "capacity": 1000
+              },
+              {
+                "id": 2,
+                "level": "2",
+                "barcode": "WH01-A-01-05-2",
+                "fullPath": "WH01/A/01/05/2",
+                "name": "Zone A - Row 1 - Position 5 - Level 2",
+                "type": "storage",
+                "capacity": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "zone": "B",
+    "rows": [
+      {
+        "row": "01",
+        "positions": [
+          {
+            "position": "01",
+            "levels": [
+              {
+                "id": 3,
+                "level": "1",
+                "barcode": "WH01-B-01-01-1",
+                "fullPath": "WH01/B/01/01/1",
+                "name": "Zone B - Row 1 - Position 1 - Level 1",
+                "type": "picking",
+                "capacity": 500
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+**Errors:**
+- `404 Not Found` - If warehouse doesn't exist
+
+---
+
+### 5. Get Location by ID
+**GET** `/api/wms/locations/:id`
+
+Retrieves a single location by its ID with warehouse details and inventory count.
+
+**Path Parameters:**
+- `id` (number) - Location ID
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "warehouseId": 1,
+  "zone": "A",
+  "row": "01",
+  "position": "05",
+  "level": "1",
+  "barcode": "WH01-A-01-05-1",
+  "fullPath": "WH01/A/01/05/1",
+  "name": "Zone A - Row 1 - Position 5 - Level 1",
+  "type": "storage",
+  "sequence": 1,
+  "height": 2.5,
+  "capacity": 1000,
+  "maxWeight": 500,
+  "allowMixedProducts": false,
+  "isActive": true,
+  "createdAt": "2026-03-06T15:00:00.000Z",
+  "updatedAt": "2026-03-06T15:00:00.000Z",
+  "warehouse": {
+    "id": 1,
+    "code": "WH01",
+    "name": "Main Warehouse",
+    "address": "123 Industrial Ave",
+    "city": "Mexico City",
+    "state": "CDMX"
+  },
+  "_count": {
+    "inventories": 25
+  }
+}
+```
+
+**Errors:**
+- `404 Not Found` - If location doesn't exist
+
+---
+
+### 6. Update Location
+**PATCH** `/api/wms/locations/:id`
+
+Updates an existing location (partial update). If zone, row, position, or level is changed, the `fullPath` is automatically regenerated.
+
+**Path Parameters:**
+- `id` (number) - Location ID
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": "Zone A - Row 1 - Position 5 - Level 1 - Updated",
+  "capacity": 1200,
+  "isActive": true
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "name": "Zone A - Row 1 - Position 5 - Level 1 - Updated",
+  "capacity": 1200,
+  "fullPath": "WH01/A/01/05/1",
+  "warehouse": {
+    "id": 1,
+    "code": "WH01",
+    "name": "Main Warehouse"
+  }
+}
+```
+
+**Business Rules:**
+- If zone/row/position/level is changed, `fullPath` is automatically regenerated
+- Cannot change to inactive warehouse
+- Barcode must remain unique
+
+**Errors:**
+- `404 Not Found` - If location or new warehouse doesn't exist
+- `400 Bad Request` - If validation fails or barcode already exists
+
+---
+
+### 7. Delete Location
+**DELETE** `/api/wms/locations/:id`
+
+Soft deletes a location (sets `isActive` to false).
+
+**Path Parameters:**
+- `id` (number) - Location ID
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "isActive": false
+}
+```
+
+**Business Rules:**
+- Cannot delete location with existing inventory
+
+**Errors:**
+- `404 Not Found` - If location doesn't exist
+- `400 Bad Request` - If location has inventory
+
+---
+
+## Data Models
+
+### Location
+```typescript
+{
+  id: number;
+  warehouseId: number;
+  zone: string;                    // Zone identifier (e.g., "A", "B")
+  row: string;                     // Row identifier (e.g., "01", "02")
+  position: string;                // Position identifier (e.g., "05", "10")
+  level: string;                   // Level identifier (e.g., "1", "2")
+  barcode: string;                 // Unique barcode (e.g., "WH01-A-01-05-1")
+  fullPath: string;                // Auto-generated: "{code}/{zone}/{row}/{position}/{level}"
+  name: string;                    // Human-readable name
+  type: 'receiving' | 'storage' | 'picking' | 'shipping';
+  sequence: number;                // Picking sequence
+  height: number;                  // Height in meters
+  capacity: number;                // Storage capacity (units/volume)
+  maxWeight: number;               // Maximum weight capacity (kg)
+  allowMixedProducts: boolean;     // Allow different products
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  warehouse?: {                    // Included in some responses
+    id: number;
+    code: string;
+    name: string;
+  };
+}
+```
+
+### Location Tree Node
+```typescript
+{
+  zone: string;
+  rows: {
+    row: string;
+    positions: {
+      position: string;
+      levels: Location[];
+    }[];
+  }[];
+}
+```
+
+---
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+  "statusCode": 400,
+  "message": "Location with barcode WH01-A-01-05-1 already exists",
+  "error": "Bad Request"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "statusCode": 404,
+  "message": "Location with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
+---
+
+## Business Rules
+
+1. **Barcode Uniqueness**: Each location must have a unique barcode
+2. **Full Path Generation**: Automatically generated as `{warehouseCode}/{zone}/{row}/{position}/{level}`
+3. **Capacity Constraints**: Capacity must be > 0, maxWeight cannot be negative
+4. **Warehouse Validation**: Warehouse must exist and be active
+5. **Inventory Protection**: Cannot delete locations with existing inventory
+6. **Tree Hierarchy**: Locations are organized in a hierarchical structure: Warehouse > Zone > Row > Position > Level
+7. **Available Capacity**: Query parameter `availableOnly=true` filters locations with capacity > 0
+
+---
+
+## Location Types
+
+- **receiving**: Locations for receiving incoming goods
+- **storage**: Main storage locations for inventory
+- **picking**: Locations optimized for order picking
+- **shipping**: Locations for staging outbound shipments
+
+---
+
+## Notes
+
+- All endpoints require authentication (JWT token)
+- Date fields are in ISO 8601 format
+- Numeric IDs are integers (not UUIDs)
+- Soft delete is used (locations are not physically deleted)
+- Search is case-insensitive
+- Locations are sorted by `fullPath` in ascending order
+- Tree view only returns active locations
+- Full path is automatically maintained when location coordinates change
+
+---
+
+**Last Updated:** 2026-03-06
+**Version:** 1.0

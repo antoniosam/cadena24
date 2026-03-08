@@ -1,0 +1,84 @@
+<div class="tree-container">
+  <div class="header">
+    <h1>Árbol de Ubicaciones</h1>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading">Cargando...</div>
+  }
+
+  @if (state.hasError()) {
+    <div class="error">Error: {{ state.error() }}</div>
+  }
+
+  @if (state.locationTree().length > 0 && !state.loading()) {
+    <div class="tree">
+      @for (zoneNode of state.locationTree(); track zoneNode.zone) {
+        <div class="tree-node zone-node">
+          <div class="node-header" (click)="toggleZone(zoneNode.zone)">
+            <span class="expand-icon">{{ isZoneExpanded(zoneNode.zone) ? '▼' : '►' }}</span>
+            <strong>Zona: {{ zoneNode.zone }}</strong>
+          </div>
+
+          @if (isZoneExpanded(zoneNode.zone)) {
+            <div class="node-children">
+              @for (rowNode of zoneNode.rows; track rowNode.row) {
+                <div class="tree-node row-node">
+                  <div class="node-header" (click)="toggleRow(zoneNode.zone, rowNode.row)">
+                    <span class="expand-icon">{{
+                      isRowExpanded(zoneNode.zone, rowNode.row) ? '▼' : '►'
+                    }}</span>
+                    <strong>Fila: {{ rowNode.row }}</strong>
+                  </div>
+
+                  @if (isRowExpanded(zoneNode.zone, rowNode.row)) {
+                    <div class="node-children">
+                      @for (posNode of rowNode.positions; track posNode.position) {
+                        <div class="tree-node position-node">
+                          <div
+                            class="node-header"
+                            (click)="togglePosition(zoneNode.zone, rowNode.row, posNode.position)"
+                          >
+                            <span class="expand-icon">{{
+                              isPositionExpanded(zoneNode.zone, rowNode.row, posNode.position)
+                                ? '▼'
+                                : '►'
+                            }}</span>
+                            <strong>Posición: {{ posNode.position }}</strong>
+                          </div>
+
+                          @if (isPositionExpanded(zoneNode.zone, rowNode.row, posNode.position)) {
+                            <div class="node-children">
+                              @for (location of posNode.levels; track location.id) {
+                                <div
+                                  class="tree-node level-node"
+                                  [class.selected]="state.selectedLocation()?.id === location.id"
+                                  (click)="onSelectLocation(location)"
+                                >
+                                  <div class="location-info">
+                                    <span class="level-label">Nivel {{ location.level }}</span>
+                                    <span class="location-name">{{ location.name }}</span>
+                                    <span class="location-barcode">{{ location.barcode }}</span>
+                                    <span class="capacity">Cap: {{ location.capacity }}</span>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (state.locationTree().length === 0 && !state.loading() && !state.hasError()) {
+    <div class="empty-state">No hay ubicaciones en este almacén</div>
+  }
+</div>
