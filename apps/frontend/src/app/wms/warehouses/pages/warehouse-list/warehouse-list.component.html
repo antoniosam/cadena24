@@ -1,0 +1,140 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Almacenes</h1>
+      <p class="page-subtitle">Gestión de almacenes y bodegas</p>
+    </div>
+    <button class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo Almacén
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [value]="state.searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Buscar por código o nombre..."
+        class="search-input"
+      />
+    </div>
+
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="state.activeFilter() === true"
+        (change)="onFilterActive($any($event.target).checked ? true : null)"
+      />
+      Solo activos
+    </label>
+
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="state.primaryFilter() === true"
+        (change)="onFilterPrimary($any($event.target).checked ? true : null)"
+      />
+      Solo principal
+    </label>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando almacenes...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasWarehouses() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Dirección</th>
+            <th>Ciudad</th>
+            <th>Dpto.</th>
+            <th>Principal</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (warehouse of state.warehouses(); track warehouse.id) {
+            <tr>
+              <td>
+                <span class="code-text">{{ warehouse.code }}</span>
+              </td>
+              <td>{{ warehouse.name }}</td>
+              <td>{{ warehouse.address || '—' }}</td>
+              <td>{{ warehouse.city || '—' }}</td>
+              <td>{{ warehouse.state || '—' }}</td>
+              <td>
+                @if (warehouse.isPrimary) {
+                  <span class="badge badge-highlight">Principal</span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>
+                <span [class]="warehouse.isActive ? 'badge badge-active' : 'badge badge-inactive'">
+                  {{ warehouse.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="onEdit(warehouse.id)" class="btn-action btn-edit" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    (click)="onDelete(warehouse.id)"
+                    class="btn-action btn-delete"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
+      >
+        <i class="bi bi-chevron-left"></i> Anterior
+      </button>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
+      >
+        Siguiente <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  }
+
+  @if (!state.hasWarehouses() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-building"></i>
+      <span>No se encontraron almacenes</span>
+    </div>
+  }
+</div>

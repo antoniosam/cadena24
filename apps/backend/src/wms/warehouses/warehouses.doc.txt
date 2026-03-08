@@ -1,0 +1,272 @@
+# WMS - Warehouses API Documentation
+
+## Base URL
+```
+/api/wms/warehouses
+```
+
+---
+
+## Endpoints
+
+### 1. Create Warehouse
+**POST** `/api/wms/warehouses`
+
+Creates a new warehouse.
+
+**Request Body:**
+```json
+{
+  "code": "WH01",
+  "name": "Main Warehouse",
+  "address": "123 Industrial Ave",
+  "city": "Mexico City",
+  "state": "CDMX",
+  "zipCode": "12345",
+  "isPrimary": true,
+  "isActive": true
+}
+```
+
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "code": "WH01",
+  "name": "Main Warehouse",
+  "address": "123 Industrial Ave",
+  "city": "Mexico City",
+  "state": "CDMX",
+  "zipCode": "12345",
+  "isPrimary": true,
+  "isActive": true,
+  "createdAt": "2026-03-06T15:00:00.000Z",
+  "updatedAt": "2026-03-06T15:00:00.000Z"
+}
+```
+
+**Validations:**
+- `code` must be unique
+- Only one warehouse can be primary
+- `name` and `code` are required
+
+**Errors:**
+- `400 Bad Request` - If code already exists or another warehouse is already primary
+- `401 Unauthorized` - If user is not authenticated
+
+---
+
+### 2. Get All Warehouses
+**GET** `/api/wms/warehouses`
+
+Retrieves a paginated list of warehouses with optional filters.
+
+**Query Parameters:**
+- `search` (string, optional) - Search by code, name, or city
+- `isActive` (boolean, optional) - Filter by active status
+- `isPrimary` (boolean, optional) - Filter by primary status
+- `page` (number, optional) - Page number (default: 1)
+- `limit` (number, optional) - Items per page (default: 20)
+
+**Example Request:**
+```
+GET /api/wms/warehouses?search=main&isActive=true&page=1&limit=20
+```
+
+**Response:** `200 OK`
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "WH01",
+      "name": "Main Warehouse",
+      "city": "Mexico City",
+      "isPrimary": true,
+      "isActive": true,
+      "createdAt": "2026-03-06T15:00:00.000Z",
+      "updatedAt": "2026-03-06T15:00:00.000Z"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 1
+}
+```
+
+---
+
+### 3. Get Primary Warehouse
+**GET** `/api/wms/warehouses/primary`
+
+Retrieves the primary warehouse.
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "WH01",
+  "name": "Main Warehouse",
+  "isPrimary": true,
+  "isActive": true
+}
+```
+
+**Errors:**
+- `404 Not Found` - If no primary warehouse is set
+
+---
+
+### 4. Get Warehouse by ID
+**GET** `/api/wms/warehouses/:id`
+
+Retrieves a single warehouse by its ID with location and inventory counts.
+
+**Path Parameters:**
+- `id` (number) - Warehouse ID
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "WH01",
+  "name": "Main Warehouse",
+  "address": "123 Industrial Ave",
+  "city": "Mexico City",
+  "state": "CDMX",
+  "zipCode": "12345",
+  "isPrimary": true,
+  "isActive": true,
+  "createdAt": "2026-03-06T15:00:00.000Z",
+  "updatedAt": "2026-03-06T15:00:00.000Z",
+  "_count": {
+    "locations": 150,
+    "inventories": 500
+  }
+}
+```
+
+**Errors:**
+- `404 Not Found` - If warehouse doesn't exist
+
+---
+
+### 5. Update Warehouse
+**PATCH** `/api/wms/warehouses/:id`
+
+Updates an existing warehouse (partial update).
+
+**Path Parameters:**
+- `id` (number) - Warehouse ID
+
+**Request Body:** (all fields optional)
+```json
+{
+  "name": "Main Warehouse - Updated",
+  "isPrimary": true
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "code": "WH01",
+  "name": "Main Warehouse - Updated",
+  "isPrimary": true
+}
+```
+
+**Business Rules:**
+- If setting `isPrimary` to `true`, all other warehouses will be set to `false`
+
+**Errors:**
+- `404 Not Found` - If warehouse doesn't exist
+- `400 Bad Request` - If validation fails
+
+---
+
+### 6. Delete Warehouse
+**DELETE** `/api/wms/warehouses/:id`
+
+Soft deletes a warehouse (sets `isActive` to false).
+
+**Path Parameters:**
+- `id` (number) - Warehouse ID
+
+**Response:** `204 No Content`
+
+**Business Rules:**
+- Cannot delete primary warehouse
+
+**Errors:**
+- `404 Not Found` - If warehouse doesn't exist
+- `400 Bad Request` - If trying to delete primary warehouse
+
+---
+
+## Data Models
+
+### Warehouse
+```typescript
+{
+  id: number;
+  code: string;              // Unique warehouse code
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  isPrimary: boolean;        // Only one can be primary
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+---
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+  "statusCode": 400,
+  "message": "Warehouse with code WH01 already exists",
+  "error": "Bad Request"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "statusCode": 404,
+  "message": "Warehouse with ID 999 not found",
+  "error": "Not Found"
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
+---
+
+## Notes
+
+- All endpoints require authentication (JWT token)
+- Date fields are in ISO 8601 format
+- Numeric IDs are integers (not UUIDs)
+- Soft delete is used (warehouses are not physically deleted)
+- Search is case-insensitive
+- Only one warehouse can be marked as primary at a time
+
+---
+
+**Last Updated:** 2026-03-06
+**Version:** 1.0

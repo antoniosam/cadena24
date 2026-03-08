@@ -1,0 +1,94 @@
+<div class="form-container">
+  <div class="header">
+    <h1>{{ isEditMode ? 'Editar Almacén' : 'Nuevo Almacén' }}</h1>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading">Cargando...</div>
+  }
+
+  @if (state.hasError()) {
+    <div class="error">Error: {{ state.error() }}</div>
+  }
+
+  <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" class="warehouse-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="code">Código *</label>
+        <input
+          id="code"
+          type="text"
+          formControlName="code"
+          class="form-control"
+          [class.error]="warehouseForm.get('code')?.invalid && warehouseForm.get('code')?.touched"
+        />
+        @if (warehouseForm.get('code')?.invalid && warehouseForm.get('code')?.touched) {
+          <span class="error-message">{{ getErrorMessage('code') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          [class.error]="warehouseForm.get('name')?.invalid && warehouseForm.get('name')?.touched"
+        />
+        @if (warehouseForm.get('name')?.invalid && warehouseForm.get('name')?.touched) {
+          <span class="error-message">{{ getErrorMessage('name') }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Dirección</label>
+      <input id="address" type="text" formControlName="address" class="form-control" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="city">Ciudad</label>
+        <input id="city" type="text" formControlName="city" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="state">Estado</label>
+        <input id="state" type="text" formControlName="state" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="zipCode">Código Postal</label>
+        <input id="zipCode" type="text" formControlName="zipCode" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isPrimary" />
+          <span>Almacén Principal</span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isActive" />
+          <span>Activo</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="onCancel()">Cancelar</button>
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="warehouseForm.invalid || state.loading()"
+      >
+        {{ isEditMode ? 'Actualizar' : 'Crear' }}
+      </button>
+    </div>
+  </form>
+</div>
