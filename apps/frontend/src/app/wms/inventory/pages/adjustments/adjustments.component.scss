@@ -1,0 +1,105 @@
+.adjustments-container {
+  padding: 1.5rem;
+
+  .header {
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+  }
+
+  .error {
+    padding: 1rem;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+  }
+
+  .adjustments-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    tr:hover td {
+      background-color: #f9fafb;
+    }
+  }
+
+  .badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    &.badge-success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    &.badge-warning {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    &.badge-secondary {
+      background-color: #f3f4f6;
+      color: #374151;
+    }
+  }
+
+  .btn-approve {
+    padding: 0.375rem 0.75rem;
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+
+    &:hover {
+      background-color: #047857;
+    }
+  }
+
+  .btn-cancel {
+    padding: 0.375rem 0.75rem;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    &:hover {
+      background-color: #b91c1c;
+    }
+  }
+}

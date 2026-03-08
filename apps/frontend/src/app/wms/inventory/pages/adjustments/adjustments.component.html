@@ -1,0 +1,63 @@
+<div class="adjustments-container">
+  <div class="header">
+    <h1>Ajustes de Inventario</h1>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading">Cargando...</div>
+  }
+
+  @if (state.hasError()) {
+    <div class="error">{{ state.error() }}</div>
+  }
+
+  @if (state.adjustments().length > 0 && !state.loading()) {
+    <table class="adjustments-table">
+      <thead>
+        <tr>
+          <th>Número</th>
+          <th>Almacén</th>
+          <th>Razón</th>
+          <th>Estado</th>
+          <th>Creado por</th>
+          <th>Aprobado por</th>
+          <th>Fecha</th>
+          <th>Líneas</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (adj of state.adjustments(); track adj.id) {
+          <tr>
+            <td>{{ adj.adjustmentNumber }}</td>
+            <td>{{ adj.warehouseId }}</td>
+            <td>{{ getReasonLabel(adj.reason) }}</td>
+            <td>
+              <span [class]="'badge ' + getStatusClass(adj.status)">
+                {{ getStatusLabel(adj.status) }}
+              </span>
+            </td>
+            <td>{{ adj.creator?.name || adj.createdBy || '-' }}</td>
+            <td>{{ adj.approver?.name || adj.approvedBy || '-' }}</td>
+            <td>{{ adj.createdAt | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ adj.lines.length }}</td>
+            <td>
+              @if (adj.status === 'draft') {
+                <button class="btn-approve" (click)="onApprove(adj.id)" title="Aprobar">
+                  Aprobar
+                </button>
+                <button class="btn-cancel" (click)="onCancel(adj.id)" title="Cancelar">
+                  Cancelar
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (state.adjustments().length === 0 && !state.loading() && !state.hasError()) {
+    <div class="empty-state">No hay ajustes de inventario registrados</div>
+  }
+</div>

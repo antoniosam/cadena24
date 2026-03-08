@@ -1,0 +1,392 @@
+# WMS - Inventory API Documentation
+
+## Base URL
+```
+/api/wms/inventory
+```
+
+---
+
+## Endpoints
+
+### 1. Get Inventory
+**GET** `/api/wms/inventory`
+
+Returns inventory records filtered by optional parameters.
+
+**Query Parameters:**
+- `productId` (string, optional) - Filter by product ID
+- `levelId` (string, optional) - Filter by location level ID
+- `warehouseId` (string, optional) - Filter by warehouse ID
+- `status` (string, optional) - Filter by status: 'available', 'reserved', 'damaged', 'quarantine'
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "productId": "uuid",
+    "levelId": "uuid",
+    "warehouseId": "uuid",
+    "quantity": 100,
+    "availableQuantity": 80,
+    "reservedQuantity": 20,
+    "status": "available",
+    "updatedAt": "2026-03-06T15:00:00.000Z",
+    "product": { "id": "uuid", "name": "Paracetamol 500mg", "code": "MED-001" },
+    "level": { "fullPath": "WH01/A/01/05/1", "barcode": "WH01-A-01-05-1" }
+  }
+]
+```
+
+---
+
+### 2. Get Available Stock
+**GET** `/api/wms/inventory/available/:productId`
+
+Returns total available quantity for a product across all locations.
+
+**Path Parameters:**
+- `productId` (string) - Product ID
+
+**Query Parameters:**
+- `warehouseId` (string, optional) - Limit search to specific warehouse
+
+**Response:** `200 OK`
+```json
+80
+```
+
+---
+
+### 3. Get Stock by Product
+**GET** `/api/wms/inventory/product/:productId`
+
+Returns all inventory records for a specific product across all locations.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "productId": "uuid",
+    "levelId": "uuid",
+    "quantity": 100,
+    "availableQuantity": 80,
+    "reservedQuantity": 20,
+    "status": "available",
+    "level": { "fullPath": "WH01/A/01/05/1", "barcode": "WH01-A-01-05-1" }
+  }
+]
+```
+
+---
+
+### 4. Get Stock by Location
+**GET** `/api/wms/inventory/location/:levelId`
+
+Returns all inventory records at a specific location.
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "levelId": "uuid",
+    "productId": "uuid",
+    "quantity": 50,
+    "availableQuantity": 50,
+    "reservedQuantity": 0,
+    "status": "available",
+    "product": { "id": "uuid", "name": "Paracetamol 500mg" }
+  }
+]
+```
+
+---
+
+### 5. Update Inventory
+**PATCH** `/api/wms/inventory/update`
+
+Manually updates inventory quantity at a location. Automatically creates a transaction record.
+
+**Request Body:**
+```json
+{
+  "productId": "uuid",
+  "levelId": "uuid",
+  "quantity": 10,
+  "operation": "ADD"
+}
+```
+
+**Operations:** `ADD` | `SUBTRACT` | `SET`
+
+**Response:** `200 OK` - Updated inventory record
+
+**Errors:**
+- `404 Not Found` - If level doesn't exist
+
+---
+
+### 6. Reserve Inventory
+**POST** `/api/wms/inventory/reserve`
+
+Reserves inventory for an order using FIFO strategy.
+
+**Request Body:**
+```json
+{
+  "productId": "uuid",
+  "quantity": 10,
+  "referenceType": "SALES_ORDER",
+  "referenceId": "so-uuid"
+}
+```
+
+**Response:** `200 OK`
+
+**Errors:**
+- `400 Bad Request` - Insufficient available stock
+
+---
+
+### 7. Release Reservation
+**POST** `/api/wms/inventory/release`
+
+Releases previously reserved inventory.
+
+**Request Body:**
+```json
+{
+  "productId": "uuid",
+  "quantity": 10,
+  "referenceId": "so-uuid"
+}
+```
+
+**Response:** `200 OK`
+
+---
+
+### 8. Get Transaction History
+**GET** `/api/wms/inventory/transactions`
+
+Returns transaction history with optional filters.
+
+**Query Parameters:**
+- `productId` (string, optional)
+- `warehouseId` (string, optional)
+- `fromDate` (ISO date string, optional)
+- `toDate` (ISO date string, optional)
+- `limit` (number, optional, default: 100)
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "uuid",
+    "productId": "uuid",
+    "warehouseId": "uuid",
+    "fromLevelId": null,
+    "toLevelId": "uuid",
+    "quantity": 50,
+    "transactionType": "RECEIVE",
+    "referenceType": "RECEPTION",
+    "referenceId": "rec-uuid",
+    "notes": "Recepción inicial",
+    "createdAt": "2026-03-06T15:00:00.000Z",
+    "product": { "name": "Paracetamol 500mg" },
+    "fromLevel": null,
+    "toLevel": { "fullPath": "WH01/A/01/05/1" },
+    "user": { "name": "Admin", "email": "admin@example.com" }
+  }
+]
+```
+
+**Transaction Types:** `RECEIVE` | `MOVE` | `PICK` | `ADJUST` | `DAMAGE`
+
+---
+
+### 9. Create Adjustment
+**POST** `/api/wms/inventory/adjustments`
+
+Creates a new inventory adjustment (in draft status).
+
+**Request Body:**
+```json
+{
+  "warehouseId": "uuid",
+  "reason": "PHYSICAL_COUNT",
+  "notes": "Conteo físico mensual",
+  "lines": [
+    {
+      "productId": "uuid",
+      "levelId": "uuid",
+      "systemQuantity": 100,
+      "physicalQuantity": 95
+    }
+  ]
+}
+```
+
+**Adjustment Reasons:** `PHYSICAL_COUNT` | `DAMAGE` | `FOUND` | `LOST` | `CORRECTION`
+
+**Response:** `201 Created` - Full adjustment with lines
+
+**Validations:**
+- `systemQuantity` must match current inventory quantity
+- Lines cannot be empty
+
+**Errors:**
+- `400 Bad Request` - System quantity mismatch
+
+---
+
+### 10. Get Adjustments
+**GET** `/api/wms/inventory/adjustments`
+
+Returns list of inventory adjustments.
+
+**Query Parameters:**
+- `warehouseId` (string, optional)
+- `status` (string, optional) - 'draft' | 'approved' | 'cancelled'
+
+**Response:** `200 OK` - Array of adjustments with lines, creator and approver info
+
+---
+
+### 11. Get Adjustment by ID
+**GET** `/api/wms/inventory/adjustments/:id`
+
+Returns a single adjustment by ID.
+
+**Response:** `200 OK`
+
+**Errors:**
+- `404 Not Found` - If adjustment doesn't exist
+
+---
+
+### 12. Approve Adjustment
+**PATCH** `/api/wms/inventory/adjustments/:id/approve`
+
+Approves a draft adjustment and applies inventory changes.
+
+**Business Logic:**
+- Sets status to 'approved'
+- For each line with a non-zero difference: updates inventory and creates a transaction
+- Only draft adjustments can be approved
+
+**Response:** `200 OK` - Approved adjustment
+
+**Errors:**
+- `400 Bad Request` - Adjustment is not in draft status
+- `404 Not Found` - Adjustment not found
+
+---
+
+### 13. Cancel Adjustment
+**PATCH** `/api/wms/inventory/adjustments/:id/cancel`
+
+Cancels a draft adjustment (no inventory changes applied).
+
+**Response:** `204 No Content`
+
+**Errors:**
+- `400 Bad Request` - Adjustment is not in draft status
+- `404 Not Found` - Adjustment not found
+
+---
+
+## Data Models
+
+### Inventory
+```typescript
+{
+  id: string;           // UUID
+  productId: string;
+  levelId: string;
+  warehouseId: string;
+  quantity: number;          // Total quantity
+  availableQuantity: number; // quantity - reservedQuantity
+  reservedQuantity: number;  // Quantity reserved for orders
+  status: 'available' | 'reserved' | 'damaged' | 'quarantine';
+  lastCountDate?: Date;
+  updatedAt: Date;
+}
+```
+
+### InventoryTransaction
+```typescript
+{
+  id: string;
+  productId: string;
+  warehouseId: string;
+  fromLevelId?: string;
+  toLevelId?: string;
+  quantity: number;
+  transactionType: 'RECEIVE' | 'MOVE' | 'PICK' | 'ADJUST' | 'DAMAGE';
+  referenceType: string;
+  referenceId?: string;
+  notes?: string;
+  userId?: string;
+  createdAt: Date;
+}
+```
+
+### InventoryAdjustment
+```typescript
+{
+  id: string;
+  adjustmentNumber: string; // Format: ADJ-{YEAR}-{SEQUENCE}
+  warehouseId: string;
+  reason: 'PHYSICAL_COUNT' | 'DAMAGE' | 'FOUND' | 'LOST' | 'CORRECTION';
+  status: 'draft' | 'approved' | 'cancelled';
+  notes?: string;
+  createdBy?: string;
+  approvedBy?: string;
+  createdAt: Date;
+  approvedAt?: Date;
+  lines: InventoryAdjustmentLine[];
+}
+```
+
+---
+
+## Business Rules
+
+1. **FIFO Reservation**: Inventory is reserved using First-In-First-Out order
+2. **Adjustment Numbers**: Auto-generated as `ADJ-{YEAR}-{XXXX}` (e.g., ADJ-2026-0001)
+3. **Approve applies inventory**: Approving an adjustment updates inventory and creates transactions
+4. **System quantity validation**: When creating an adjustment, `systemQuantity` must match actual inventory
+5. **Status flow**: draft → approved | cancelled (one-way transitions)
+6. **Transaction traceability**: Every inventory change generates a transaction record
+
+---
+
+## Error Responses
+
+### 400 Bad Request
+```json
+{
+  "statusCode": 400,
+  "message": "Stock insuficiente. Disponible: 5, Solicitado: 10",
+  "error": "Bad Request"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "statusCode": 404,
+  "message": "Ajuste con ID abc-123 no encontrado",
+  "error": "Not Found"
+}
+```
+
+---
+
+**Last Updated:** 2026-03-06
+**Version:** 1.0
+**Phase:** WMS Fase 3 - Inventario

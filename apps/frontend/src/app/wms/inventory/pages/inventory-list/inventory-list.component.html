@@ -1,0 +1,137 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Inventario</h1>
+      <p class="page-subtitle">Consulta de stock y transacciones</p>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-building search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="warehouseId"
+        placeholder="ID Almacén (opcional)"
+        class="search-input"
+      />
+    </div>
+    <div class="search-wrapper">
+      <i class="bi bi-box-seam search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="productId"
+        placeholder="ID Producto (opcional)"
+        class="search-input"
+      />
+    </div>
+    <button class="btn-primary" (click)="onFilterByWarehouse()">
+      <i class="bi bi-search"></i>
+      Consultar Stock
+    </button>
+    <button class="btn-secondary" (click)="onLoadTransactions()">
+      <i class="bi bi-clock-history"></i>
+      Ver Transacciones
+    </button>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasInventory() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Ubicación</th>
+            <th>Cantidad</th>
+            <th>Disponible</th>
+            <th>Reservado</th>
+            <th>Estado</th>
+            <th>Última actualización</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of state.inventory(); track item.id) {
+            <tr>
+              <td>{{ item.product?.name || item.productId }}</td>
+              <td>
+                <span class="path-text">{{ item.level?.fullPath || item.levelId }}</span>
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.availableQuantity }}</td>
+              <td>{{ item.reservedQuantity }}</td>
+              <td>
+                <span [class]="'badge ' + getStatusClass(item.status)">
+                  {{ getStatusLabel(item.status) }}
+                </span>
+              </td>
+              <td>{{ item.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!state.hasInventory() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-clipboard-data"></i>
+      <span>No hay registros de inventario para los filtros seleccionados</span>
+    </div>
+  }
+
+  @if (state.transactions().length > 0) {
+    <div class="transactions-section">
+      <h2 class="section-title">Historial de Transacciones</h2>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Referencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of state.transactions(); track tx.id) {
+              <tr>
+                <td>{{ tx.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ tx.product?.name || tx.productId }}</td>
+                <td>
+                  <span class="badge badge-type">{{
+                    getTransactionTypeLabel(tx.transactionType)
+                  }}</span>
+                </td>
+                <td>{{ tx.quantity }}</td>
+                <td>
+                  <span class="path-text">{{ tx.fromLevel?.fullPath || '—' }}</span>
+                </td>
+                <td>
+                  <span class="path-text">{{ tx.toLevel?.fullPath || '—' }}</span>
+                </td>
+                <td>{{ tx.referenceType }}{{ tx.referenceId ? ' / ' + tx.referenceId : '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
