@@ -1,0 +1,197 @@
+<div class="page-container">
+  @if (state.loading() && !state.selectedOrder()) {
+    <div class="loading-state">
+      <div class="spinner-border text-primary"></div>
+      <span>Cargando orden...</span>
+    </div>
+  }
+
+  @if (state.selectedOrder(); as order) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-title">
+        <button class="btn btn-link p-0" (click)="goBack()">
+          <i class="bi bi-arrow-left fs-5"></i>
+        </button>
+        <div>
+          <h1>{{ order.orderNumber }}</h1>
+          <p class="page-subtitle">
+            {{ getTypeLabel(order.movementType) }}
+            @if (order.reason) {
+              · {{ order.reason }}
+            }
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="badge {{ getStatusBadgeClass(order.status) }} me-2">
+          {{ getStatusLabel(order.status) }}
+        </span>
+
+        @if (order.status === 'pending') {
+          <button class="btn btn-primary" (click)="startExecution()" [disabled]="state.loading()">
+            <i class="bi bi-play-fill"></i> Iniciar Ejecución
+          </button>
+        }
+
+        @if (order.status === 'in_progress' && !state.hasPendingLines()) {
+          <button class="btn btn-success" (click)="completeOrder()" [disabled]="state.loading()">
+            <i class="bi bi-check-lg"></i> Completar Orden
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Success message -->
+    @if (successMessage()) {
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        {{ successMessage() }}
+      </div>
+    }
+
+    <!-- Error -->
+    @if (state.hasError()) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ state.error() }}
+        <button class="btn-close float-end" (click)="state.clearError()"></button>
+      </div>
+    }
+
+    <!-- Progress Summary -->
+    @if (order.lines && order.lines.length > 0) {
+      <div class="progress-card mb-3">
+        <div class="progress-info">
+          <span>Progreso</span>
+          <span>{{ state.completedLinesCount() }} / {{ order.lines.length }} líneas</span>
+        </div>
+        <div class="progress">
+          <div
+            class="progress-bar bg-success"
+            [style.width.%]="(state.completedLinesCount() / order.lines.length) * 100"
+          ></div>
+        </div>
+      </div>
+    }
+
+    <div class="execute-layout">
+      <!-- Lines List -->
+      <div class="lines-panel">
+        <div class="panel-header">
+          <i class="bi bi-list-ul"></i>
+          Líneas ({{ order.lines?.length ?? 0 }})
+        </div>
+        <div class="lines-list">
+          @for (line of order.lines ?? []; track line.id) {
+            <div
+              class="line-item"
+              [class.line-selected]="selectedLine()?.id === line.id"
+              [class.line-completed]="line.status === 'completed'"
+              (click)="selectLine(line)"
+            >
+              <div class="line-item-header">
+                <span class="product-name">{{
+                  line.product?.name ?? 'Producto #' + line.productId
+                }}</span>
+                <span
+                  class="badge {{
+                    line.status === 'completed' ? 'badge-success' : 'badge-warning'
+                  }}"
+                >
+                  {{ line.status === 'completed' ? 'Completado' : 'Pendiente' }}
+                </span>
+              </div>
+              <div class="line-locations">
+                <span class="location-tag origin">
+                  <i class="bi bi-box-arrow-up"></i>
+                  {{ line.fromLocation?.fullPath ?? 'Origen #' + line.fromLocationId }}
+                </span>
+                <i class="bi bi-arrow-right text-muted"></i>
+                <span class="location-tag dest">
+                  <i class="bi bi-box-arrow-in-down"></i>
+                  {{ line.toLocation?.fullPath ?? 'Destino #' + line.toLocationId }}
+                </span>
+              </div>
+              <div class="line-qty">
+                Cantidad: <strong>{{ line.quantity }}</strong>
+                @if (line.status === 'completed') {
+                  · Movido: <strong>{{ line.movedQuantity }}</strong>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Execute Panel -->
+      @if (order.status === 'in_progress') {
+        <div class="execute-panel">
+          <div class="panel-header">
+            <i class="bi bi-play-circle"></i>
+            Ejecutar Movimiento
+          </div>
+          <div class="panel-body">
+            @if (!selectedLine()) {
+              <div class="no-selection">
+                <i class="bi bi-hand-index-thumb"></i>
+                <p>Selecciona una línea de la lista para ejecutarla</p>
+              </div>
+            } @else {
+              <div class="execute-form">
+                <div class="selected-product">
+                  <label class="field-label">Producto</label>
+                  <p class="field-value">{{ selectedLine()!.product?.name }}</p>
+                  <small class="text-muted">{{ selectedLine()!.product?.code }}</small>
+                </div>
+
+                <div class="route-visual">
+                  <div class="route-location origin">
+                    <i class="bi bi-box-arrow-up"></i>
+                    <span>{{ selectedLine()!.fromLocation?.fullPath ?? 'Origen' }}</span>
+                  </div>
+                  <div class="route-arrow">
+                    <i class="bi bi-arrow-down-circle-fill"></i>
+                  </div>
+                  <div class="route-location dest">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                    <span>{{ selectedLine()!.toLocation?.fullPath ?? 'Destino' }}</span>
+                  </div>
+                </div>
+
+                <div class="qty-field">
+                  <label class="field-label">Cantidad a mover</label>
+                  <input
+                    type="number"
+                    class="form-control form-control-lg text-center"
+                    [(ngModel)]="movedQuantity"
+                    [min]="0.01"
+                    [max]="selectedLine()!.quantity"
+                    step="0.01"
+                  />
+                  <small class="text-muted">
+                    Planificado: {{ selectedLine()!.quantity }} unidades
+                  </small>
+                </div>
+
+                <button
+                  class="btn btn-success w-100"
+                  (click)="executeLine()"
+                  [disabled]="processing() || state.loading()"
+                >
+                  @if (processing()) {
+                    <span class="spinner-border spinner-border-sm"></span>
+                    Ejecutando...
+                  } @else {
+                    <i class="bi bi-check-circle"></i>
+                    Confirmar Movimiento
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

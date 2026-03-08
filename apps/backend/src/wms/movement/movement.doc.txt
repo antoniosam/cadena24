@@ -1,0 +1,246 @@
+=================================================================================
+MOVEMENT CONTROLLER - API DOCUMENTATION
+=================================================================================
+
+Base URL: /api/wms/movement-orders
+
+Description:
+  Manages internal warehouse stock transfers between locations.
+  Supports 4 movement types: PUTAWAY, REPLENISHMENT, CONSOLIDATION, RELOCATION.
+  Validates stock availability, destination capacity, max weight, and mixed-product
+  policies before executing any movement.
+
+Authentication: Required (JWT Token — JwtAuthGuard)
+
+=================================================================================
+MOVEMENT TYPES
+=================================================================================
+
+  PUTAWAY       — Move from receiving zone to storage zone (after receipt)
+  REPLENISHMENT — Refill picking zones from storage (when picking zone runs low)
+  CONSOLIDATION — Merge stock from multiple locations into one
+  RELOCATION    — General reorganization (slow-movers to far zones, etc.)
+
+=================================================================================
+ORDER LIFECYCLE
+=================================================================================
+
+  pending → (start) → in_progress → (execute all lines + complete) → completed
+              ↓
+           cancelled  (only from pending)
+
+=================================================================================
+ENDPOINTS
+=================================================================================
+
+1. CREATE MOVEMENT ORDER
+------------------------
+POST /api/wms/movement-orders
+
+Description: Create a new movement order with one or more lines.
+             All lines are validated (stock, capacity, weight) before creation.
+
+Request Body:
+{
+  "warehouseId": number,
+  "movementType": "PUTAWAY" | "REPLENISHMENT" | "CONSOLIDATION" | "RELOCATION",
+  "reason": string (optional),
+  "notes": string (optional),
+  "lines": [
+    {
+      "productId": number,
+      "fromLocationId": number,
+      "toLocationId": number,
+      "quantity": number (min: 0.01)
+    }
+  ]
+}
+
+Response: 200 OK — MovementOrder with lines, warehouse, createdUser
+
+Errors:
+  - 400: Insufficient stock, no capacity, weight exceeded, mixed products not allowed
+  - 404: Product, origin or destination location not found
+
+=================================================================================
+
+2. GET ALL MOVEMENT ORDERS
+--------------------------
+GET /api/wms/movement-orders
+
+Query Parameters:
+  - warehouseId: number (optional)
+  - movementType: PUTAWAY | REPLENISHMENT | CONSOLIDATION | RELOCATION (optional)
+  - status: pending | in_progress | completed | cancelled (optional)
+  - page: number (default: 1)
+  - limit: number (default: 20)
+
+Response: 200 OK
+{
+  "items": [...],
+  "total": number,
+  "page": number,
+  "limit": number,
+  "totalPages": number
+}
+
+=================================================================================
+
+3. GET MOVEMENT ORDER BY ID
+----------------------------
+GET /api/wms/movement-orders/:id
+
+Response: 200 OK — Full MovementOrder with lines, locations, users
+
+Errors:
+  - 404: Orden de movimiento con ID {id} no encontrada
+
+=================================================================================
+
+4. START EXECUTION
+------------------
+PATCH /api/wms/movement-orders/:id/start
+
+Description: Change order status from 'pending' to 'in_progress'.
+             Inventory is NOT affected yet (only after executing lines).
+
+Response: 200 OK — Updated MovementOrder
+
+Errors:
+  - 400: Solo se pueden iniciar órdenes en estado pendiente
+  - 404: Order not found
+
+=================================================================================
+
+5. EXECUTE LINE
+---------------
+POST /api/wms/movement-orders/:id/execute-line
+
+Description: Execute a single movement line. Updates inventory atomically:
+             - SUBTRACT quantity from origin location
+             - ADD quantity to destination location
+             - Creates InventoryTransaction record (MOVE type) for audit trail
+             Validates stock and capacity again at execution time.
+
+Request Body:
+{
+  "lineId": number,
+  "movedQuantity": number (min: 0.01, max: line.quantity)
+}
+
+Response: 200 OK — Updated MovementOrderLine with product, fromLocation, toLocation
+
+Business Logic:
+  - Order must be in 'in_progress' status
+  - Line must be 'pending' (not already completed)
+  - movedQuantity validated against available stock at origin
+  - Destination capacity checked again at execution time
+  - Weight limit checked if product.weight and location.maxWeight are set
+  - Mixed products policy enforced
+
+Errors:
+  - 400: La orden debe estar en proceso | Esta línea ya fue ejecutada |
+         Stock insuficiente | Sin capacidad | Límite de peso | Productos mixtos
+  - 404: Order or line not found
+
+=================================================================================
+
+6. COMPLETE ORDER
+-----------------
+PATCH /api/wms/movement-orders/:id/complete
+
+Description: Mark order as completed. All lines must be 'completed' first.
+
+Response: 200 OK — Updated MovementOrder (status: completed)
+
+Errors:
+  - 400: La orden debe estar en proceso | Todas las líneas deben ejecutarse...
+  - 404: Order not found
+
+=================================================================================
+
+7. CANCEL ORDER
+---------------
+DELETE /api/wms/movement-orders/:id
+
+Description: Cancel a movement order. Only 'pending' orders can be cancelled.
+             Orders 'in_progress' or 'completed' cannot be cancelled.
+
+Response: 204 NO CONTENT
+
+Errors:
+  - 400: No se pueden cancelar órdenes completadas | ...en proceso
+  - 404: Order not found
+
+=================================================================================
+
+8. VALIDATE MOVEMENT
+--------------------
+POST /api/wms/movement-orders/validate
+
+Description: Validate a movement without creating an order.
+             Useful to pre-check before building the order form.
+
+Request Body:
+{
+  "productId": number,
+  "fromLocationId": number,
+  "toLocationId": number,
+  "quantity": number
+}
+
+Response: 200 OK
+{
+  "valid": true,
+  "message": "Movimiento válido"
+}
+
+Errors:
+  - 400: Validation failure with descriptive Spanish message
+  - 404: Product or location not found
+
+=================================================================================
+
+9. SUGGEST OPTIMAL LOCATION
+----------------------------
+POST /api/wms/movement-orders/suggest-location
+
+Description: Suggest the best destination location for a product+quantity.
+             Strategy 1: Consolidate with existing stock of same product.
+             Strategy 2: Find available empty location by type.
+
+Request Body:
+{
+  "productId": number,
+  "quantity": number,
+  "preferredType": "storage" | "picking" | "receiving" | "shipping" (optional, default: "storage")
+}
+
+Response: 200 OK
+{
+  "location": { Location object },
+  "strategy": "consolidation" | "empty_location"
+}
+
+Errors:
+  - 404: No se encontraron ubicaciones disponibles
+
+=================================================================================
+ORDER NUMBER FORMAT
+=================================================================================
+
+  MOV-{YEAR}-{SEQUENCE}
+  Example: MOV-2026-0001
+
+=================================================================================
+NOTES
+=================================================================================
+
+  - Authentication required on all endpoints (JwtAuthGuard)
+  - All validation messages are in Spanish (user-facing)
+  - Stock updates use updateInventoryWithoutTransaction to avoid double-counting
+  - Every execution creates an InventoryTransaction with type MOVE for audit
+  - referenceType = 'MOVEMENT_ORDER', referenceId = movementOrder.id (string)
+  - Cancellation only allowed for 'pending' orders to protect inventory integrity
+
+=================================================================================

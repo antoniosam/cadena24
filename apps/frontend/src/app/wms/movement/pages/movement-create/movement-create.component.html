@@ -1,0 +1,197 @@
+<div class="page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">
+      <i class="bi bi-plus-square"></i>
+      <div>
+        <h1>Nueva Orden de Movimiento</h1>
+        <p class="page-subtitle">Crea una transferencia interna de stock entre ubicaciones</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="alert alert-danger mb-3">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ error() }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- General Info -->
+    <div class="form-card mb-3">
+      <div class="form-card-header">
+        <i class="bi bi-info-circle"></i>
+        Información General
+      </div>
+      <div class="form-card-body">
+        <div class="form-grid">
+          <!-- Warehouse -->
+          <div class="form-group">
+            <label class="form-label required">Almacén</label>
+            <select class="form-select" formControlName="warehouseId">
+              <option [ngValue]="null">Seleccionar almacén...</option>
+              @for (wh of warehouses(); track wh.id) {
+                <option [value]="wh.id">{{ wh.code }} — {{ wh.name }}</option>
+              }
+            </select>
+            @if (fieldError('warehouseId')) {
+              <span class="form-error">{{ fieldError('warehouseId') }}</span>
+            }
+          </div>
+
+          <!-- Movement Type -->
+          <div class="form-group">
+            <label class="form-label required">Tipo de Movimiento</label>
+            <select class="form-select" formControlName="movementType">
+              @for (type of movementTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Reason -->
+          <div class="form-group">
+            <label class="form-label">Razón</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="reason"
+              placeholder="Razón del movimiento (opcional)"
+            />
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group">
+            <label class="form-label">Notas</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="notes"
+              placeholder="Notas adicionales (opcional)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lines -->
+    <div class="form-card mb-3">
+      <div class="form-card-header">
+        <div>
+          <i class="bi bi-list-ul"></i>
+          Líneas de Movimiento
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addLine()">
+          <i class="bi bi-plus-lg"></i> Agregar línea
+        </button>
+      </div>
+      <div class="form-card-body">
+        @if (locations().length === 0 && form.get('warehouseId')?.value) {
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            Cargando ubicaciones del almacén...
+          </div>
+        }
+        @if (!form.get('warehouseId')?.value) {
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Selecciona un almacén para ver las ubicaciones disponibles.
+          </div>
+        }
+
+        <div formArrayName="lines">
+          @for (line of lines.controls; track $index) {
+            <div class="line-card" [formGroupName]="$index">
+              <div class="line-header">
+                <span class="line-number">Línea {{ $index + 1 }}</span>
+                @if (lines.length > 1) {
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="removeLine($index)"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                }
+              </div>
+              <div class="form-grid">
+                <!-- Product -->
+                <div class="form-group">
+                  <label class="form-label required">Producto</label>
+                  <select class="form-select" formControlName="productId">
+                    <option [ngValue]="null">Seleccionar producto...</option>
+                    @for (p of products(); track p.id) {
+                      <option [value]="p.id">{{ p.code }} — {{ p.name }}</option>
+                    }
+                  </select>
+                  @if (lineError($index, 'productId')) {
+                    <span class="form-error">{{ lineError($index, 'productId') }}</span>
+                  }
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                  <label class="form-label required">Cantidad</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="quantity"
+                    min="0.01"
+                    step="0.01"
+                  />
+                  @if (lineError($index, 'quantity')) {
+                    <span class="form-error">{{ lineError($index, 'quantity') }}</span>
+                  }
+                </div>
+
+                <!-- From Location -->
+                <div class="form-group">
+                  <label class="form-label required">Ubicación Origen</label>
+                  <select class="form-select" formControlName="fromLocationId">
+                    <option [ngValue]="null">Seleccionar origen...</option>
+                    @for (loc of locations(); track loc.id) {
+                      <option [value]="loc.id">{{ loc.fullPath ?? loc.name }}</option>
+                    }
+                  </select>
+                  @if (lineError($index, 'fromLocationId')) {
+                    <span class="form-error">{{ lineError($index, 'fromLocationId') }}</span>
+                  }
+                </div>
+
+                <!-- To Location -->
+                <div class="form-group">
+                  <label class="form-label required">Ubicación Destino</label>
+                  <select class="form-select" formControlName="toLocationId">
+                    <option [ngValue]="null">Seleccionar destino...</option>
+                    @for (loc of locations(); track loc.id) {
+                      <option [value]="loc.id">{{ loc.fullPath ?? loc.name }}</option>
+                    }
+                  </select>
+                  @if (lineError($index, 'toLocationId')) {
+                    <span class="form-error">{{ lineError($index, 'toLocationId') }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm"></span>
+          Creando...
+        } @else {
+          <i class="bi bi-check-lg"></i>
+          Crear Orden
+        }
+      </button>
+    </div>
+  </form>
+</div>
