@@ -1,0 +1,173 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ReceivingApiService } from '../../services/receiving-api.service';
+import { ProductsApiService } from '../../../products/services/products-api.service';
+import { WarehousesApiService } from '../../../warehouses/services/warehouses-api.service';
+import { Product, Warehouse } from '@cadena24-wms/shared';
+
+@Component({
+  selector: 'app-receiving-create',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './receiving-create.component.html',
+  styleUrl: './receiving-create.component.scss',
+})
+export class ReceivingCreateComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private receivingApi = inject(ReceivingApiService);
+  private productsApi = inject(ProductsApiService);
+  private warehousesApi = inject(WarehousesApiService);
+
+  form: FormGroup;
+  warehouses = signal<Warehouse[]>([]);
+  products = signal<Product[]>([]);
+  loadingWarehouses = signal<boolean>(false);
+  loadingProducts = signal<boolean>(false);
+  submitting = signal<boolean>(false);
+  error = signal<string | null>(null);
+
+  // Product search
+  productSearch = signal<string>('');
+  filteredProducts = signal<Product[]>([]);
+
+  constructor() {
+    this.form = this.fb.group({
+      warehouseId: [null, [Validators.required]],
+      supplierName: ['', [Validators.required, Validators.maxLength(255)]],
+      supplierCode: ['', [Validators.maxLength(50)]],
+      purchaseOrderNumber: ['', [Validators.maxLength(50)]],
+      expectedDate: [''],
+      notes: [''],
+      lines: this.fb.array([]),
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadWarehouses();
+    this.loadProducts();
+    this.addLine(); // Add first line by default
+  }
+
+  loadWarehouses(): void {
+    this.loadingWarehouses.set(true);
+    this.warehousesApi.getAll({ isActive: true }).subscribe({
+      next: (response) => {
+        this.warehouses.set(response.items);
+        this.loadingWarehouses.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar almacenes: ' + (err.error?.message || err.message));
+        this.loadingWarehouses.set(false);
+      },
+    });
+  }
+
+  loadProducts(): void {
+    this.loadingProducts.set(true);
+    this.productsApi.getProducts({ isActive: true, limit: 1000 }).subscribe({
+      next: (response) => {
+        this.products.set(response.items);
+        this.filteredProducts.set(response.items);
+        this.loadingProducts.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar productos: ' + (err.error?.message || err.message));
+        this.loadingProducts.set(false);
+      },
+    });
+  }
+
+  get lines(): FormArray {
+    return this.form.get('lines') as FormArray;
+  }
+
+  createLineFormGroup(): FormGroup {
+    return this.fb.group({
+      productId: [null, [Validators.required]],
+      expectedQuantity: [0, [Validators.required, Validators.min(0.01)]],
+      unitCost: [0, [Validators.min(0)]],
+    });
+  }
+
+  addLine(): void {
+    this.lines.push(this.createLineFormGroup());
+  }
+
+  removeLine(index: number): void {
+    if (this.lines.length > 1) {
+      this.lines.removeAt(index);
+    }
+  }
+
+  getProductName(productId: number): string {
+    const product = this.products().find((p) => p.id === productId);
+    return product ? `${product.code} - ${product.name}` : '';
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.error.set('Por favor complete todos los campos requeridos');
+      return;
+    }
+
+    if (this.lines.length === 0) {
+      this.error.set('Debe agregar al menos una línea de producto');
+      return;
+    }
+
+    this.submitting.set(true);
+    this.error.set(null);
+
+    const formValue = this.form.value;
+
+    // Convert expectedDate to Date if provided
+    const dto = {
+      ...formValue,
+      warehouseId: Number(formValue.warehouseId),
+      expectedDate: formValue.expectedDate ? new Date(formValue.expectedDate) : undefined,
+      lines: formValue.lines.map((line: any) => ({
+        productId: Number(line.productId),
+        expectedQuantity: Number(line.expectedQuantity),
+        unitCost: line.unitCost ? Number(line.unitCost) : undefined,
+      })),
+    };
+
+    this.receivingApi.createReceivingOrder(dto).subscribe({
+      next: (order) => {
+        alert(`Orden de recepción ${order.orderNumber} creada exitosamente`);
+        this.router.navigate(['/wms/receiving']);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || err.message || 'Error al crear orden de recepción');
+        this.submitting.set(false);
+      },
+    });
+  }
+
+  onCancel(): void {
+    if (confirm('¿Está seguro de cancelar? Los datos no guardados se perderán.')) {
+      this.router.navigate(['/wms/receiving']);
+    }
+  }
+
+  fieldError(name: string): string | null {
+    const ctrl = this.form.get(name);
+    if (!ctrl || !ctrl.invalid || !ctrl.touched) return null;
+    if (ctrl.hasError('required')) return 'Campo requerido';
+    if (ctrl.hasError('min')) return 'Debe ser mayor a 0';
+    if (ctrl.hasError('maxlength')) return 'Longitud máxima excedida';
+    return 'Valor inválido';
+  }
+
+  lineFieldError(lineIndex: number, fieldName: string): string | null {
+    const ctrl = this.lines.at(lineIndex).get(fieldName);
+    if (!ctrl || !ctrl.invalid || !ctrl.touched) return null;
+    if (ctrl.hasError('required')) return 'Requerido';
+    if (ctrl.hasError('min')) return 'Mayor a 0';
+    return 'Inválido';
+  }
+}

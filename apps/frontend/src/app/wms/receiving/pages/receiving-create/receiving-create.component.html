@@ -1,0 +1,188 @@
+<div class="receiving-create-container">
+  <div class="page-header">
+    <h1>Nueva Orden de Recepción</h1>
+    <button class="btn btn-secondary" (click)="onCancel()"><i class="bi bi-x"></i> Cancelar</button>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Order Information Card -->
+    <div class="card">
+      <h3>Información de la Orden</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Almacén *</label>
+          <select formControlName="warehouseId" class="form-control">
+            <option [value]="null">Seleccione un almacén</option>
+            @if (loadingWarehouses()) {
+              <option disabled>Cargando...</option>
+            }
+            @for (warehouse of warehouses(); track warehouse.id) {
+              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+            }
+          </select>
+          @if (fieldError('warehouseId'); as error) {
+            <span class="error-message">{{ error }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Nombre del Proveedor *</label>
+          <input
+            type="text"
+            formControlName="supplierName"
+            class="form-control"
+            placeholder="Ingrese nombre del proveedor"
+          />
+          @if (fieldError('supplierName'); as error) {
+            <span class="error-message">{{ error }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Código del Proveedor</label>
+          <input
+            type="text"
+            formControlName="supplierCode"
+            class="form-control"
+            placeholder="Código opcional"
+          />
+          @if (fieldError('supplierCode'); as error) {
+            <span class="error-message">{{ error }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Número de Orden de Compra</label>
+          <input
+            type="text"
+            formControlName="purchaseOrderNumber"
+            class="form-control"
+            placeholder="Referencia opcional"
+          />
+          @if (fieldError('purchaseOrderNumber'); as error) {
+            <span class="error-message">{{ error }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Fecha Esperada de Entrega</label>
+          <input type="datetime-local" formControlName="expectedDate" class="form-control" />
+        </div>
+
+        <div class="form-group full-width">
+          <label>Notas</label>
+          <textarea
+            formControlName="notes"
+            class="form-control"
+            rows="3"
+            placeholder="Observaciones generales de la orden..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Lines Card -->
+    <div class="card">
+      <div class="card-header-with-action">
+        <h3>Productos a Recibir</h3>
+        <button type="button" class="btn btn-primary btn-sm" (click)="addLine()">
+          <i class="bi bi-plus"></i> Agregar Producto
+        </button>
+      </div>
+
+      @if (loadingProducts()) {
+        <div class="loading">Cargando productos...</div>
+      } @else {
+        <div class="lines-container" formArrayName="lines">
+          @for (line of lines.controls; track $index; let i = $index) {
+            <div class="line-item" [formGroupName]="i">
+              <div class="line-number">Línea {{ i + 1 }}</div>
+
+              <div class="line-fields">
+                <div class="form-group">
+                  <label>Producto *</label>
+                  <select formControlName="productId" class="form-control">
+                    <option [value]="null">Seleccione un producto</option>
+                    @for (product of products(); track product.id) {
+                      <option [value]="product.id">
+                        {{ product.code }} - {{ product.name }} ({{ product.uom }})
+                      </option>
+                    }
+                  </select>
+                  @if (lineFieldError(i, 'productId'); as error) {
+                    <span class="error-message">{{ error }}</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label>Cantidad Esperada *</label>
+                  <input
+                    type="number"
+                    formControlName="expectedQuantity"
+                    class="form-control"
+                    placeholder="0"
+                    min="0.01"
+                    step="0.01"
+                  />
+                  @if (lineFieldError(i, 'expectedQuantity'); as error) {
+                    <span class="error-message">{{ error }}</span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label>Costo Unitario (opcional)</label>
+                  <input
+                    type="number"
+                    formControlName="unitCost"
+                    class="form-control"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                  @if (lineFieldError(i, 'unitCost'); as error) {
+                    <span class="error-message">{{ error }}</span>
+                  }
+                </div>
+
+                <div class="line-actions">
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="removeLine(i)"
+                    [disabled]="lines.length === 1"
+                    title="Eliminar línea"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty-state">No hay productos agregados. Haga clic en "Agregar Producto"</p>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancelar</button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="submitting() || loadingWarehouses() || loadingProducts()"
+      >
+        @if (submitting()) {
+          <span>Creando...</span>
+        } @else {
+          <span>Crear Orden de Recepción</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,318 @@
+=================================================================================
+RECEIVING CONTROLLER - API DOCUMENTATION
+=================================================================================
+
+Base URL: /api/wms/receiving-orders
+
+Description:
+  Manages warehouse receiving operations - creating receiving orders,
+  processing incoming shipments, handling discrepancies, and tracking
+  damaged items.
+
+Authentication: Required (JWT Token)
+
+=================================================================================
+ENDPOINTS
+=================================================================================
+
+1. CREATE RECEIVING ORDER
+-------------------------
+POST /api/wms/receiving-orders
+
+Description: Create a new receiving order for incoming shipments
+
+Request Body:
+{
+  "warehouseId": number,
+  "supplierName": string,
+  "supplierCode": string (optional),
+  "purchaseOrderNumber": string (optional),
+  "expectedDate": Date (optional),
+  "notes": string (optional),
+  "lines": [
+    {
+      "productId": number,
+      "expectedQuantity": number,
+      "unitCost": number (optional)
+    }
+  ]
+}
+
+Response: 200 OK
+{
+  "id": number,
+  "orderNumber": string,
+  "warehouseId": number,
+  "supplierName": string,
+  "supplierCode": string,
+  "purchaseOrderNumber": string,
+  "expectedDate": Date,
+  "receivedDate": Date,
+  "status": "pending" | "in_progress" | "completed" | "cancelled",
+  "notes": string,
+  "createdBy": number,
+  "receivedBy": number,
+  "createdAt": Date,
+  "updatedAt": Date,
+  "lines": [...]
+}
+
+Errors:
+  - 400: Invalid data or inactive warehouse
+  - 404: Warehouse or product not found
+
+=================================================================================
+
+2. GET ALL RECEIVING ORDERS
+---------------------------
+GET /api/wms/receiving-orders
+
+Description: Get list of receiving orders with pagination and filters
+
+Query Parameters:
+  - warehouseId: number (optional) - Filter by warehouse
+  - status: string (optional) - Filter by status (pending, in_progress, completed, cancelled)
+  - fromDate: Date (optional) - Filter by creation date (from)
+  - toDate: Date (optional) - Filter by creation date (to)
+  - page: number (optional, default: 1)
+  - limit: number (optional, default: 20)
+
+Response: 200 OK
+{
+  "items": [...],
+  "total": number,
+  "page": number,
+  "limit": number,
+  "totalPages": number
+}
+
+=================================================================================
+
+3. GET RECEIVING ORDER BY ID
+----------------------------
+GET /api/wms/receiving-orders/:id
+
+Description: Get detailed information about a specific receiving order
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Response: 200 OK
+{
+  "id": number,
+  "orderNumber": string,
+  "warehouseId": number,
+  "status": string,
+  "lines": [...],
+  "warehouse": {...},
+  "createdUser": {...},
+  "receivedUser": {...}
+}
+
+Errors:
+  - 404: Receiving order not found
+
+=================================================================================
+
+4. GET RECEIVING LOCATIONS
+--------------------------
+GET /api/wms/receiving-orders/:id/receiving-locations
+
+Description: Get all available receiving locations for a receiving order's warehouse
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Response: 200 OK
+[
+  {
+    "id": number,
+    "barcode": string,
+    "name": string,
+    "fullPath": string,
+    "type": "receiving",
+    "capacity": number,
+    "zone": string,
+    "row": string,
+    "position": string,
+    "level": string
+  }
+]
+
+Errors:
+  - 404: Receiving order or locations not found
+
+=================================================================================
+
+5. START RECEIVING ORDER
+------------------------
+PATCH /api/wms/receiving-orders/:id/start
+
+Description: Change receiving order status from "pending" to "in_progress"
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Response: 200 OK
+{
+  "id": number,
+  "orderNumber": string,
+  "status": "in_progress",
+  ...
+}
+
+Errors:
+  - 400: Order is not in "pending" status
+  - 404: Receiving order not found
+
+=================================================================================
+
+6. RECEIVE LINE
+---------------
+POST /api/wms/receiving-orders/:id/receive-line
+
+Description: Process a line item - record received quantity, damaged quantity,
+             and assign to receiving location. Updates inventory automatically.
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Request Body:
+{
+  "lineId": number,
+  "receivedQuantity": number,
+  "damageQuantity": number (optional),
+  "locationId": number,
+  "notes": string (optional)
+}
+
+Response: 200 OK
+{
+  "id": number,
+  "receivingOrderId": number,
+  "productId": number,
+  "locationId": number,
+  "expectedQuantity": number,
+  "receivedQuantity": number,
+  "damageQuantity": number,
+  "status": "received" | "partial",
+  "receivedAt": Date,
+  "product": {...},
+  "location": {...}
+}
+
+Business Logic:
+  - Only good quantity (received - damaged) is added to inventory
+  - Damaged items are tracked but NOT added to available stock
+  - Creates inventory transaction for audit trail
+  - Location must be of type "receiving"
+  - Location must belong to the same warehouse
+
+Errors:
+  - 400: Invalid location type, inactive location, or order not in progress
+  - 404: Line, location, or order not found
+
+=================================================================================
+
+7. COMPLETE RECEIVING ORDER
+---------------------------
+PATCH /api/wms/receiving-orders/:id/complete
+
+Description: Mark receiving order as completed. All lines must be processed first.
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Response: 200 OK
+{
+  "id": number,
+  "orderNumber": string,
+  "status": "completed",
+  "receivedDate": Date,
+  "receivedBy": number
+}
+
+Errors:
+  - 400: Order not in progress or has pending lines
+  - 404: Receiving order not found
+
+=================================================================================
+
+8. CANCEL RECEIVING ORDER
+-------------------------
+DELETE /api/wms/receiving-orders/:id
+
+Description: Cancel a receiving order. Cannot cancel completed orders or
+             orders with already received items.
+
+Path Parameters:
+  - id: number - Receiving order ID
+
+Response: 204 NO CONTENT
+
+Errors:
+  - 400: Order is completed or has received items
+  - 404: Receiving order not found
+
+=================================================================================
+
+9. GET DAMAGED ITEMS
+--------------------
+GET /api/wms/receiving-orders/damaged-items
+
+Description: Get list of all damaged items from receiving operations
+
+Query Parameters:
+  - warehouseId: number (optional) - Filter by warehouse
+  - fromDate: Date (optional) - Filter by received date (from)
+  - toDate: Date (optional) - Filter by received date (to)
+
+Response: 200 OK
+[
+  {
+    "id": number,
+    "receivingOrderNumber": string,
+    "productCode": string,
+    "productName": string,
+    "damageQuantity": number,
+    "receivedDate": Date,
+    "locationName": string,
+    "notes": string
+  }
+]
+
+=================================================================================
+WORKFLOWS
+=================================================================================
+
+TYPICAL RECEIVING WORKFLOW:
+--------------------------
+1. Create receiving order (POST /api/wms/receiving-orders)
+   Status: pending
+
+2. Start receiving process (PATCH /api/wms/receiving-orders/:id/start)
+   Status: in_progress
+
+3. For each line item:
+   a. Get receiving locations (GET /api/wms/receiving-orders/:id/receiving-locations)
+   b. User selects location from list
+   c. Scan product barcode
+   d. Enter received quantity and damaged quantity
+   e. Process line (POST /api/wms/receiving-orders/:id/receive-line)
+   
+4. Complete receiving order (PATCH /api/wms/receiving-orders/:id/complete)
+   Status: completed
+
+5. (Optional) Review damaged items (GET /api/wms/receiving-orders/damaged-items)
+
+=================================================================================
+NOTES
+=================================================================================
+
+- Order numbers are auto-generated in format: RCV-YYYY-NNNN
+- Damaged quantities are tracked but excluded from inventory
+- Only "receiving" type locations can be used for receiving
+- Inventory transactions are automatically created for audit trail
+- User authentication is required (req.user.id)
+
+=================================================================================

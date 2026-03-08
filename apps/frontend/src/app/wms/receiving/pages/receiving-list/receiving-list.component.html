@@ -1,0 +1,113 @@
+<div class="receiving-list-container">
+  <div class="page-header">
+    <h1>Órdenes de Recepción</h1>
+    <button class="btn btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus"></i> Nueva Orden de Recepción
+    </button>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>Estado:</label>
+      <select (change)="onFilterStatus($any($event.target).value || null)">
+        <option value="">Todos</option>
+        <option value="pending">Pendiente</option>
+        <option value="in_progress">En Proceso</option>
+        <option value="completed">Completado</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
+
+    <button class="btn btn-secondary" (click)="clearFilters()">Limpiar Filtros</button>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading-spinner">Cargando...</div>
+  }
+
+  @if (state.hasError()) {
+    <div class="alert alert-danger">{{ state.error() }}</div>
+  }
+
+  @if (state.hasOrders()) {
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Número de Orden</th>
+            <th>Proveedor</th>
+            <th>Almacén</th>
+            <th>Fecha Esperada</th>
+            <th>Estado</th>
+            <th>Total Líneas</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of state.receivingOrders(); track order.id) {
+            <tr>
+              <td>{{ order.orderNumber }}</td>
+              <td>{{ order.supplierName }}</td>
+              <td>{{ order.warehouse?.name }}</td>
+              <td>{{ order.expectedDate | date: 'short' }}</td>
+              <td>
+                <span [class]="'badge ' + getStatusBadgeClass(order.status)">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </td>
+              <td>{{ order.lines?.length || 0 }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-info" (click)="onView(order.id)" title="Ver">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  @if (order.status === 'pending' || order.status === 'in_progress') {
+                    <button
+                      class="btn btn-sm btn-primary"
+                      (click)="onProcess(order.id)"
+                      title="Procesar"
+                    >
+                      <i class="bi bi-check"></i>
+                    </button>
+                  }
+                  @if (order.status === 'pending') {
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="onCancel(order.id, order.orderNumber)"
+                      title="Cancelar"
+                    >
+                      <i class="bi bi-x"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        class="btn btn-secondary"
+        [disabled]="state.currentPage() === 1"
+        (click)="onPageChange(state.currentPage() - 1)"
+      >
+        Anterior
+      </button>
+      <span>Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        class="btn btn-secondary"
+        [disabled]="state.currentPage() === state.totalPages()"
+        (click)="onPageChange(state.currentPage() + 1)"
+      >
+        Siguiente
+      </button>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>No hay órdenes de recepción</p>
+      <button class="btn btn-primary" (click)="onCreate()">Crear Primera Orden</button>
+    </div>
+  }
+</div>
