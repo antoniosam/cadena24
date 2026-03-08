@@ -17,6 +17,8 @@ enum Role {
   MANAGER
 }
 
+// ── Users ─────────────────────────────────────────────────────────────────────
+
 model User {
   id           Int       @id @default(autoincrement())
   email        String    @unique
@@ -30,5 +32,427 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
+  inventoryTransactions InventoryTransaction[]
+  inventoryAdjustmentsApproved InventoryAdjustment[] @relation("ApprovedBy")
+  inventoryAdjustmentsCreated  InventoryAdjustment[] @relation("CreatedBy")
+  receivingOrdersCreated       ReceivingOrder[]      @relation("CreatedBy")
+  receivingOrdersReceived      ReceivingOrder[]      @relation("ReceivedBy")
+  movementOrdersCreated        MovementOrder[]       @relation("CreatedBy")
+  movementOrdersExecuted       MovementOrder[]       @relation("ExecutedBy")
+  salesOrdersCreated           SalesOrder[]          @relation("CreatedBy")
+  pickListsAssigned            PickList[]            @relation("Picker")
+
   @@map("users")
+}
+
+// ── Products ──────────────────────────────────────────────────────────────────
+
+model Product {
+  id              Int      @id @default(autoincrement())
+  code            String   @unique @db.VarChar(50)
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  category        String?  @db.VarChar(100)
+  uom             String   @db.VarChar(20)
+  minStock        Float    @default(0)
+  maxStock        Float    @default(0)
+  reorderPoint    Float    @default(0)
+  reorderQuantity Float    @default(0)
+  weight          Float?   @default(0)
+  width           Float?   @default(0)
+  height          Float?   @default(0)
+  depth           Float?   @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  barcodes     ProductBarcode[]
+  inventories  Inventory[]
+  transactions InventoryTransaction[]
+  adjustmentLines InventoryAdjustmentLine[]
+  receivingLines  ReceivingOrderLine[]
+  movementLines   MovementOrderLine[]
+  salesLines      SalesOrderLine[]
+  pickListLines   PickListLine[]
+
+  @@map("products")
+}
+
+model ProductBarcode {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  barcode   String   @unique @db.VarChar(100)
+  type      String   @db.VarChar(20)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_barcodes")
+}
+
+// ── Warehouses ────────────────────────────────────────────────────────────────
+
+model Warehouse {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(50)
+  name      String   @db.VarChar(255)
+  address   String?  @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  state     String?  @db.VarChar(100)
+  zipCode   String?  @db.VarChar(20)
+  isPrimary Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  locations           Location[]
+  inventories         Inventory[]
+  transactions        InventoryTransaction[]
+  adjustments         InventoryAdjustment[]
+  receivingOrders     ReceivingOrder[]
+  movementOrders      MovementOrder[]
+  salesOrders         SalesOrder[]
+  pickLists           PickList[]
+
+  @@map("warehouses")
+}
+
+// ── Locations ─────────────────────────────────────────────────────────────────
+
+model Location {
+  id                 Int      @id @default(autoincrement())
+  warehouseId        Int
+  zone               String   @db.VarChar(50)
+  row                String   @db.VarChar(50)
+  position           String   @db.VarChar(50)
+  level              String   @db.VarChar(50)
+  barcode            String   @unique @db.VarChar(100)
+  fullPath           String   @db.VarChar(500)
+  name               String   @db.VarChar(255)
+  type               String   @db.VarChar(20)
+  sequence           Int      @default(0)
+  height             Float    @default(0)
+  capacity           Float    @default(0)
+  maxWeight          Float    @default(0)
+  allowMixedProducts Boolean  @default(true)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  warehouse   Warehouse   @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  inventories Inventory[]
+  transactionsFrom InventoryTransaction[] @relation("FromLocation")
+  transactionsTo   InventoryTransaction[] @relation("ToLocation")
+  adjustmentLines  InventoryAdjustmentLine[]
+  receivingLines   ReceivingOrderLine[]
+  movementLinesFrom MovementOrderLine[] @relation("FromLocation")
+  movementLinesTo   MovementOrderLine[] @relation("ToLocation")
+  pickListLines    PickListLine[]
+
+  @@unique([warehouseId, zone, row, position, level])
+  @@index([warehouseId])
+  @@index([barcode])
+  @@index([type])
+  @@map("locations")
+}
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+
+model Inventory {
+  id                Int       @id @default(autoincrement())
+  productId         Int
+  locationId        Int
+  warehouseId       Int
+  quantity          Float     @default(0)
+  availableQuantity Float     @default(0)
+  reservedQuantity  Float     @default(0)
+  status            String    @default("available") @db.VarChar(20)
+  lastCountDate     DateTime?
+  updatedAt         DateTime  @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id])
+  location  Location  @relation(fields: [locationId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@unique([productId, locationId])
+  @@index([productId])
+  @@index([locationId])
+  @@index([warehouseId])
+  @@map("inventories")
+}
+
+model InventoryTransaction {
+  id              Int      @id @default(autoincrement())
+  productId       Int
+  warehouseId     Int
+  fromLocationId  Int?
+  toLocationId    Int?
+  quantity        Float    @default(0)
+  transactionType String   @db.VarChar(20)
+  referenceType   String   @db.VarChar(50)
+  referenceId     String?  @db.VarChar(100)
+  notes           String?  @db.Text
+  userId          Int?
+  createdAt       DateTime @default(now())
+
+  product      Product    @relation(fields: [productId], references: [id])
+  warehouse    Warehouse  @relation(fields: [warehouseId], references: [id])
+  fromLocation Location?  @relation("FromLocation", fields: [fromLocationId], references: [id])
+  toLocation   Location?  @relation("ToLocation", fields: [toLocationId], references: [id])
+  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([warehouseId])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@map("inventory_transactions")
+}
+
+model InventoryAdjustment {
+  id               Int       @id @default(autoincrement())
+  adjustmentNumber String    @unique @db.VarChar(50)
+  warehouseId      Int
+  reason           String    @db.VarChar(50)
+  status           String    @default("draft") @db.VarChar(20)
+  notes            String?   @db.Text
+  approvedBy       Int?
+  createdBy        Int?
+  createdAt        DateTime  @default(now())
+  approvedAt       DateTime?
+
+  warehouse    Warehouse               @relation(fields: [warehouseId], references: [id])
+  approvedUser User?                   @relation("ApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
+  createdUser  User?                   @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  lines        InventoryAdjustmentLine[]
+
+  @@index([warehouseId])
+  @@index([status])
+  @@map("inventory_adjustments")
+}
+
+model InventoryAdjustmentLine {
+  id               Int      @id @default(autoincrement())
+  adjustmentId     Int
+  productId        Int
+  locationId       Int
+  systemQuantity   Float    @default(0)
+  physicalQuantity Float    @default(0)
+  difference       Float    @default(0)
+  createdAt        DateTime @default(now())
+
+  adjustment InventoryAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Cascade)
+  product    Product             @relation(fields: [productId], references: [id])
+  location   Location            @relation(fields: [locationId], references: [id])
+
+  @@index([adjustmentId])
+  @@index([productId])
+  @@map("inventory_adjustment_lines")
+}
+
+// ── Receiving Orders ──────────────────────────────────────────────────────────
+
+model ReceivingOrder {
+  id                  Int       @id @default(autoincrement())
+  orderNumber         String    @unique @db.VarChar(50)
+  warehouseId         Int
+  supplierName        String    @db.VarChar(255)
+  supplierCode        String?   @db.VarChar(50)
+  purchaseOrderNumber String?   @db.VarChar(50)
+  expectedDate        DateTime?
+  receivedDate        DateTime?
+  status              String    @default("pending") @db.VarChar(20)
+  notes               String?   @db.Text
+  createdBy           Int?
+  receivedBy          Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  warehouse      Warehouse          @relation(fields: [warehouseId], references: [id])
+  createdUser    User?              @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  receivedUser   User?              @relation("ReceivedBy", fields: [receivedBy], references: [id], onDelete: SetNull)
+  lines          ReceivingOrderLine[]
+
+  @@index([warehouseId])
+  @@index([status])
+  @@map("receiving_orders")
+}
+
+model ReceivingOrderLine {
+  id               Int       @id @default(autoincrement())
+  receivingOrderId Int
+  productId        Int
+  locationId       Int?
+  expectedQuantity Float     @default(0)
+  receivedQuantity Float     @default(0)
+  damageQuantity   Float     @default(0)
+  unitCost         Float?    @default(0)
+  status           String    @default("pending") @db.VarChar(20)
+  notes            String?   @db.Text
+  receivedAt       DateTime?
+
+  receivingOrder ReceivingOrder @relation(fields: [receivingOrderId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id])
+  location       Location?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([receivingOrderId])
+  @@index([productId])
+  @@map("receiving_order_lines")
+}
+
+// ── Movement Orders ───────────────────────────────────────────────────────────
+
+model MovementOrder {
+  id           Int       @id @default(autoincrement())
+  orderNumber  String    @unique @db.VarChar(50)
+  warehouseId  Int
+  movementType String    @db.VarChar(20)
+  reason       String?   @db.VarChar(255)
+  status       String    @default("pending") @db.VarChar(20)
+  notes        String?   @db.Text
+  createdBy    Int?
+  executedBy   Int?
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  warehouse    Warehouse         @relation(fields: [warehouseId], references: [id])
+  createdUser  User?             @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  executedUser User?             @relation("ExecutedBy", fields: [executedBy], references: [id], onDelete: SetNull)
+  lines        MovementOrderLine[]
+
+  @@index([warehouseId])
+  @@index([status])
+  @@map("movement_orders")
+}
+
+model MovementOrderLine {
+  id              Int       @id @default(autoincrement())
+  movementOrderId Int
+  productId       Int
+  fromLocationId  Int
+  toLocationId    Int
+  quantity        Float     @default(0)
+  movedQuantity   Float     @default(0)
+  status          String    @default("pending") @db.VarChar(20)
+  executedAt      DateTime?
+
+  movementOrder MovementOrder @relation(fields: [movementOrderId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
+  fromLocation  Location      @relation("FromLocation", fields: [fromLocationId], references: [id])
+  toLocation    Location      @relation("ToLocation", fields: [toLocationId], references: [id])
+
+  @@index([movementOrderId])
+  @@index([productId])
+  @@map("movement_order_lines")
+}
+
+// ── Sales Orders ──────────────────────────────────────────────────────────────
+
+model SalesOrder {
+  id              Int       @id @default(autoincrement())
+  orderNumber     String    @unique @db.VarChar(50)
+  warehouseId     Int
+  customerName    String    @db.VarChar(255)
+  customerCode    String?   @db.VarChar(50)
+  customerPhone   String?   @db.VarChar(50)
+  customerEmail   String?   @db.VarChar(100)
+  shippingAddress String?   @db.VarChar(255)
+  shippingCity    String?   @db.VarChar(100)
+  shippingState   String?   @db.VarChar(100)
+  shippingZipCode String?   @db.VarChar(20)
+  orderDate       DateTime
+  requiredDate    DateTime?
+  shippedDate     DateTime?
+  priority        String    @default("normal") @db.VarChar(20)
+  status          String    @default("pending") @db.VarChar(20)
+  totalAmount     Float     @default(0)
+  notes           String?   @db.Text
+  createdBy       Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  warehouse   Warehouse      @relation(fields: [warehouseId], references: [id])
+  createdUser User?          @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  lines       SalesOrderLine[]
+  pickLists   PickList[]
+
+  @@index([warehouseId])
+  @@index([status])
+  @@index([priority])
+  @@map("sales_orders")
+}
+
+model SalesOrderLine {
+  id              Int    @id @default(autoincrement())
+  salesOrderId    Int
+  productId       Int
+  orderedQuantity Float  @default(0)
+  pickedQuantity  Float  @default(0)
+  shippedQuantity Float  @default(0)
+  unitPrice       Float  @default(0)
+  subtotal        Float  @default(0)
+  status          String @default("pending") @db.VarChar(20)
+  notes           String? @db.Text
+
+  salesOrder   SalesOrder   @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id])
+  pickListLines PickListLine[]
+
+  @@index([salesOrderId])
+  @@index([productId])
+  @@map("sales_order_lines")
+}
+
+// ── Pick Lists ────────────────────────────────────────────────────────────────
+
+model PickList {
+  id             Int       @id @default(autoincrement())
+  pickListNumber String    @unique @db.VarChar(50)
+  salesOrderId   Int
+  warehouseId    Int
+  pickerId       Int?
+  status         String    @default("pending") @db.VarChar(20)
+  totalLines     Int       @default(0)
+  pickedLines    Int       @default(0)
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+
+  salesOrder SalesOrder     @relation(fields: [salesOrderId], references: [id])
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+  picker     User?          @relation("Picker", fields: [pickerId], references: [id], onDelete: SetNull)
+  lines      PickListLine[]
+
+  @@index([salesOrderId])
+  @@index([warehouseId])
+  @@index([pickerId])
+  @@index([status])
+  @@map("pick_lists")
+}
+
+model PickListLine {
+  id               Int       @id @default(autoincrement())
+  pickListId       Int
+  salesOrderLineId Int
+  productId        Int
+  locationId       Int
+  quantityToPick   Float     @default(0)
+  quantityPicked   Float     @default(0)
+  sequence         Int       @default(0)
+  status           String    @default("pending") @db.VarChar(20)
+  notes            String?   @db.Text
+  pickedAt         DateTime?
+
+  pickList       PickList       @relation(fields: [pickListId], references: [id], onDelete: Cascade)
+  salesOrderLine SalesOrderLine @relation(fields: [salesOrderLineId], references: [id])
+  product        Product        @relation(fields: [productId], references: [id])
+  location       Location       @relation(fields: [locationId], references: [id])
+
+  @@index([pickListId])
+  @@index([salesOrderLineId])
+  @@index([productId])
+  @@index([locationId])
+  @@map("pick_list_lines")
 }
