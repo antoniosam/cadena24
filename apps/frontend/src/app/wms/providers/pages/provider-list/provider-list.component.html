@@ -1,0 +1,114 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Proveedores</h1>
+      <p class="page-subtitle">Gestión de proveedores del sistema</p>
+    </div>
+    <button class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nuevo Proveedor
+    </button>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [value]="state.searchTerm()"
+        (input)="onSearch($event)"
+        placeholder="Buscar por código o nombre..."
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando proveedores...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasProviders() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (provider of state.providers(); track provider.id) {
+            <tr>
+              <td>{{ provider.id }}</td>
+              <td>
+                <span class="code-text">{{ provider.code }}</span>
+              </td>
+              <td>{{ provider.name }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-active]="provider.isActive"
+                  [class.badge-inactive]="!provider.isActive"
+                >
+                  {{ provider.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="onEdit(provider.id)" class="btn-action btn-edit" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    (click)="onDelete(provider.id)"
+                    class="btn-action btn-delete"
+                    title="Desactivar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
+      >
+        <i class="bi bi-chevron-left"></i> Anterior
+      </button>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
+      >
+        Siguiente <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  }
+
+  @if (!state.hasProviders() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-truck"></i>
+      <span>No se encontraron proveedores</span>
+    </div>
+  }
+</div>

@@ -8,6 +8,7 @@ import {
   ValidateStockDto,
   SalesOrderStatus,
 } from './dto';
+import { SalesOrder } from '@prisma/client';
 
 @Injectable()
 export class SalesOrdersService {
@@ -129,7 +130,11 @@ export class SalesOrdersService {
   // ── Can pick ──────────────────────────────────────────────────────────────
 
   async canPick(id: number) {
-    const order = await this.findOne(id);
+    const order = (await this.findOne(id)) as {
+      status: string;
+      orderNumber: string;
+      lines: { status: string }[];
+    };
 
     const canPick = order.status === 'pending';
     const pendingLines = order.lines?.filter((l) => l.status === 'pending') ?? [];

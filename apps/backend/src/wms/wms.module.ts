@@ -11,6 +11,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { ReportsModule } from './reports/reports.module';
 import { ClientsModule } from './clients/clients.module';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ClientsModule } from './clients/clients.module';
     AlertsModule,
     ReportsModule,
     ClientsModule,
+    ProvidersModule,
   ],
   exports: [
     ProductsModule,
@@ -40,6 +42,7 @@ import { ClientsModule } from './clients/clients.module';
     AlertsModule,
     ReportsModule,
     ClientsModule,
+    ProvidersModule,
   ],
 })
 export class WmsModule {}

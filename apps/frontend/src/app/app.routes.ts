@@ -65,6 +65,36 @@ export const appRoutes: Routes = [
         title: 'Productos — Cadena24 WMS',
       },
       {
+        path: 'wms/providers',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./wms/providers/pages/provider-list/provider-list.component').then(
+                (m) => m.ProviderListComponent
+              ),
+            pathMatch: 'full',
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./wms/providers/pages/provider-form/provider-form.component').then(
+                (m) => m.ProviderFormComponent
+              ),
+            title: 'Nuevo Proveedor — Cadena24 WMS',
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./wms/providers/pages/provider-form/provider-form.component').then(
+                (m) => m.ProviderFormComponent
+              ),
+            title: 'Editar Proveedor — Cadena24 WMS',
+          },
+        ],
+        title: 'Proveedores — Cadena24 WMS',
+      },
+      {
         path: 'wms/warehouses',
         children: [
           {
