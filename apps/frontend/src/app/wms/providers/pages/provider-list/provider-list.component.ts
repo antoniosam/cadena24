@@ -23,6 +23,11 @@ export class ProviderListComponent implements OnInit {
     this.state.setSearchTerm(term);
   }
 
+  clearFilters() {
+    this.state.reset();
+    this.state.loadProviders();
+  }
+
   onPageChange(page: number) {
     this.state.setPage(page);
   }

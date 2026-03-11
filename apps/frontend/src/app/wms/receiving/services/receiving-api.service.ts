@@ -19,6 +19,10 @@ export class ReceivingApiService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/wms/receiving-orders`;
 
+  getNewPurchaseOrderNumber(): Observable<{ suggest: string }> {
+    return this.http.get<{ suggest: string }>(`${this.apiUrl}/generate-purchase-order-number`);
+  }
+
   getReceivingOrders(filters?: QueryReceivingOrderDto): Observable<ReceivingOrdersResponse> {
     let params = new HttpParams();
 

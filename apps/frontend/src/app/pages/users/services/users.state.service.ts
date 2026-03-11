@@ -36,6 +36,8 @@ export class UsersStateService {
   readonly passwordSaving = signal<boolean>(false);
   readonly passwordError = signal<string | null>(null);
 
+  readonly searchTerm = signal<string>('');
+
   // ── Computed signals ───────────────────────────────────────────────────────
   readonly activeUsers = computed(() => this.users().filter((u) => u.active));
   readonly inactiveUsers = computed(() => this.users().filter((u) => !u.active));
@@ -48,7 +50,14 @@ export class UsersStateService {
   loadUsers(query?: UserQueryParams): void {
     this.loading.set(true);
     this.error.set(null);
-    this.usersService.getAll(query).subscribe({
+
+    // Merge existing search term if not explicitly provided
+    const finalQuery: UserQueryParams = {
+      ...query,
+      search: query?.search !== undefined ? query.search : this.searchTerm() || undefined,
+    };
+
+    this.usersService.getAll(finalQuery).subscribe({
       next: (res) => {
         this.users.set(res.data ?? []);
         const p = res.pagination;
@@ -64,6 +73,11 @@ export class UsersStateService {
         this.loading.set(false);
       },
     });
+  }
+
+  setSearchTerm(term: string): void {
+    this.searchTerm.set(term);
+    this.loadUsers({ search: term, page: 1 });
   }
 
   loadUser(id: number): void {

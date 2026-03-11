@@ -1,13 +1,15 @@
-import { IsEnum, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { RoleCode } from '@cadena24-wms/shared';
 
 export class UserQueryDto {
   @IsOptional()
-  @IsNumberString()
+  @IsInt()
+  @Min(1)
   page?: number;
 
   @IsOptional()
-  @IsNumberString()
+  @IsInt()
+  @Min(1)
   limit?: number;
 
   @IsOptional()

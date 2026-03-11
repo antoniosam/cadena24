@@ -11,7 +11,7 @@
   </div>
 
   <div class="filters-bar">
-    <div class="search-wrapper">
+    <div class="filter-group">
       <i class="bi bi-search search-icon"></i>
       <input
         type="text"
@@ -21,14 +21,15 @@
         class="search-input"
       />
     </div>
-
-    <select (change)="onFilterType($event)" class="filter-select">
-      <option value="">Todos los tipos</option>
-      <option value="receiving">Recepción</option>
-      <option value="storage">Almacenamiento</option>
-      <option value="picking">Picking</option>
-      <option value="shipping">Despacho</option>
-    </select>
+    <div class="filter-group">
+      <select (change)="onFilterType($event)" class="filter-select">
+        <option value="">Todos los tipos</option>
+        <option value="receiving">Recepción</option>
+        <option value="storage">Almacenamiento</option>
+        <option value="picking">Picking</option>
+        <option value="shipping">Despacho</option>
+      </select>
+    </div>
 
     <label class="checkbox-label">
       <input
@@ -37,6 +38,11 @@
         (change)="onFilterAvailableOnly($any($event.target).checked)"
       />
       Solo disponibles
+    </label>
+
+    <label class="clean-filters-label" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
     </label>
   </div>
 

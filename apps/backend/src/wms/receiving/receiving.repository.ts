@@ -8,11 +8,9 @@ export class ReceivingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateReceivingOrderDto, createdBy: number) {
-    const orderNumber = await this.generateOrderNumber();
-
     return this.prisma.receivingOrder.create({
       data: {
-        orderNumber,
+        orderNumber: await this.generatePurchaseOrderNumber(),
         warehouseId: data.warehouseId,
         supplierName: data.supplierName,
         supplierCode: data.supplierCode,
@@ -266,16 +264,8 @@ export class ReceivingRepository {
     });
   }
 
-  private async generateOrderNumber(): Promise<string> {
-    const year = new Date().getFullYear();
-    const count = await this.prisma.receivingOrder.count({
-      where: {
-        orderNumber: {
-          startsWith: `RCV-${year}-`,
-        },
-      },
-    });
-
-    return `RCV-${year}-${String(count + 1).padStart(4, '0')}`;
+  async generatePurchaseOrderNumber(): Promise<string> {
+    const count = await this.prisma.receivingOrder.count();
+    return `OC-${String(count + 1).padStart(3, '0')}`;
   }
 }

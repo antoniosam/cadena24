@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import {
   Location,
   CreateLocationDto,
@@ -103,57 +103,51 @@ export class LocationsStateService {
     this.loading.set(true);
     this.error.set(null);
 
-    const result = this.api.create(data);
-    result.subscribe({
-      next: () => {
+    return this.api.create(data).pipe(
+      tap(() => {
         this.loadLocations();
         this.loading.set(false);
-      },
-      error: (err) => {
+      }),
+      catchError((err) => {
         this.error.set(err.message || 'Error al crear ubicación');
         this.loading.set(false);
-      },
-    });
-
-    return result;
+        return throwError(() => err);
+      })
+    );
   }
 
   updateLocation(id: number, data: UpdateLocationDto): Observable<Location> {
     this.loading.set(true);
     this.error.set(null);
 
-    const result = this.api.update(id, data);
-    result.subscribe({
-      next: () => {
+    return this.api.update(id, data).pipe(
+      tap(() => {
         this.loadLocations();
         this.loading.set(false);
-      },
-      error: (err) => {
+      }),
+      catchError((err) => {
         this.error.set(err.message || 'Error al actualizar ubicación');
         this.loading.set(false);
-      },
-    });
-
-    return result;
+        return throwError(() => err);
+      })
+    );
   }
 
   deleteLocation(id: number): Observable<void> {
     this.loading.set(true);
     this.error.set(null);
 
-    const result = this.api.delete(id);
-    result.subscribe({
-      next: () => {
+    return this.api.delete(id).pipe(
+      tap(() => {
         this.loadLocations();
         this.loading.set(false);
-      },
-      error: (err) => {
+      }),
+      catchError((err) => {
         this.error.set(err.message || 'Error al eliminar ubicación');
         this.loading.set(false);
-      },
-    });
-
-    return result;
+        return throwError(() => err);
+      })
+    );
   }
 
   setSearchTerm(term: string) {

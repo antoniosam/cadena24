@@ -22,6 +22,11 @@ export class WarehouseListComponent implements OnInit {
     this.state.setSearchTerm(term);
   }
 
+  clearFilters() {
+    this.state.reset();
+    this.state.loadWarehouses();
+  }
+
   onFilterActive(isActive: boolean | null) {
     this.state.setActiveFilter(isActive);
   }

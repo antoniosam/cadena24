@@ -27,6 +27,11 @@ import { JwtAuthGuard } from '../../app/auth/guards/jwt-auth.guard';
 export class ReceivingController {
   constructor(private readonly receivingService: ReceivingService) {}
 
+  @Get('generate-purchase-order-number')
+  generatePurchaseOrderNumber() {
+    return this.receivingService.generatePurchaseOrderNumber();
+  }
+
   @Post()
   create(@Body() dto: CreateReceivingOrderDto, @Request() req: any) {
     const userId = req.user?.sub;

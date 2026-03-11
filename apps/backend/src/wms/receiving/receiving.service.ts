@@ -163,7 +163,6 @@ export class ReceivingService {
 
     return updatedLine;
   }
-
   async completeReceiving(id: number, receivedBy: number) {
     const order = await this.findOne(id);
 
@@ -180,6 +179,11 @@ export class ReceivingService {
     }
 
     return this.repository.completeReceiving(id, receivedBy);
+  }
+
+  async generatePurchaseOrderNumber(): Promise<{ suggest: string }> {
+    const number = await this.repository.generatePurchaseOrderNumber();
+    return { suggest: number };
   }
 
   async cancel(id: number) {

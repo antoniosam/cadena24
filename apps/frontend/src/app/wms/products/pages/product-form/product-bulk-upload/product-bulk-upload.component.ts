@@ -210,6 +210,9 @@ export class ProductBulkUploadComponent {
       this.currentIndex.set(i);
 
       const dto = this.buildDto(bulkRow.raw);
+      dto.maxStock = 100000;
+      dto.reorderPoint = dto.minStock;
+      dto.reorderQuantity = dto.minStock;
 
       const success = await this.sendRow(bulkRow.rowNumber, dto);
       if (!success) {

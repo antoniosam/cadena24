@@ -256,7 +256,18 @@ Errors:
 
 =================================================================================
 
-9. GET DAMAGED ITEMS
+9. GET NEW PURCHASE ORDER NUMBER
+---------------------------------
+GET /api/wms/receiving-orders/generate-purchase-order-number
+
+Description: Generate a new purchase order number in the format OC-XXX
+
+Response: 200 OK
+"OC-001"
+
+=================================================================================
+
+10. GET DAMAGED ITEMS
 --------------------
 GET /api/wms/receiving-orders/damaged-items
 

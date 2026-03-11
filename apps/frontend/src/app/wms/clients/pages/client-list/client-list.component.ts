@@ -1,14 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { ClientsStateService } from '../../services/clients-state.service';
 import { Client } from '@cadena24-wms/shared';
 
 @Component({
   selector: 'app-client-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
 })
@@ -16,20 +15,16 @@ export class ClientListComponent implements OnInit {
   private router = inject(Router);
   protected state = inject(ClientsStateService);
 
-  searchQuery = '';
-
   ngOnInit() {
     this.state.loadClients();
   }
 
-  onSearch() {
-    this.state.setSearchFilter(this.searchQuery || null);
+  onSearch(term: string) {
+    this.state.setSearchFilter(term || null);
   }
 
-  onFilterStatus(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    const isActive = value === 'active' ? true : value === 'inactive' ? false : null;
-    this.state.setIsActiveFilter(isActive);
+  clearFilters() {
+    this.state.reset();
   }
 
   onPageChange(page: number) {
@@ -50,9 +45,5 @@ export class ClientListComponent implements OnInit {
     if (confirm(`¿Está seguro de ${action} al cliente ${client.name}?`)) {
       this.state.setStatus(client.id, !client.isActive);
     }
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.state.totalPages() }, (_, i) => i + 1);
   }
 }

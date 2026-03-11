@@ -33,6 +33,10 @@ export class CreateClientDto {
   @IsString()
   @IsOptional()
   zipCode?: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isActive!: boolean;
 }
 
 export class UpdateClientDto {

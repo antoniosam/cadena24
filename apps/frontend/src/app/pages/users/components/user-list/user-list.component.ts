@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IUserSummary, ROLE_LABELS, RoleCode } from '@cadena24-wms/shared';
+import { UsersStateService } from '../../services/users.state.service';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 interface PaginationState {
   page: number;
@@ -18,7 +20,7 @@ interface PaginationState {
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit, OnDestroy {
   @Input() users: IUserSummary[] = [];
   @Input() pagination: PaginationState | null = null;
 
@@ -28,8 +30,24 @@ export class UserListComponent {
   @Output() openPasswordModal = new EventEmitter<number>();
   @Output() pageChange = new EventEmitter<number>();
 
+  protected state = inject(UsersStateService);
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
+
   readonly roleLabels = ROLE_LABELS;
   readonly RoleCode = RoleCode;
+
+  ngOnInit(): void {
+    this.searchSubscription = this.searchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((term) => {
+        this.state.setSearchTerm(term);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
+  }
 
   onEdit(user: IUserSummary): void {
     this.editUser.emit(user);
@@ -50,6 +68,15 @@ export class UserListComponent {
     if (confirmed) {
       this.deleteUser.emit(user.id);
     }
+  }
+
+  onSearch(term: string): void {
+    this.searchSubject.next(term);
+  }
+
+  clearFilters(): void {
+    this.searchSubject.next('');
+    this.state.setSearchTerm('');
   }
 
   goToPage(page: number): void {

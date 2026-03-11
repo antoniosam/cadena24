@@ -12,7 +12,7 @@
 
   <div class="filters-bar">
     <div class="filter-group">
-      <select class="search-input" (change)="onFilterStatus($any($event.target).value || null)">
+      <select class="filter-select" (change)="onFilterStatus($any($event.target).value || null)">
         <option value="">Todos los estados</option>
         <option value="pending">Pendiente</option>
         <option value="in_progress">En Proceso</option>
@@ -21,7 +21,7 @@
       </select>
     </div>
 
-    <label class="checkbox-label" style="cursor: pointer" (click)="clearFilters()">
+    <label class="clean-filters-label" (click)="clearFilters()">
       <i class="bi bi-x-circle"></i>
       Limpiar Filtros
     </label>
@@ -125,7 +125,6 @@
     <div class="state-box state-empty">
       <i class="bi bi-inbox"></i>
       <span>No hay órdenes de recepción</span>
-      <button class="btn-primary" (click)="onCreate()">Crear Primera Orden</button>
     </div>
   }
 </div>

@@ -4,14 +4,16 @@
       <h1 class="page-title">Proveedores</h1>
       <p class="page-subtitle">Gestión de proveedores del sistema</p>
     </div>
-    <button class="btn-primary" (click)="onCreate()">
-      <i class="bi bi-plus-lg"></i>
-      Nuevo Proveedor
-    </button>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="onCreate()">
+        <i class="bi bi-plus-lg"></i>
+        Nuevo Proveedor
+      </button>
+    </div>
   </div>
 
   <div class="filters-bar">
-    <div class="search-wrapper">
+    <div class="filter-group">
       <i class="bi bi-search search-icon"></i>
       <input
         type="text"
@@ -21,6 +23,10 @@
         class="search-input"
       />
     </div>
+    <label class="clean-filters-label" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
+    </label>
   </div>
 
   @if (state.loading()) {

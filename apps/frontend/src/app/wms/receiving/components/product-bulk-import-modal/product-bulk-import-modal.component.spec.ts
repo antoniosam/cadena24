@@ -99,4 +99,14 @@ describe('ProductBulkImportModalComponent', () => {
     expect(component.isProcessing()).toBe(false);
     expect(component.error()).toBeNull();
   });
+
+  it('should filter out the first row if its product code is null or empty', () => {
+    const mockRows: IProductImportRow[] = [
+      { codigoProducto: '', cantidadEsperada: 0, costoUnitario: 0 },
+      { codigoProducto: 'PROD-002', cantidadEsperada: 5, costoUnitario: 10 },
+    ];
+    const filteredRows = component.filterEmptyFirstRow(mockRows);
+    expect(filteredRows.length).toBe(1);
+    expect(filteredRows[0].codigoProducto).toBe('PROD-002');
+  });
 });

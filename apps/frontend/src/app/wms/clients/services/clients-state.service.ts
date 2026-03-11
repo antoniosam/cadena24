@@ -156,6 +156,13 @@ export class ClientsStateService {
     this.error.set(null);
   }
 
+  reset() {
+    this.searchFilter.set(null);
+    this.isActiveFilter.set(null);
+    this.currentPage.set(1);
+    this.loadClients();
+  }
+
   clearSelectedClient() {
     this.selectedClient.set(null);
   }

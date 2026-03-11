@@ -135,8 +135,21 @@ export class ProductBulkImportModalComponent {
     });
   }
 
+  filterEmptyFirstRow(rows: IProductImportRow[]): IProductImportRow[] {
+    if (rows.length > 0 && !rows[0].codigoProducto) {
+      return rows.slice(1);
+    }
+    return rows;
+  }
+
   validateRows(rows: IProductImportRow[]): void {
-    this.importService.validateRows(rows).subscribe({
+    const filteredRows = this.filterEmptyFirstRow(rows);
+    if (filteredRows.length === 0) {
+      this.error.set('No se encontraron productos válidos para importar');
+      this.isProcessing.set(false);
+      return;
+    }
+    this.importService.validateRows(filteredRows).subscribe({
       next: (validationResult) => {
         this.validationResult.set(validationResult);
         this.isProcessing.set(false);

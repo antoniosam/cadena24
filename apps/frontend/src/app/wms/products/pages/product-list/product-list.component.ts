@@ -27,6 +27,11 @@ export class ProductListComponent implements OnInit {
     this.state.setLowStockFilter(lowStock);
   }
 
+  clearFilters() {
+    this.state.reset();
+    this.state.loadProducts();
+  }
+
   onPageChange(page: number) {
     this.state.setPage(page);
   }

@@ -19,8 +19,7 @@
   </div>
 
   <div class="filters-bar">
-    <div class="filter-select-group">
-      <label class="filter-label">Estado</label>
+    <div class="filter-group">
       <select class="filter-select" (change)="onFilterStatus($event)">
         @for (opt of statusOptions; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
@@ -28,9 +27,10 @@
       </select>
     </div>
 
-    <button class="btn-filter-clear" (click)="clearFilters()">
-      <i class="bi bi-x-circle"></i> Limpiar
-    </button>
+    <label class="clean-filters-label" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
+    </label>
   </div>
 
   @if (state.loading()) {
@@ -157,7 +157,6 @@
       <div class="state-box state-empty">
         <i class="bi bi-list-check"></i>
         <span>No hay pick lists</span>
-        <button class="btn-primary" (click)="openGenerateModal()">Generar Primera Pick List</button>
       </div>
     }
   }

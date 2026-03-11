@@ -31,6 +31,11 @@ export class LocationListComponent implements OnInit {
     this.state.setAvailableOnlyFilter(availableOnly);
   }
 
+  clearFilters() {
+    this.state.reset();
+    this.state.loadLocations();
+  }
+
   onPageChange(page: number) {
     this.state.setPage(page);
   }

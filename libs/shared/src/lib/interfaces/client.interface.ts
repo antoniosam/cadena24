@@ -22,6 +22,7 @@ export interface CreateClientDto {
   city?: string;
   state?: string;
   zipCode?: string;
+  isActive: boolean;
 }
 
 export interface UpdateClientDto {

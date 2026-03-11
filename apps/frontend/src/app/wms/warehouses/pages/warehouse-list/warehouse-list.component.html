@@ -11,7 +11,7 @@
   </div>
 
   <div class="filters-bar">
-    <div class="search-wrapper">
+    <div class="filter-group">
       <i class="bi bi-search search-icon"></i>
       <input
         type="text"
@@ -38,6 +38,11 @@
         (change)="onFilterPrimary($any($event.target).checked ? true : null)"
       />
       Solo principal
+    </label>
+
+    <label class="clean-filters-label" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
     </label>
   </div>
 

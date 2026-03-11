@@ -1,50 +1,98 @@
-<div class="space-y-8 animate-fade-in p-4">
+<div class="container-fluid">
   <!-- Header Section -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div>
+  <div class="row">
+    <div class="col-6">
       <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-        WMS Intelligence Dashboard
+        Panel de Inteligencia WMS
       </h2>
       <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
-        Real-time warehouse operations, inventory metrics and productivity KPIs.
+        Operaciones de almacén en tiempo real, métricas de inventario y KPIs de productividad.
       </p>
     </div>
-    <div class="flex gap-3">
-      <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
+    <div class="col-6 text-end">
+      <button class="btn btn-outline-secondary gap-2 mr-1">
         <i class="bi bi-calendar3"></i>
-        Last 30 Days
+        Últimos 30 Días
       </button>
-      <button (click)="exportReport()" class="btn btn-primary d-flex align-items-center gap-2">
+      <button (click)="exportReport()" class="btn btn-primary gap-2">
         <i class="bi bi-download"></i>
-        Export Report
+        Exportar Reporte
       </button>
     </div>
   </div>
 
+  <!-- Low Stock Alerts Banner -->
+  <div class="row mb-2" *ngIf="state.kpis()">
+    <div class="col-12">
+      <!-- Success Banner (0 products) -->
+      <div
+        *ngIf="(state.kpis()?.lowStockAlerts ?? 0) === 0"
+        class="alert alert-success d-flex align-items-center mb-0 shadow-sm border-0"
+        role="alert"
+      >
+        <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-0">Todo está correcto, muy bien</h6>
+          <span class="small">No tenemos productos por debajo del mínimo establecido.</span>
+        </div>
+      </div>
+
+      <!-- Warning Banner (1 to 4 products) -->
+      <div
+        *ngIf="(state.kpis()?.lowStockAlerts ?? 0) > 0 && (state.kpis()?.lowStockAlerts ?? 0) < 5"
+        class="alert alert-warning d-flex align-items-center mb-0 shadow-sm border-0"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-0">Alerta Preventiva</h6>
+          <span class="small"
+            >Tenemos {{ state.kpis()?.lowStockAlerts }} productos por debajo del mínimo
+            establecido.</span
+          >
+        </div>
+      </div>
+
+      <!-- Danger Banner (5 or more products) -->
+      <div
+        *ngIf="(state.kpis()?.lowStockAlerts ?? 0) >= 5"
+        class="alert alert-danger d-flex align-items-center mb-0 shadow-sm border-0"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-octagon-fill me-3 fs-4"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-0">Alerta Peligrosa</h6>
+          <span class="small"
+            >Tenemos {{ state.kpis()?.lowStockAlerts }} productos por debajo del mínimo establecido.
+            ¡Se requiere acción inmediata!</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- KPI Cards Grid -->
-  <div class="row g-4">
+  <div class="row">
     <!-- Total Products -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+      <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
-                Total SKUs
+                Total de SKUs
               </p>
               <h3 class="fw-bold mb-0">{{ state.kpis()?.totalProducts ?? 0 }}</h3>
             </div>
-            <div
-              class="bg-primary bg-opacity-10 rounded p-3 text-primary group-hover:bg-primary group-hover:text-white transition-colors"
-            >
+            <div class="bg-primary bg-opacity-10 rounded p-3 text-primary transition-colors">
               <i class="bi bi-box-seam fs-4"></i>
             </div>
           </div>
           <div class="mt-3 d-flex align-items-center gap-2">
             <span class="text-success text-xs fw-bold d-flex align-items-center">
-              <i class="bi bi-arrow-up-short"></i> Active
+              <i class="bi bi-arrow-up-short"></i> Activo
             </span>
-            <span class="text-muted text-xs font-italic">catalog size</span>
+            <span class="text-muted text-xs font-italic">tamaño del catálogo</span>
           </div>
         </div>
       </div>
@@ -52,18 +100,16 @@
 
     <!-- Total Stock -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+      <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
-                Inventory Units
+                Unidades en Inventario
               </p>
               <h3 class="fw-bold mb-0">{{ state.kpis()?.totalStock ?? 0 | number }}</h3>
             </div>
-            <div
-              class="bg-success bg-opacity-10 rounded p-3 text-success group-hover:bg-success group-hover:text-white transition-colors"
-            >
+            <div class="bg-success bg-opacity-10 rounded p-3 text-success transition-colors">
               <i class="bi bi-stack fs-4"></i>
             </div>
           </div>
@@ -72,9 +118,9 @@
               class="text-warning text-xs fw-bold d-flex align-items-center"
               *ngIf="state.kpis()?.lowStockAlerts"
             >
-              <i class="bi bi-exclamation-triangle"></i> {{ state.kpis()?.lowStockAlerts }} Low
+              <i class="bi bi-exclamation-triangle"></i> {{ state.kpis()?.lowStockAlerts }} Bajos
             </span>
-            <span class="text-muted text-xs font-italic">total across locations</span>
+            <span class="text-muted text-xs font-italic">total en ubicaciones</span>
           </div>
         </div>
       </div>
@@ -82,26 +128,24 @@
 
     <!-- Pending Orders -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+      <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
-                Pending Orders
+                Pedidos Pendientes
               </p>
               <h3 class="fw-bold mb-0">{{ state.kpis()?.pendingOrders ?? 0 }}</h3>
             </div>
-            <div
-              class="bg-warning bg-opacity-10 rounded p-3 text-warning group-hover:bg-warning group-hover:text-white transition-colors"
-            >
+            <div class="bg-warning bg-opacity-10 rounded p-3 text-warning transition-colors">
               <i class="bi bi-cart-dash fs-4"></i>
             </div>
           </div>
           <div class="mt-3 d-flex align-items-center gap-2">
             <span class="text-primary text-xs fw-bold d-flex align-items-center">
-              <i class="bi bi-clock"></i> Today: {{ state.kpis()?.ordersToday ?? 0 }}
+              <i class="bi bi-clock"></i> Hoy: {{ state.kpis()?.ordersToday ?? 0 }}
             </span>
-            <span class="text-muted text-xs font-italic">fulfillment queue</span>
+            <span class="text-muted text-xs font-italic">cola de preparación</span>
           </div>
         </div>
       </div>
@@ -109,20 +153,18 @@
 
     <!-- Utilization Rate -->
     <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+      <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
-                Warehouse Load
+                Carga del Almacén
               </p>
               <h3 class="fw-bold mb-0">
                 {{ state.kpis()?.utilizationRate ?? 0 | number: '1.1-1' }}%
               </h3>
             </div>
-            <div
-              class="bg-info bg-opacity-10 rounded p-3 text-info group-hover:bg-info group-hover:text-white transition-colors"
-            >
+            <div class="bg-info bg-opacity-10 rounded p-3 text-info transition-colors">
               <i class="bi bi-diagram-3 fs-4"></i>
             </div>
           </div>
@@ -137,7 +179,7 @@
               ></div>
             </div>
             <span class="text-muted text-xs font-italic"
-              >of {{ state.kpis()?.totalLocations }} bins</span
+              >de {{ state.kpis()?.totalLocations }} ubicaciones</span
             >
           </div>
         </div>
@@ -146,14 +188,16 @@
   </div>
 
   <!-- Charts Section -->
-  <div class="row g-4">
+  <div class="row" style="margin-top: 1px">
     <!-- Main Movement Chart -->
-    <div class="col-12 col-lg-8">
+    <div class="col-12 col-lg-8 mt-3">
       <div class="card border-0 shadow-sm p-4 h-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h4 class="fw-bold mb-0">Operations Performance</h4>
-            <p class="text-muted small">Inventory flow: Receivings vs Picks (Last 30 days)</p>
+            <h4 class="fw-bold mb-0">Rendimiento de Operaciones</h4>
+            <p class="text-muted small">
+              Flujo de inventario: Recepciones vs Picking (Últimos 30 días)
+            </p>
           </div>
         </div>
         <div class="chart-container" style="position: relative; height: 350px">
@@ -164,11 +208,11 @@
     </div>
 
     <!-- Distribution Charts -->
-    <div class="col-12 col-lg-4">
+    <div class="col-12 col-lg-4 mt-3">
       <div class="row g-4 h-100">
         <div class="col-12">
           <div class="card border-0 shadow-sm p-4">
-            <h5 class="fw-bold mb-4">Stock Distribution</h5>
+            <h5 class="fw-bold mb-4">Distribución de Stock</h5>
             <div class="chart-container" style="position: relative; height: 220px">
               <canvas
                 baseChart
@@ -182,7 +226,7 @@
         </div>
         <div class="col-12">
           <div class="card border-0 shadow-sm p-4">
-            <h5 class="fw-bold mb-4">Order Status</h5>
+            <h5 class="fw-bold mb-4">Estado de Pedidos</h5>
             <div class="chart-container" style="position: relative; height: 220px">
               <canvas
                 baseChart
@@ -199,26 +243,26 @@
   </div>
 
   <!-- Bottom Section: Top Products and Alerts -->
-  <div class="row g-4">
+  <div class="row" style="margin-top: 1px">
     <!-- Top Products Table -->
-    <div class="col-12 col-xl-8">
+    <div class="col-12 col-xl-8 mt-3">
       <div class="card border-0 shadow-sm overflow-hidden">
         <div
           class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
         >
-          <h5 class="fw-bold mb-0">High-Velocity Products</h5>
-          <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">TOP PERFORMANCE</span>
+          <h5 class="fw-bold mb-0">Productos de Alta Rotación</h5>
+          <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">MÁS RENDIMIENTO</span>
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="bg-light">
               <tr>
-                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Product</th>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Producto</th>
                 <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Stock</th>
                 <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted text-center">
-                  Moves
+                  Movimientos
                 </th>
-                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Turnover</th>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Rotación</th>
               </tr>
             </thead>
             <tbody>
@@ -252,10 +296,10 @@
     </div>
 
     <!-- Alerts Panel -->
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-4 mt-3">
       <div class="card border-0 shadow-sm p-4 h-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h5 class="fw-bold mb-0">Intelligence Alerts</h5>
+          <h5 class="fw-bold mb-0">Alertas Inteligentes</h5>
           <span
             class="badge rounded-pill bg-danger animate-pulse p-1"
             style="width: 10px; height: 10px"
@@ -270,10 +314,10 @@
             <div class="d-flex gap-3">
               <i class="bi bi-exclamation-octagon-fill text-danger fs-5"></i>
               <div>
-                <p class="fw-bold text-danger mb-1">Low Stock Warning</p>
+                <p class="fw-bold text-danger mb-1">Advertencia de Stock Bajo</p>
                 <p class="small text-danger mb-0">
-                  {{ state.kpis()?.lowStockAlerts }} items are below minimum stock levels.
-                  Replenishment required.
+                  {{ state.kpis()?.lowStockAlerts }} artículos por debajo del nivel mínimo. Se
+                  requiere reabastecimiento.
                 </p>
               </div>
             </div>
@@ -286,10 +330,10 @@
             <div class="d-flex gap-3">
               <i class="bi bi-clock-history text-warning fs-5"></i>
               <div>
-                <p class="fw-bold text-warning mb-1">Pending Fulfillment</p>
+                <p class="fw-bold text-warning mb-1">Cumplimiento Pendiente</p>
                 <p class="small text-warning mb-0">
-                  {{ state.kpis()?.pendingOrders }} orders waiting for picking. Priority handling
-                  recommended.
+                  {{ state.kpis()?.pendingOrders }} pedidos esperando preparación. Se recomienda
+                  manejo prioritario.
                 </p>
               </div>
             </div>
@@ -299,10 +343,10 @@
             <div class="d-flex gap-3">
               <i class="bi bi-info-circle-fill text-info fs-5"></i>
               <div>
-                <p class="fw-bold text-info mb-1">Warehouse Utilization</p>
+                <p class="fw-bold text-info mb-1">Utilización del Almacén</p>
                 <p class="small text-info mb-0">
-                  Current occupancy is at {{ state.kpis()?.utilizationRate | number: '1.1-1' }}%.
-                  Space optimization available in Zone C.
+                  La ocupación actual es de {{ state.kpis()?.utilizationRate | number: '1.1-1' }}%.
+                  Optimización de espacio disponible en la Zona C.
                 </p>
               </div>
             </div>

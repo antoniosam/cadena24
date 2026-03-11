@@ -22,7 +22,7 @@ export class DashboardComponent implements OnInit {
   stockByCategoryData = computed<ChartData<'pie'>>(() => {
     const data = this.state.stockByCategory();
     return {
-      labels: data.map((d) => d.category),
+      labels: data.map((d) => (d.category === 'Uncategorized' ? 'Sin Categoría' : d.category)),
       datasets: [
         {
           data: data.map((d) => d.quantity),
@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
       datasets: [
         {
           data: data.map((d) => d.receivings),
-          label: 'Receivings',
+          label: 'Recepciones',
           borderColor: '#137fec',
           backgroundColor: 'rgba(19, 127, 236, 0.1)',
           fill: true,
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit {
         },
         {
           data: data.map((d) => d.picks),
-          label: 'Picks',
+          label: 'Picking',
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
           fill: true,
@@ -86,8 +86,14 @@ export class DashboardComponent implements OnInit {
   // Orders by Status Chart
   ordersByStatusData = computed<ChartData<'doughnut'>>(() => {
     const data = this.state.ordersByStatus();
+    const statusMap: Record<string, string> = {
+      pending: 'PENDIENTE',
+      picking: 'EN PREPARACIÓN',
+      picked: 'PREPARADO',
+      shipped: 'ENVIADO',
+    };
     return {
-      labels: data.map((d) => d.status.toUpperCase()),
+      labels: data.map((d) => statusMap[d.status] || d.status.toUpperCase()),
       datasets: [
         {
           data: data.map((d) => d.count),

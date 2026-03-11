@@ -12,7 +12,7 @@
 
   <div class="filters-bar">
     <div class="filter-group">
-      <select class="search-input" (change)="onFilterStatus($any($event.target).value || null)">
+      <select class="filter-select" (change)="onFilterStatus($any($event.target).value || null)">
         <option value="">Todos los estados</option>
         <option value="pending">Pendiente</option>
         <option value="in_progress">En Proceso</option>
@@ -22,7 +22,7 @@
     </div>
 
     <div class="filter-group">
-      <select class="search-input" (change)="onFilterType($any($event.target).value || null)">
+      <select class="filter-select" (change)="onFilterType($any($event.target).value || null)">
         <option value="">Todos los tipos</option>
         <option value="PUTAWAY">Guardado</option>
         <option value="REPLENISHMENT">Reabastecimiento</option>
@@ -146,9 +146,6 @@
     <div class="state-box state-empty">
       <i class="bi bi-arrows-move"></i>
       <span>No hay órdenes de movimiento</span>
-      <button class="btn-primary" (click)="onCreate()">
-        <i class="bi bi-plus-lg"></i> Crear primera orden
-      </button>
     </div>
   }
 </div>

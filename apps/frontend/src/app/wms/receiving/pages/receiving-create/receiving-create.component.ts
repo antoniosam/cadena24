@@ -4,8 +4,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } fr
 import { Router } from '@angular/router';
 import { ReceivingApiService } from '../../services/receiving-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
+import { ProvidersApiService } from '../../../providers/services/providers-api.service';
 import { WarehousesApiService } from '../../../warehouses/services/warehouses-api.service';
-import { Product, Warehouse, CreateReceivingOrderLineDto } from '@cadena24-wms/shared';
+import { Product, Warehouse, Provider, CreateReceivingOrderLineDto } from '@cadena24-wms/shared';
 import { ProductBulkImportModalComponent } from '../../components/product-bulk-import-modal/product-bulk-import-modal.component';
 
 @Component({
@@ -20,6 +21,7 @@ export class ReceivingCreateComponent implements OnInit {
   private router = inject(Router);
   private receivingApi = inject(ReceivingApiService);
   private productsApi = inject(ProductsApiService);
+  private providersApi = inject(ProvidersApiService);
   private warehousesApi = inject(WarehousesApiService);
 
   // Signal for bulk import modal visibility
@@ -27,10 +29,13 @@ export class ReceivingCreateComponent implements OnInit {
 
   form: FormGroup;
   warehouses = signal<Warehouse[]>([]);
+  providers = signal<Provider[]>([]);
   products = signal<Product[]>([]);
   loadingWarehouses = signal<boolean>(false);
   loadingProducts = signal<boolean>(false);
+  loadingProviders = signal<boolean>(false);
   submitting = signal<boolean>(false);
+  generatingOC = signal<boolean>(false);
   error = signal<string | null>(null);
 
   // Product search
@@ -40,8 +45,7 @@ export class ReceivingCreateComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       warehouseId: [null, [Validators.required]],
-      supplierName: ['', [Validators.required, Validators.maxLength(255)]],
-      supplierCode: ['', [Validators.maxLength(50)]],
+      providerId: [null, [Validators.required]],
       purchaseOrderNumber: ['', [Validators.maxLength(50)]],
       expectedDate: [''],
       notes: [''],
@@ -52,6 +56,7 @@ export class ReceivingCreateComponent implements OnInit {
   ngOnInit(): void {
     this.loadWarehouses();
     this.loadProducts();
+    this.loadProviders();
     this.addLine(); // Add first line by default
   }
 
@@ -80,6 +85,20 @@ export class ReceivingCreateComponent implements OnInit {
       error: (err) => {
         this.error.set('Error al cargar productos: ' + (err.error?.message || err.message));
         this.loadingProducts.set(false);
+      },
+    });
+  }
+
+  loadProviders(): void {
+    this.loadingProviders.set(true);
+    this.providersApi.getProviders({ isActive: true }).subscribe({
+      next: (response) => {
+        this.providers.set(response.items);
+        this.loadingProviders.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar proveedores: ' + (err.error?.message || err.message));
+        this.loadingProviders.set(false);
       },
     });
   }
@@ -156,6 +175,20 @@ export class ReceivingCreateComponent implements OnInit {
     if (confirm('¿Está seguro de cancelar? Los datos no guardados se perderán.')) {
       this.router.navigate(['/wms/receiving']);
     }
+  }
+
+  generatePurchaseOrderNumber(): void {
+    this.generatingOC.set(true);
+    this.receivingApi.getNewPurchaseOrderNumber().subscribe({
+      next: (response) => {
+        this.form.patchValue({ purchaseOrderNumber: response.suggest });
+        this.generatingOC.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al generar OC: ' + (err.error?.message || err.message));
+        this.generatingOC.set(false);
+      },
+    });
   }
 
   fieldError(name: string): string | null {

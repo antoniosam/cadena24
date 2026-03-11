@@ -1,8 +1,8 @@
 <div class="page-container">
-  <div class="form-card">
-    <div class="form-header">
-      <h1 class="form-title">{{ isEditMode ? 'Editar' : 'Nuevo' }} Proveedor</h1>
-      <p class="form-subtitle">Complete la información del proveedor</p>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ isEditMode ? 'Editar' : 'Nuevo' }} Proveedor</h1>
+      <p class="page-subtitle">Complete la información del proveedor</p>
     </div>
 
     @if (state.hasError()) {
@@ -11,8 +11,10 @@
         {{ state.error() }}
       </div>
     }
-
-    <form [formGroup]="providerForm" (ngSubmit)="onSubmit()" class="form-content">
+  </div>
+  <form [formGroup]="providerForm" (ngSubmit)="onSubmit()" class="form-card">
+    <div class="form-section">
+      <h2 class="section-title">Información Principal</h2>
       <div class="form-grid">
         <div class="form-group">
           <label for="code" class="form-label">Código *</label>
@@ -24,7 +26,7 @@
             [class.is-invalid]="
               providerForm.get('code')?.invalid && providerForm.get('code')?.touched
             "
-            placeholder="P.ej. PROV001"
+            placeholder="P.ej. PROV-001"
           />
           @if (providerForm.get('code')?.invalid && providerForm.get('code')?.touched) {
             <span class="error-text">{{ getErrorMessage('code') }}</span>
@@ -56,27 +58,22 @@
           </label>
         </div>
       </div>
+    </div>
 
-      <div class="form-actions">
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="btn-secondary"
-          [disabled]="state.loading()"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          class="btn-primary"
-          [disabled]="providerForm.invalid || state.loading()"
-        >
-          @if (state.loading()) {
-            <span class="spinner-small"></span>
-          }
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
-        </button>
-      </div>
-    </form>
-  </div>
+    <div class="form-actions">
+      <button type="button" (click)="onCancel()" class="btn-secondary" [disabled]="state.loading()">
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="providerForm.invalid || state.loading()"
+      >
+        @if (state.loading()) {
+          <span class="spinner-small"></span>
+        }
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
 </div>
