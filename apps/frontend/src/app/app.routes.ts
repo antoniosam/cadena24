@@ -171,6 +171,58 @@ export const appRoutes: Routes = [
         title: 'Movimientos — Cadena24 WMS',
       },
       {
+        path: 'wms/sales-orders',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./wms/sales-orders/pages/sales-order-list/sales-order-list.component').then(
+                (m) => m.SalesOrderListComponent
+              ),
+            pathMatch: 'full',
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./wms/sales-orders/pages/sales-order-create/sales-order-create.component').then(
+                (m) => m.SalesOrderCreateComponent
+              ),
+            title: 'Nueva Orden de Venta — Cadena24 WMS',
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./wms/sales-orders/pages/sales-order-detail/sales-order-detail.component').then(
+                (m) => m.SalesOrderDetailComponent
+              ),
+            title: 'Detalle de Orden — Cadena24 WMS',
+          },
+        ],
+        title: 'Órdenes de Venta — Cadena24 WMS',
+      },
+      {
+        path: 'wms/picking',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./wms/picking/pages/pick-list-list/pick-list-list.component').then(
+                (m) => m.PickListListComponent
+              ),
+            pathMatch: 'full',
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./wms/picking/pages/pick-list-execute/pick-list-execute.component').then(
+                (m) => m.PickListExecuteComponent
+              ),
+            title: 'Ejecutar Picking — Cadena24 WMS',
+          },
+        ],
+        title: 'Picking — Cadena24 WMS',
+      },
+      {
         path: 'wms/receiving',
         children: [
           {

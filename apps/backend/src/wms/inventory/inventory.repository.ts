@@ -21,6 +21,7 @@ export class InventoryRepository {
         product: true,
         location: {
           select: {
+            name: true,
             fullPath: true,
             barcode: true,
           },
@@ -69,6 +70,7 @@ export class InventoryRepository {
       include: {
         location: {
           select: {
+            name: true,
             fullPath: true,
             barcode: true,
           },
@@ -252,8 +254,8 @@ export class InventoryRepository {
       where,
       include: {
         product: true,
-        fromLocation: { select: { fullPath: true } },
-        toLocation: { select: { fullPath: true } },
+        fromLocation: { select: { name: true, fullPath: true } },
+        toLocation: { select: { name: true, fullPath: true } },
         user: { select: { firstName: true, lastName: true, email: true } },
       },
       orderBy: { createdAt: 'desc' },

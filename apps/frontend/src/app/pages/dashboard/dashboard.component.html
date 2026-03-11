@@ -1,88 +1,314 @@
-<!-- Page header -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Resumen general del sistema de almacén</p>
+<div class="space-y-8 animate-fade-in p-4">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+        WMS Intelligence Dashboard
+      </h2>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
+        Real-time warehouse operations, inventory metrics and productivity KPIs.
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3"></i>
+        Last 30 Days
+      </button>
+      <button (click)="exportReport()" class="btn btn-primary d-flex align-items-center gap-2">
+        <i class="bi bi-download"></i>
+        Export Report
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- Stat cards -->
-<div class="row g-4 mb-4">
-  <div class="col-sm-6 col-xl-3">
-    <div class="card stat-card">
-      <div class="card-body d-flex align-items-start gap-3">
-        <div class="stat-icon stat-icon-primary">
-          <i class="bi bi-box-seam"></i>
+  <!-- KPI Cards Grid -->
+  <div class="row g-4">
+    <!-- Total Products -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
+                Total SKUs
+              </p>
+              <h3 class="fw-bold mb-0">{{ state.kpis()?.totalProducts ?? 0 }}</h3>
+            </div>
+            <div
+              class="bg-primary bg-opacity-10 rounded p-3 text-primary group-hover:bg-primary group-hover:text-white transition-colors"
+            >
+              <i class="bi bi-box-seam fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <span class="text-success text-xs fw-bold d-flex align-items-center">
+              <i class="bi bi-arrow-up-short"></i> Active
+            </span>
+            <span class="text-muted text-xs font-italic">catalog size</span>
+          </div>
         </div>
-        <div>
-          <div class="stat-label">Total Productos</div>
-          <div class="stat-value">0</div>
-          <div class="stat-trend trend-flat">
-            <i class="bi bi-dash"></i>
-            Sin datos
+      </div>
+    </div>
+
+    <!-- Total Stock -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
+                Inventory Units
+              </p>
+              <h3 class="fw-bold mb-0">{{ state.kpis()?.totalStock ?? 0 | number }}</h3>
+            </div>
+            <div
+              class="bg-success bg-opacity-10 rounded p-3 text-success group-hover:bg-success group-hover:text-white transition-colors"
+            >
+              <i class="bi bi-stack fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <span
+              class="text-warning text-xs fw-bold d-flex align-items-center"
+              *ngIf="state.kpis()?.lowStockAlerts"
+            >
+              <i class="bi bi-exclamation-triangle"></i> {{ state.kpis()?.lowStockAlerts }} Low
+            </span>
+            <span class="text-muted text-xs font-italic">total across locations</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Orders -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
+                Pending Orders
+              </p>
+              <h3 class="fw-bold mb-0">{{ state.kpis()?.pendingOrders ?? 0 }}</h3>
+            </div>
+            <div
+              class="bg-warning bg-opacity-10 rounded p-3 text-warning group-hover:bg-warning group-hover:text-white transition-colors"
+            >
+              <i class="bi bi-cart-dash fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <span class="text-primary text-xs fw-bold d-flex align-items-center">
+              <i class="bi bi-clock"></i> Today: {{ state.kpis()?.ordersToday ?? 0 }}
+            </span>
+            <span class="text-muted text-xs font-italic">fulfillment queue</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Utilization Rate -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card h-100 border-0 shadow-sm hover:shadow-md transition-shadow group">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted text-xs font-bold text-uppercase tracking-wider mb-1">
+                Warehouse Load
+              </p>
+              <h3 class="fw-bold mb-0">
+                {{ state.kpis()?.utilizationRate ?? 0 | number: '1.1-1' }}%
+              </h3>
+            </div>
+            <div
+              class="bg-info bg-opacity-10 rounded p-3 text-info group-hover:bg-info group-hover:text-white transition-colors"
+            >
+              <i class="bi bi-diagram-3 fs-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <div
+              class="flex-grow-1 bg-light rounded-pill h-1px overflow-hidden"
+              style="height: 6px"
+            >
+              <div
+                class="bg-info h-100 rounded-pill"
+                [style.width.%]="state.kpis()?.utilizationRate"
+              ></div>
+            </div>
+            <span class="text-muted text-xs font-italic"
+              >of {{ state.kpis()?.totalLocations }} bins</span
+            >
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-sm-6 col-xl-3">
-    <div class="card stat-card">
-      <div class="card-body d-flex align-items-start gap-3">
-        <div class="stat-icon stat-icon-success">
-          <i class="bi bi-check-circle"></i>
+  <!-- Charts Section -->
+  <div class="row g-4">
+    <!-- Main Movement Chart -->
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold mb-0">Operations Performance</h4>
+            <p class="text-muted small">Inventory flow: Receivings vs Picks (Last 30 days)</p>
+          </div>
         </div>
-        <div>
-          <div class="stat-label">En Stock</div>
-          <div class="stat-value">0</div>
-          <div class="stat-trend trend-flat">
-            <i class="bi bi-dash"></i>
-            Sin datos
+        <div class="chart-container" style="position: relative; height: 350px">
+          <canvas baseChart [data]="movementsData()" [options]="lineChartOptions" [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribution Charts -->
+    <div class="col-12 col-lg-4">
+      <div class="row g-4 h-100">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-4">Stock Distribution</h5>
+            <div class="chart-container" style="position: relative; height: 220px">
+              <canvas
+                baseChart
+                [data]="stockByCategoryData()"
+                [options]="pieChartOptions"
+                [type]="'pie'"
+              >
+              </canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-4">Order Status</h5>
+            <div class="chart-container" style="position: relative; height: 220px">
+              <canvas
+                baseChart
+                [data]="ordersByStatusData()"
+                [options]="doughnutChartOptions"
+                [type]="'doughnut'"
+              >
+              </canvas>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-sm-6 col-xl-3">
-    <div class="card stat-card">
-      <div class="card-body d-flex align-items-start gap-3">
-        <div class="stat-icon stat-icon-warning">
-          <i class="bi bi-exclamation-triangle"></i>
+  <!-- Bottom Section: Top Products and Alerts -->
+  <div class="row g-4">
+    <!-- Top Products Table -->
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div
+          class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center"
+        >
+          <h5 class="fw-bold mb-0">High-Velocity Products</h5>
+          <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">TOP PERFORMANCE</span>
         </div>
-        <div>
-          <div class="stat-label">Stock Bajo</div>
-          <div class="stat-value">0</div>
-          <div class="stat-trend trend-flat">
-            <i class="bi bi-dash"></i>
-            Sin datos
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Product</th>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Stock</th>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted text-center">
+                  Moves
+                </th>
+                <th class="px-4 py-3 text-uppercase text-xs font-bold text-muted">Turnover</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of state.topProducts()">
+                <td class="px-4 py-3">
+                  <div class="d-flex flex-column">
+                    <span class="fw-bold text-dark">{{ product.productName }}</span>
+                    <span class="text-muted small">{{ product.productCode }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-dark fw-medium">
+                  {{ product.currentStock | number }}
+                </td>
+                <td class="px-4 py-3 text-center fw-bold text-primary">
+                  {{ product.totalMovements }}
+                </td>
+                <td class="px-4 py-3">
+                  <div class="progress" style="height: 6px; width: 100px">
+                    <div
+                      class="progress-bar bg-success"
+                      role="progressbar"
+                      [style.width.%]="85"
+                    ></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts Panel -->
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0">Intelligence Alerts</h5>
+          <span
+            class="badge rounded-pill bg-danger animate-pulse p-1"
+            style="width: 10px; height: 10px"
+          >
+          </span>
+        </div>
+        <div class="d-flex flex-column gap-3">
+          <div
+            *ngIf="state.kpis()?.lowStockAlerts"
+            class="p-3 bg-danger bg-opacity-10 border-start border-4 border-danger rounded"
+          >
+            <div class="d-flex gap-3">
+              <i class="bi bi-exclamation-octagon-fill text-danger fs-5"></i>
+              <div>
+                <p class="fw-bold text-danger mb-1">Low Stock Warning</p>
+                <p class="small text-danger mb-0">
+                  {{ state.kpis()?.lowStockAlerts }} items are below minimum stock levels.
+                  Replenishment required.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="state.kpis()?.pendingOrders"
+            class="p-3 bg-warning bg-opacity-10 border-start border-4 border-warning rounded"
+          >
+            <div class="d-flex gap-3">
+              <i class="bi bi-clock-history text-warning fs-5"></i>
+              <div>
+                <p class="fw-bold text-warning mb-1">Pending Fulfillment</p>
+                <p class="small text-warning mb-0">
+                  {{ state.kpis()?.pendingOrders }} orders waiting for picking. Priority handling
+                  recommended.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-info bg-opacity-10 border-start border-4 border-info rounded">
+            <div class="d-flex gap-3">
+              <i class="bi bi-info-circle-fill text-info fs-5"></i>
+              <div>
+                <p class="fw-bold text-info mb-1">Warehouse Utilization</p>
+                <p class="small text-info mb-0">
+                  Current occupancy is at {{ state.kpis()?.utilizationRate | number: '1.1-1' }}%.
+                  Space optimization available in Zone C.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="card stat-card">
-      <div class="card-body d-flex align-items-start gap-3">
-        <div class="stat-icon stat-icon-danger">
-          <i class="bi bi-x-circle"></i>
-        </div>
-        <div>
-          <div class="stat-label">Agotados</div>
-          <div class="stat-value">0</div>
-          <div class="stat-trend trend-flat">
-            <i class="bi bi-dash"></i>
-            Sin datos
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Info alert -->
-<div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>
-  Dashboard en construcción. Próximamente se agregarán más funcionalidades.
 </div>
