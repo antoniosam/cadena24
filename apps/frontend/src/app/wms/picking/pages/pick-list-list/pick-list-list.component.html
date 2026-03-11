@@ -1,0 +1,246 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Picking</h1>
+      <p class="page-subtitle">Surtido de órdenes de venta</p>
+    </div>
+    <div class="header-actions">
+      @if (state.inProgressPickLists().length > 0) {
+        <span class="badge badge-active">
+          <i class="bi bi-play-circle"></i>
+          {{ state.inProgressPickLists().length }} en progreso
+        </span>
+      }
+      <button class="btn-primary" (click)="openGenerateModal()">
+        <i class="bi bi-plus-lg"></i>
+        Generar Pick List
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-select-group">
+      <label class="filter-label">Estado</label>
+      <select class="filter-select" (change)="onFilterStatus($event)">
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <button class="btn-filter-clear" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i> Limpiar
+    </button>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando pick lists...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (!state.loading()) {
+    @if (state.hasPickLists()) {
+      <p class="results-info">{{ state.total() }} pick list(s) encontrada(s)</p>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Orden de Venta</th>
+              <th>Cliente</th>
+              <th>Estado</th>
+              <th>Progreso</th>
+              <th>Picker</th>
+              <th>Creado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pickList of state.pickLists(); track pickList.id) {
+              <tr class="pick-row" (click)="onView(pickList.id)">
+                <td>
+                  <span class="code-text">{{ pickList.pickListNumber }}</span>
+                </td>
+                <td>
+                  <span class="code-text">{{ pickList.salesOrder?.orderNumber || '—' }}</span>
+                </td>
+                <td>{{ pickList.salesOrder?.customerName || '—' }}</td>
+                <td>
+                  <span [class]="'badge ' + getStatusBadgeClass(pickList.status)">
+                    {{ getStatusLabel(pickList.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="progress-cell">
+                    <div class="progress-bar-wrapper">
+                      <div
+                        class="progress-bar-fill"
+                        [style.width.%]="
+                          getProgressPercent(pickList.pickedLines, pickList.totalLines)
+                        "
+                        [class.completed]="pickList.status === 'completed'"
+                      ></div>
+                    </div>
+                    <span class="progress-text">
+                      {{ pickList.pickedLines }}/{{ pickList.totalLines }}
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  @if (pickList.picker) {
+                    <span class="picker-name">
+                      {{ pickList.picker.firstName }} {{ pickList.picker.lastName }}
+                    </span>
+                  } @else {
+                    <span class="text-muted">Sin asignar</span>
+                  }
+                </td>
+                <td>{{ pickList.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <div class="action-buttons" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn-action btn-view"
+                      (click)="onView(pickList.id)"
+                      title="Ver detalle"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    @if (canCancel(pickList.status)) {
+                      <button
+                        class="btn-action btn-delete"
+                        (click)="onCancel(pickList.id, pickList.pickListNumber, $event)"
+                        title="Cancelar"
+                      >
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (state.totalPages() > 1) {
+        <div class="pagination">
+          <button
+            class="btn-page"
+            [disabled]="state.currentPage() === 1"
+            (click)="onPageChange(state.currentPage() - 1)"
+          >
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+          <span class="page-info"
+            >Página {{ state.currentPage() }} de {{ state.totalPages() }}</span
+          >
+          <button
+            class="btn-page"
+            [disabled]="state.currentPage() === state.totalPages()"
+            (click)="onPageChange(state.currentPage() + 1)"
+          >
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    } @else {
+      <div class="state-box state-empty">
+        <i class="bi bi-list-check"></i>
+        <span>No hay pick lists</span>
+        <button class="btn-primary" (click)="openGenerateModal()">Generar Primera Pick List</button>
+      </div>
+    }
+  }
+</div>
+
+<!-- Generate Modal -->
+@if (showGenerateModal) {
+  <div class="modal-overlay" (click)="closeGenerateModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Generar Pick List</h2>
+        <button class="btn-close" (click)="closeGenerateModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-hint">
+          Selecciona una orden de venta en estado <strong>Pendiente</strong>. Se generará una pick
+          list optimizada con las ubicaciones de inventario reservado.
+        </p>
+
+        @if (generateError) {
+          <div class="alert-error">
+            <i class="bi bi-exclamation-circle"></i>
+            {{ generateError }}
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label">Orden de Venta *</label>
+
+          @if (loadingPendingOrders) {
+            <div class="loading-inline">
+              <div class="spinner-sm"></div>
+              Cargando órdenes...
+            </div>
+          } @else if (pendingOrders.length === 0) {
+            <div class="alert-info">
+              <i class="bi bi-info-circle"></i>
+              No hay órdenes de venta pendientes
+            </div>
+          } @else {
+            <select class="form-control" [(ngModel)]="selectedOrderId">
+              <option [ngValue]="null">Selecciona una orden...</option>
+              @for (order of pendingOrders; track order.id) {
+                <option [ngValue]="order.id">
+                  {{ getOrderDisplay(order) }}
+                </option>
+              }
+            </select>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notas (opcional)</label>
+          <textarea
+            class="form-control"
+            [(ngModel)]="generateNotes"
+            rows="2"
+            placeholder="Instrucciones adicionales..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeGenerateModal()" [disabled]="generating">
+          Cancelar
+        </button>
+        <button
+          class="btn-primary"
+          (click)="onGenerate()"
+          [disabled]="generating || !selectedOrderId || loadingPendingOrders"
+        >
+          @if (generating) {
+            <div class="spinner-sm"></div>
+            Generando...
+          } @else {
+            <i class="bi bi-lightning-charge"></i>
+            Generar Pick List
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

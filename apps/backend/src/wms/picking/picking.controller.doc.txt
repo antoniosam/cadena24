@@ -1,0 +1,182 @@
+================================================================================
+PICKING MODULE - API DOCUMENTATION
+Controller: /wms/pick-lists
+Auth: JWT required (all endpoints)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+POST /wms/pick-lists/generate
+────────────────────────────────────────────────────────────────────────────────
+Description : Generate an optimized pick list from a pending sales order.
+              Validates that the order is in "pending" status and that there
+              is no other active pick list for the same order.
+              Updates the sales order status to "picking".
+
+Body:
+  salesOrderId  Int     REQUIRED  ID of the sales order to pick
+  notes         String  OPTIONAL  Additional notes
+
+Response 201:
+  { id, pickListNumber, salesOrderId, warehouseId, status: "pending",
+    totalLines, pickedLines: 0, lines: [...], createdAt }
+
+Errors:
+  400 - Sales order is not in "pending" status
+  400 - Active pick list already exists for this order
+  400 - Cannot allocate full quantity for a product
+  404 - Sales order not found
+
+────────────────────────────────────────────────────────────────────────────────
+GET /wms/pick-lists
+────────────────────────────────────────────────────────────────────────────────
+Description : List pick lists with optional filters and pagination.
+
+Query params:
+  status        String  OPTIONAL  pending | in_progress | completed | cancelled
+  salesOrderId  Int     OPTIONAL
+  pickerId      Int     OPTIONAL
+  warehouseId   Int     OPTIONAL
+  page          Int     OPTIONAL  default: 1
+  limit         Int     OPTIONAL  default: 20
+
+Response 200:
+  { items: [...], total, page, limit, totalPages }
+
+────────────────────────────────────────────────────────────────────────────────
+GET /wms/pick-lists/:id
+────────────────────────────────────────────────────────────────────────────────
+Description : Get a single pick list with all its lines and related entities.
+
+Response 200:
+  { id, pickListNumber, salesOrder, warehouse, picker, status,
+    totalLines, pickedLines, lines: [...], startedAt, completedAt }
+
+Errors:
+  404 - Pick list not found
+
+────────────────────────────────────────────────────────────────────────────────
+GET /wms/pick-lists/:id/optimized-route
+────────────────────────────────────────────────────────────────────────────────
+Description : Get pick list lines sorted by optimized picking route (sequence).
+              Picking-type locations come first, followed by storage locations,
+              each sorted by location sequence number.
+
+Response 200:
+  { pickListId, totalLines, lines: [...sorted by sequence...] }
+
+Errors:
+  404 - Pick list not found
+
+────────────────────────────────────────────────────────────────────────────────
+PATCH /wms/pick-lists/:id/assign-picker
+────────────────────────────────────────────────────────────────────────────────
+Description : Assign a picker (operator) to a pick list.
+
+Body:
+  pickerId  Int  REQUIRED  ID of the user (operator) to assign
+
+Response 200:
+  { ...pickList, picker: { id, firstName, lastName, email } }
+
+Errors:
+  400 - Pick list is completed or cancelled
+  404 - Pick list not found
+
+────────────────────────────────────────────────────────────────────────────────
+PATCH /wms/pick-lists/:id/start
+────────────────────────────────────────────────────────────────────────────────
+Description : Start a pick list (transition from "pending" to "in_progress").
+              Records startedAt timestamp.
+
+Response 200:
+  { ...pickList, status: "in_progress", startedAt: DateTime }
+
+Errors:
+  400 - Pick list is not in "pending" status
+  404 - Pick list not found
+
+────────────────────────────────────────────────────────────────────────────────
+POST /wms/pick-lists/:id/pick-line
+────────────────────────────────────────────────────────────────────────────────
+Description : Record a picked quantity for a specific line.
+              - If quantityPicked === quantityToPick → line status = "picked"
+              - If quantityPicked < quantityToPick  → line status = "short"
+              Increments the pickedLines counter on the pick list.
+
+Body:
+  lineId          Int     REQUIRED  ID of the pick list line
+  quantityPicked  Float   REQUIRED  Quantity actually picked (0 to quantityToPick)
+  notes           String  OPTIONAL  e.g. reason for short pick
+
+Response 201:
+  { lineId, quantityPicked, status: "picked"|"short", isShort, missing }
+
+Errors:
+  400 - Pick list is not in "in_progress" status
+  400 - Line already processed
+  400 - quantityPicked > quantityToPick
+  404 - Line not found in this pick list
+
+────────────────────────────────────────────────────────────────────────────────
+POST /wms/pick-lists/:id/complete
+────────────────────────────────────────────────────────────────────────────────
+Description : Complete a pick list. For each processed line:
+              1. Releases the inventory reservation
+              2. Deducts stock from the location (SUBTRACT)
+              3. Creates an inventory transaction (type: PICK)
+              4. Updates sales order line pickedQuantity and status
+              Updates pick list status to "completed" and sets completedAt.
+              If all sales order lines are picked/partial, updates sales order
+              status to "picked".
+
+Response 201:
+  { ...completedPickList, status: "completed", completedAt: DateTime }
+
+Errors:
+  400 - Pick list is not in "in_progress" status
+  400 - There are still pending lines to process
+  404 - Pick list not found
+
+────────────────────────────────────────────────────────────────────────────────
+DELETE /wms/pick-lists/:id
+────────────────────────────────────────────────────────────────────────────────
+Description : Cancel a pick list. Reverts the sales order status back to
+              "pending" if the pick list was pending or in_progress.
+
+Response 200:
+  { ...pickList, status: "cancelled" }
+
+Errors:
+  400 - Pick list is already completed
+  400 - Pick list is already cancelled
+  404 - Pick list not found
+
+================================================================================
+PICK LIST LIFECYCLE
+================================================================================
+
+  Sales Order (pending)
+        ↓ POST /generate
+  PickList (pending) ← Sales Order status → "picking"
+        ↓ PATCH /:id/assign-picker  (optional)
+  PickList (pending, pickerId set)
+        ↓ PATCH /:id/start
+  PickList (in_progress)
+        ↓ POST /:id/pick-line  (repeat per line)
+  Lines: pending → picked | short
+        ↓ POST /:id/complete
+  PickList (completed) ← Inventory updated ← Sales Order → "picked"
+
+================================================================================
+SHORT PICKS
+================================================================================
+
+When quantityPicked < quantityToPick:
+  - Line status set to "short"
+  - "missing" quantity returned in response
+  - Supervisor should review and decide:
+      a) Find stock in another location (new pick list)
+      b) Adjust the order quantity
+      c) Mark as backorder
+
+================================================================================

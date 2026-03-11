@@ -1,0 +1,354 @@
+<div class="page-container">
+  @if (state.loading() && !pickList) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando pick list...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (pickList) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <div>
+          <h1 class="page-title">{{ pickList.pickListNumber }}</h1>
+          <p class="page-subtitle">
+            Orden: <strong>{{ pickList.salesOrder?.orderNumber }}</strong> —
+            {{ pickList.salesOrder?.customerName }}
+          </p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span [class]="'badge ' + getStatusBadgeClass(pickList.status)">
+          {{ getStatusLabel(pickList.status) }}
+        </span>
+
+        @if (canStart) {
+          <button class="btn-start" (click)="onStart()" [disabled]="state.saving()">
+            <i class="bi bi-play-fill"></i>
+            Iniciar Picking
+          </button>
+        }
+
+        @if (canComplete) {
+          <button class="btn-complete" (click)="openCompleteConfirm()" [disabled]="state.saving()">
+            <i class="bi bi-check-circle"></i>
+            Completar Pick List
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-card">
+      <div class="progress-info">
+        <span class="progress-label">Progreso de picking</span>
+        <span class="progress-fraction"
+          >{{ pickList.pickedLines }} / {{ pickList.totalLines }} líneas</span
+        >
+      </div>
+      <div class="progress-track">
+        <div
+          class="progress-fill"
+          [style.width.%]="progressPercent"
+          [class.done]="pickList.status === 'completed'"
+        ></div>
+      </div>
+      <span class="progress-pct">{{ progressPercent }}%</span>
+    </div>
+
+    <!-- Summary chips -->
+    <div class="summary-chips">
+      @if (pickList.picker) {
+        <div class="chip">
+          <i class="bi bi-person"></i>
+          {{ pickList.picker.firstName }} {{ pickList.picker.lastName }}
+        </div>
+      }
+      @if (pickList.startedAt) {
+        <div class="chip">
+          <i class="bi bi-clock"></i>
+          Iniciado: {{ pickList.startedAt | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      }
+      @if (pickList.completedAt) {
+        <div class="chip chip-success">
+          <i class="bi bi-check-circle"></i>
+          Completado: {{ pickList.completedAt | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      }
+    </div>
+
+    <!-- Pending lines -->
+    @if (pendingLines.length > 0) {
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="bi bi-list-task"></i>
+          Líneas Pendientes ({{ pendingLines.length }})
+        </h2>
+        @if (!canPickLine) {
+          <span class="section-hint">Inicia la pick list para surtir líneas</span>
+        }
+      </div>
+
+      <div class="lines-grid">
+        @for (line of pendingLines; track line.id) {
+          <div class="line-card" [class.clickable]="canPickLine" (click)="openPickModal(line)">
+            <div class="line-seq">
+              <span class="seq-number">{{ line.sequence }}</span>
+            </div>
+            <div class="line-info">
+              <div class="line-product">
+                <span class="product-code">{{ line.product?.code }}</span>
+                <span class="product-name">{{ line.product?.name }}</span>
+              </div>
+              <div class="line-location">
+                <i class="bi bi-geo-alt"></i>
+                <span class="location-path">{{
+                  line.location?.fullPath || line.location?.name
+                }}</span>
+              </div>
+            </div>
+            <div class="line-qty">
+              <div class="qty-label">A surtir</div>
+              <div class="qty-value">{{ line.quantityToPick }}</div>
+            </div>
+            @if (canPickLine) {
+              <button class="btn-pick" (click)="openPickModal(line); $event.stopPropagation()">
+                <i class="bi bi-hand-index-thumb"></i>
+                Surtir
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Processed lines -->
+    @if (processedLines.length > 0) {
+      <div class="section-header" style="margin-top: 2rem">
+        <h2 class="section-title">
+          <i class="bi bi-check2-all"></i>
+          Líneas Procesadas ({{ processedLines.length }})
+        </h2>
+      </div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Producto</th>
+              <th>Ubicación</th>
+              <th>Solicitado</th>
+              <th>Surtido</th>
+              <th>Estado</th>
+              <th>Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of processedLines; track line.id) {
+              <tr>
+                <td class="seq-cell">{{ line.sequence }}</td>
+                <td>
+                  <div class="product-cell">
+                    <span class="code-text">{{ line.product?.code }}</span>
+                    <span>{{ line.product?.name }}</span>
+                  </div>
+                </td>
+                <td class="location-cell">{{ line.location?.name }}</td>
+                <td class="text-right">{{ line.quantityToPick }}</td>
+                <td class="text-right">
+                  <strong [class.text-short]="line.status === 'short'">
+                    {{ line.quantityPicked }}
+                  </strong>
+                  @if (line.status === 'short') {
+                    <span class="missing-badge"
+                      >-{{ line.quantityToPick - line.quantityPicked }}</span
+                    >
+                  }
+                </td>
+                <td>
+                  <span [class]="'badge ' + getStatusBadgeClass(line.status)">
+                    {{ getStatusLabel(line.status) }}
+                  </span>
+                </td>
+                <td class="text-muted">
+                  @if (line.pickedAt) {
+                    {{ line.pickedAt | date: 'HH:mm' }}
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- Completed state -->
+    @if (pickList.status === 'completed') {
+      <div class="completed-banner">
+        <i class="bi bi-check-circle-fill"></i>
+        <div>
+          <strong>Pick List Completada</strong>
+          <p>
+            El inventario fue actualizado automáticamente. Las reservas fueron liberadas y el stock
+            fue deducido.
+          </p>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- Pick Line Modal -->
+@if (showPickModal && selectedLine) {
+  <div class="modal-overlay" (click)="closePickModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Registrar Surtido</h2>
+        <button class="btn-close" (click)="closePickModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Product info -->
+        <div class="pick-detail-card">
+          <div class="pick-detail-row">
+            <span class="pick-detail-label">Producto</span>
+            <div class="pick-detail-value">
+              <span class="code-text">{{ selectedLine.product?.code }}</span>
+              {{ selectedLine.product?.name }}
+            </div>
+          </div>
+          <div class="pick-detail-row">
+            <span class="pick-detail-label">Ubicación</span>
+            <div class="pick-detail-value location-value">
+              <i class="bi bi-geo-alt-fill"></i>
+              {{ selectedLine.location?.fullPath || selectedLine.location?.name }}
+            </div>
+          </div>
+          <div class="pick-detail-row">
+            <span class="pick-detail-label">A surtir</span>
+            <div class="pick-detail-value qty-highlight">{{ selectedLine.quantityToPick }}</div>
+          </div>
+        </div>
+
+        @if (lastPickResult && lastPickResult.isShort) {
+          <div class="alert-short">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>
+              <strong>Short Pick detectado</strong>
+              <p>
+                Faltaron {{ lastPickResult.missing }} unidades. La línea quedará marcada como
+                "Faltante".
+              </p>
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label">Cantidad surtida</label>
+          <div class="qty-input-group">
+            <input
+              type="number"
+              class="form-control qty-input"
+              [(ngModel)]="quantityInput"
+              [max]="selectedLine.quantityToPick"
+              min="0"
+              step="1"
+            />
+            <button
+              class="btn-max"
+              (click)="quantityInput = selectedLine.quantityToPick.toString()"
+            >
+              Máx: {{ selectedLine.quantityToPick }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notas (opcional)</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="pickNotes"
+            placeholder="Razón de faltante, observaciones..."
+          />
+        </div>
+
+        <div class="shortpick-actions">
+          <button class="btn-short" (click)="onMarkShort()">
+            <i class="bi bi-exclamation-triangle"></i>
+            Sin stock (0)
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closePickModal()">Cancelar</button>
+        <button
+          class="btn-primary"
+          (click)="onConfirmPick()"
+          [disabled]="state.saving() || quantityInput === ''"
+        >
+          @if (state.saving()) {
+            <div class="spinner-sm"></div>
+          } @else {
+            <i class="bi bi-check-lg"></i>
+          }
+          Confirmar Surtido
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Complete Confirm Modal -->
+@if (showCompleteConfirm) {
+  <div class="modal-overlay" (click)="closeCompleteConfirm()">
+    <div class="modal-card modal-confirm" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Completar Pick List</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Confirmas completar esta pick list?</p>
+        <ul class="confirm-list">
+          <li>Se liberarán las reservas de inventario</li>
+          <li>Se deducirá el stock de las ubicaciones</li>
+          <li>Se registrarán transacciones de salida (PICK)</li>
+          <li>La orden de venta pasará a estado "surtido"</li>
+        </ul>
+        @if (processedLines.filter(l => l.status === 'short').length > 0) {
+          <div class="alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            Hay {{ processedLines.filter(l => l.status === 'short').length }} línea(s) con faltantes
+            (short picks).
+          </div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeCompleteConfirm()">Cancelar</button>
+        <button class="btn-complete" (click)="onComplete()" [disabled]="state.saving()">
+          @if (state.saving()) {
+            <div class="spinner-sm"></div>
+          } @else {
+            <i class="bi bi-check-circle"></i>
+          }
+          Completar
+        </button>
+      </div>
+    </div>
+  </div>
+}
