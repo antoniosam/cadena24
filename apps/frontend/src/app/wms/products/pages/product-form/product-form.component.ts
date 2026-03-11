@@ -1,14 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ProductsStateService } from '../../services/products-state.service';
 import { ProductsApiService } from '../../services/products-api.service';
+import { ProductBulkUploadComponent } from './product-bulk-upload/product-bulk-upload.component';
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ProductBulkUploadComponent],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })
@@ -22,6 +23,7 @@ export class ProductFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = false;
   productId: number | null = null;
+  showBulkUpload = signal<boolean>(false);
 
   constructor() {
     this.form = this.fb.group({
@@ -97,6 +99,17 @@ export class ProductFormComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/wms/products']);
+  }
+
+  openBulkUpload(): void {
+    this.showBulkUpload.set(true);
+  }
+
+  onBulkUploadClosed(hadSuccess: boolean): void {
+    this.showBulkUpload.set(false);
+    if (hadSuccess) {
+      this.router.navigate(['/wms/products']);
+    }
   }
 
   fieldError(name: string): string | null {

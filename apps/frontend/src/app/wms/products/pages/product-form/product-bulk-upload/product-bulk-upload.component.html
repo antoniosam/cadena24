@@ -1,0 +1,264 @@
+<div class="modal-backdrop" (click)="close()"></div>
+
+<div class="modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="modal-title-wrap">
+      <i class="bi bi-file-earmark-spreadsheet"></i>
+      <div>
+        <h2 class="modal-title">Carga Masiva de Productos</h2>
+        <p class="modal-subtitle">Importa hasta 500 productos desde un archivo Excel</p>
+      </div>
+    </div>
+    <button class="btn-icon" (click)="close()" title="Cerrar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- Column reference -->
+  <div class="columns-info">
+    <p class="columns-title"><i class="bi bi-info-circle"></i> Columnas requeridas en el Excel</p>
+    <div class="columns-grid">
+      <span class="col-badge required">A — code *</span>
+      <span class="col-badge required">B — name *</span>
+      <span class="col-badge required">C — barcode *</span>
+      <span class="col-badge required">D — uom *</span>
+      <span class="col-badge optional">E — category</span>
+      <span class="col-badge optional">F — description</span>
+      <span class="col-badge optional">G — minStock</span>
+    </div>
+    <p class="columns-note">
+      UOM válidos: <strong>UND, KG, LT, MT, CJ, BL, PAR</strong> &nbsp;|&nbsp; Los campos restantes
+      (maxStock, peso, dimensiones, etc.) se establecen en <strong>0</strong> automáticamente.
+      Máximo <strong>500 filas</strong>.
+    </p>
+  </div>
+
+  <!-- STEP: idle — drop zone -->
+  @if (step() === 'idle') {
+    <div class="modal-body">
+      <div
+        class="drop-zone"
+        [class.drag-over]="dragOver()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+      >
+        <i class="bi bi-cloud-arrow-up drop-icon"></i>
+        <p class="drop-text">
+          Arrastrá tu archivo o <span class="drop-link">hacé clic para seleccionar</span>
+        </p>
+        <p class="drop-hint">.xlsx o .xls — máx. 500 filas</p>
+        <input
+          #fileInput
+          type="file"
+          accept=".xlsx,.xls"
+          class="hidden-input"
+          (change)="onFileInput($event)"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- STEP: preview — validation table -->
+  @if (step() === 'preview') {
+    <div class="modal-body">
+      <!-- Summary -->
+      <div class="summary-bar">
+        <div class="summary-item">
+          <span class="summary-label">Total filas</span>
+          <span class="summary-value">{{ rows().length }}</span>
+        </div>
+        <div class="summary-item success">
+          <span class="summary-label">Válidas</span>
+          <span class="summary-value">{{ validRows().length }}</span>
+        </div>
+        @if (invalidRows().length > 0) {
+          <div class="summary-item error">
+            <span class="summary-label">Con errores</span>
+            <span class="summary-value">{{ invalidRows().length }}</span>
+          </div>
+        }
+        <span class="file-name"><i class="bi bi-file-earmark-check"></i> {{ fileName() }}</span>
+      </div>
+
+      <!-- Errors only block -->
+      @if (invalidRows().length > 0) {
+        <div class="alert-warning">
+          <i class="bi bi-exclamation-triangle"></i>
+          Las filas con errores serán <strong>omitidas</strong>. Solo se importarán las
+          {{ validRows().length }} filas válidas. El proceso se detendrá si ocurre un error de
+          servidor.
+        </div>
+      }
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>Fila</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Barcode</th>
+              <th>UOM</th>
+              <th>Categoría</th>
+              <th>Min. Stock</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.rowNumber) {
+              <tr [class.row-invalid]="row.errors.length > 0">
+                <td class="cell-row">{{ row.rowNumber }}</td>
+                <td>{{ row.raw.code }}</td>
+                <td>{{ row.raw.name }}</td>
+                <td class="cell-mono">{{ row.raw.barcode }}</td>
+                <td>{{ row.raw.uom }}</td>
+                <td>{{ row.raw.category || '—' }}</td>
+                <td>{{ row.raw.minStock ?? 0 }}</td>
+                <td>
+                  @if (row.errors.length === 0) {
+                    <span class="badge badge-ok"><i class="bi bi-check-circle"></i> Válida</span>
+                  } @else {
+                    <div class="errors-cell">
+                      @for (err of row.errors; track err) {
+                        <span class="badge badge-err"
+                          ><i class="bi bi-x-circle"></i> {{ err }}</span
+                        >
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="reset()">
+        <i class="bi bi-arrow-left"></i> Cambiar archivo
+      </button>
+      <button class="btn-primary" [disabled]="!canImport()" (click)="startImport()">
+        <i class="bi bi-play-circle"></i>
+        Importar {{ validRows().length }} producto{{ validRows().length !== 1 ? 's' : '' }}
+      </button>
+    </div>
+  }
+
+  <!-- STEP: importing — progress -->
+  @if (step() === 'importing') {
+    <div class="modal-body">
+      <div class="import-progress">
+        <div class="progress-header">
+          <span class="progress-label">Importando productos...</span>
+          <span class="progress-count">{{ currentIndex() }} / {{ validRows().length }}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" [style.width.%]="progress()"></div>
+        </div>
+        <p class="progress-hint">No cierres esta ventana hasta que finalice la importación.</p>
+      </div>
+
+      <!-- Live status table -->
+      <div class="table-wrap">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>Fila</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of validRows(); track row.rowNumber) {
+              <tr>
+                <td class="cell-row">{{ row.rowNumber }}</td>
+                <td>{{ row.raw.code }}</td>
+                <td>{{ row.raw.name }}</td>
+                <td>
+                  @switch (row.status) {
+                    @case ('pending') {
+                      <span class="badge badge-pending">Pendiente</span>
+                    }
+                    @case ('sending') {
+                      <span class="badge badge-sending"
+                        ><i class="bi bi-arrow-repeat spin"></i> Enviando</span
+                      >
+                    }
+                    @case ('success') {
+                      <span class="badge badge-ok"><i class="bi bi-check-circle"></i> Creado</span>
+                    }
+                    @case ('error') {
+                      <span class="badge badge-err"
+                        ><i class="bi bi-x-circle"></i> {{ row.serverError }}</span
+                      >
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- STEP: done — results -->
+  @if (step() === 'done') {
+    <div class="modal-body">
+      <div class="done-summary">
+        @if (failedRows().length === 0) {
+          <div class="done-icon success"><i class="bi bi-check-circle-fill"></i></div>
+          <h3 class="done-title">¡Importación completada!</h3>
+        } @else {
+          <div class="done-icon warning"><i class="bi bi-exclamation-circle-fill"></i></div>
+          <h3 class="done-title">Importación detenida por error</h3>
+        }
+        <div class="done-stats">
+          <div class="stat-item success">
+            <span class="stat-num">{{ successRows().length }}</span>
+            <span class="stat-label">Creados exitosamente</span>
+          </div>
+          @if (failedRows().length > 0) {
+            <div class="stat-item error">
+              <span class="stat-num">{{ failedRows().length }}</span>
+              <span class="stat-label">Con error de servidor</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-num">{{
+                validRows().length - successRows().length - failedRows().length
+              }}</span>
+              <span class="stat-label">Sin procesar</span>
+            </div>
+          }
+        </div>
+
+        @if (failedRows().length > 0) {
+          <div class="alert-error done-error">
+            <i class="bi bi-x-octagon"></i>
+            <div>
+              <strong
+                >Error en fila {{ failedRows()[0].rowNumber }} ({{
+                  failedRows()[0].raw.code
+                }}):</strong
+              ><br />
+              {{ failedRows()[0].serverError }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="reset()">
+        <i class="bi bi-arrow-repeat"></i> Nueva importación
+      </button>
+      <button class="btn-primary" (click)="close()"><i class="bi bi-check-lg"></i> Cerrar</button>
+    </div>
+  }
+</div>

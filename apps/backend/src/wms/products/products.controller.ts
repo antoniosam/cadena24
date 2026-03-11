@@ -38,6 +38,11 @@ export class ProductsController {
     return this.productsService.findByBarcode(barcode);
   }
 
+  @Get('validate/code/:code')
+  validateProductCode(@Param('code') code: string) {
+    return this.productsService.validateProductCode(code);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);

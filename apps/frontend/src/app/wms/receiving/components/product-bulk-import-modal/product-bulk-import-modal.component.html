@@ -1,0 +1,216 @@
+<div class="modal-backdrop" (click)="close()"></div>
+
+<div class="modal">
+  <div class="modal-header">
+    <h2>Importación Masiva de Productos</h2>
+    <button class="close-btn" (click)="close()" [disabled]="isProcessing()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!-- Step 1: Upload -->
+    @if (step() === 'upload') {
+      <div class="upload-section">
+        <div class="info-box">
+          <i class="bi bi-info-circle"></i>
+          <p>
+            Descargue la plantilla, complete los datos y suba el archivo Excel para importar
+            productos de forma masiva.
+          </p>
+        </div>
+
+        <div class="template-download">
+          <button type="button" class="btn btn-outline-primary" (click)="downloadTemplate()">
+            <i class="bi bi-download"></i> Descargar Plantilla Excel
+          </button>
+          <small>La plantilla contiene las columnas requeridas y ejemplos de datos</small>
+        </div>
+
+        <div class="file-upload">
+          <label class="file-upload-label">
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              (change)="onFileSelected($event)"
+              [disabled]="isProcessing()"
+            />
+            <div
+              class="upload-area"
+              [class.drag-over]="isDragOver()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+            >
+              @if (isDragOver()) {
+                <i class="bi bi-file-earmark-arrow-down"></i>
+                <p>Suelte el archivo aquí</p>
+              } @else if (selectedFile()) {
+                <i class="bi bi-file-earmark-excel"></i>
+                <p>{{ selectedFile()!.name }}</p>
+              } @else {
+                <i class="bi bi-cloud-upload"></i>
+                <p>Arrastre un archivo aquí o haga clic para seleccionar</p>
+                <small>.xlsx o .xls</small>
+              }
+            </div>
+          </label>
+        </div>
+
+        @if (isProcessing()) {
+          <div class="processing-message">
+            <div class="spinner"></div>
+            <p>Validando archivo...</p>
+          </div>
+        }
+
+        @if (error()) {
+          <div class="alert alert-danger">{{ error() }}</div>
+        }
+
+        @if (validationResult() && !validationResult()!.isValid) {
+          <div class="validation-errors">
+            <h4>
+              <i class="bi bi-exclamation-triangle"></i> Errores de Validación ({{
+                validationResult()!.errors.length
+              }})
+            </h4>
+            <p class="error-summary">
+              Se encontraron errores en el archivo. Por favor corrija los siguientes problemas:
+            </p>
+            <div class="error-list">
+              @for (error of validationResult()!.errors; track $index) {
+                <div class="error-item">
+                  <span class="error-row">Fila {{ error.row }}:</span>
+                  <span class="error-field">{{ error.field }}</span> -
+                  <span class="error-message">{{ error.message }}</span>
+                  @if (error.value !== null && error.value !== undefined && error.value !== '') {
+                    <span class="error-value">({{ error.value }})</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Step 2: Preview -->
+    @if (step() === 'preview') {
+      <div class="preview-section">
+        <div class="preview-header">
+          <h3>Vista Previa - {{ parsedRows().length }} productos</h3>
+          <p>Revise los datos antes de procesarlos</p>
+        </div>
+
+        <div class="preview-table-container">
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Código Producto</th>
+                <th>Cantidad Esperada</th>
+                <th>Costo Unitario</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of parsedRows(); track $index) {
+                <tr>
+                  <td>{{ $index + 1 }}</td>
+                  <td>{{ row.codigoProducto }}</td>
+                  <td>{{ row.cantidadEsperada }}</td>
+                  <td>{{ row.costoUnitario | number: '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Processing -->
+    @if (step() === 'processing') {
+      <div class="processing-section">
+        <div class="progress-container">
+          <h3>Procesando Importación...</h3>
+
+          @if (progress()) {
+            <div class="progress-info">
+              <p>
+                Producto {{ progress()!.current }} de {{ progress()!.total }}:
+                <strong>{{ progress()!.currentProduct }}</strong>
+              </p>
+            </div>
+
+            <div class="progress-bar-container">
+              <div
+                class="progress-bar"
+                [style.width.%]="(progress()!.current / progress()!.total) * 100"
+              ></div>
+            </div>
+
+            <div class="progress-stats">
+              <span class="success-count">✓ Exitosos: {{ progress()!.successCount }}</span>
+              <span class="failed-count">✗ Fallidos: {{ progress()!.failedCount }}</span>
+            </div>
+          }
+
+          <p class="warning-message">
+            <i class="bi bi-exclamation-circle"></i> No cierre esta ventana durante el proceso
+          </p>
+        </div>
+      </div>
+    }
+
+    <!-- Step 4: Result -->
+    @if (step() === 'result') {
+      <div class="result-section">
+        @if (result()!.success) {
+          <div class="result-success">
+            <i class="bi bi-check-circle"></i>
+            <h3>{{ result()!.message }}</h3>
+            <div class="result-stats">
+              <p>Total procesados: {{ result()!.totalProcessed }}</p>
+              <p>Exitosos: {{ result()!.successCount }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="result-error">
+            <i class="bi bi-x-circle"></i>
+            <h3>{{ result()!.message }}</h3>
+            @if (result()!.error) {
+              <p class="error-detail">{{ result()!.error }}</p>
+            }
+            @if (result()!.failedRow) {
+              <p class="failed-row">Fila con error: {{ result()!.failedRow }}</p>
+            }
+            <div class="result-stats">
+              <p>Total procesados: {{ result()!.totalProcessed }}</p>
+              <p>Exitosos: {{ result()!.successCount }}</p>
+              <p>Fallidos: {{ result()!.failedCount }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="modal-footer">
+    @if (step() === 'upload') {
+      <button type="button" class="btn btn-secondary" (click)="close()" [disabled]="isProcessing()">
+        Cancelar
+      </button>
+    }
+
+    @if (step() === 'preview') {
+      <button type="button" class="btn btn-secondary" (click)="backToUpload()">Volver</button>
+      <button type="button" class="btn btn-primary" (click)="processImport()">
+        <i class="bi bi-play-fill"></i> Procesar Importación
+      </button>
+    }
+
+    @if (step() === 'result') {
+      <button type="button" class="btn btn-primary" (click)="finishImport()">Cerrar</button>
+    }
+  </div>
+</div>

@@ -134,6 +134,15 @@ export class ProductsService {
     return this.repository.getLowStockProducts();
   }
 
+  async validateProductCode(code: string) {
+    const product = await this.repository.findByCode(code);
+    return {
+      exists: !!product,
+      productId: product?.id || null,
+      code,
+    };
+  }
+
   private validateStockLevels(data: any) {
     const { minStock, maxStock, reorderPoint } = data;
 

@@ -10,6 +10,12 @@
         }}
       </p>
     </div>
+    @if (!isEditMode) {
+      <button type="button" class="btn-bulk" (click)="openBulkUpload()">
+        <i class="bi bi-file-earmark-spreadsheet"></i>
+        Carga Masiva
+      </button>
+    }
   </div>
 
   @if (state.loading()) {
@@ -262,3 +268,7 @@
     </div>
   </form>
 </div>
+
+@if (showBulkUpload()) {
+  <app-product-bulk-upload (closed)="onBulkUploadClosed($event)" />
+}
