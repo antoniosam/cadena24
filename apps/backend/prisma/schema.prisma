@@ -347,20 +347,32 @@ model MovementOrderLine {
   @@map("movement_order_lines")
 }
 
-// ── Sales Orders ──────────────────────────────────────────────────────────────
+// ── Pick Lists ────────────────────────────────────────────────────────────────
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(50)
+  name      String   @db.VarChar(255)
+  phone     String?  @db.VarChar(50)
+  email     String?  @db.VarChar(100)
+  address   String?  @db.VarChar(255)
+  city      String?  @db.VarChar(100)
+  state     String?  @db.VarChar(100)
+  zipCode   String?  @db.VarChar(20)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  salesOrders SalesOrder[]
+
+  @@map("clients")
+}
 
 model SalesOrder {
   id              Int       @id @default(autoincrement())
   orderNumber     String    @unique @db.VarChar(50)
   warehouseId     Int
-  customerName    String    @db.VarChar(255)
-  customerCode    String?   @db.VarChar(50)
-  customerPhone   String?   @db.VarChar(50)
-  customerEmail   String?   @db.VarChar(100)
-  shippingAddress String?   @db.VarChar(255)
-  shippingCity    String?   @db.VarChar(100)
-  shippingState   String?   @db.VarChar(100)
-  shippingZipCode String?   @db.VarChar(20)
+  clientId        Int       @map("client_id")
   orderDate       DateTime
   requiredDate    DateTime?
   shippedDate     DateTime?
@@ -373,11 +385,13 @@ model SalesOrder {
   updatedAt       DateTime  @updatedAt
 
   warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  client      Client           @relation(fields: [clientId], references: [id])
   createdUser User?            @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
   lines       SalesOrderLine[]
   pickLists   PickList[]
 
   @@index([warehouseId])
+  @@index([clientId])
   @@index([status])
   @@index([priority])
   @@map("sales_orders")

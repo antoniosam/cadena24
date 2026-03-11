@@ -4,7 +4,8 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } fr
 import { Router } from '@angular/router';
 import { SalesOrdersApiService } from '../../services/sales-orders-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
-import { Product, StockValidationResult } from '@cadena24-wms/shared';
+import { ClientsApiService } from '../../../clients/services/clients-api.service';
+import { Product, Client, StockValidationResult } from '@cadena24-wms/shared';
 
 @Component({
   selector: 'app-sales-order-create',
@@ -18,10 +19,13 @@ export class SalesOrderCreateComponent implements OnInit {
   private router = inject(Router);
   private salesOrdersApi = inject(SalesOrdersApiService);
   private productsApi = inject(ProductsApiService);
+  private clientsApi = inject(ClientsApiService);
 
   form: FormGroup;
   products = signal<Product[]>([]);
+  clients = signal<Client[]>([]);
   loadingProducts = signal<boolean>(false);
+  loadingClients = signal<boolean>(false);
   submitting = signal<boolean>(false);
   validatingStock = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -36,14 +40,7 @@ export class SalesOrderCreateComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      customerName: ['', [Validators.required, Validators.maxLength(255)]],
-      customerCode: ['', [Validators.maxLength(50)]],
-      customerPhone: ['', [Validators.maxLength(50)]],
-      customerEmail: ['', [Validators.email, Validators.maxLength(100)]],
-      shippingAddress: ['', [Validators.maxLength(255)]],
-      shippingCity: ['', [Validators.maxLength(100)]],
-      shippingState: ['', [Validators.maxLength(100)]],
-      shippingZipCode: ['', [Validators.maxLength(20)]],
+      clientId: [null, [Validators.required]],
       requiredDate: [''],
       priority: ['normal', [Validators.required]],
       notes: [''],
@@ -53,7 +50,22 @@ export class SalesOrderCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadClients();
     this.addLine();
+  }
+
+  loadClients(): void {
+    this.loadingClients.set(true);
+    this.clientsApi.getClients({ isActive: true, limit: 1000 }).subscribe({
+      next: (response) => {
+        this.clients.set(response.items);
+        this.loadingClients.set(false);
+      },
+      error: (err) => {
+        this.error.set('Error al cargar clientes: ' + (err.error?.message || err.message));
+        this.loadingClients.set(false);
+      },
+    });
   }
 
   loadProducts(): void {
@@ -167,14 +179,7 @@ export class SalesOrderCreateComponent implements OnInit {
 
     const formValue = this.form.value;
     const dto = {
-      customerName: formValue.customerName,
-      customerCode: formValue.customerCode || undefined,
-      customerPhone: formValue.customerPhone || undefined,
-      customerEmail: formValue.customerEmail || undefined,
-      shippingAddress: formValue.shippingAddress || undefined,
-      shippingCity: formValue.shippingCity || undefined,
-      shippingState: formValue.shippingState || undefined,
-      shippingZipCode: formValue.shippingZipCode || undefined,
+      clientId: Number(formValue.clientId),
       requiredDate: formValue.requiredDate || undefined,
       priority: formValue.priority,
       notes: formValue.notes || undefined,

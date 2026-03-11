@@ -24,6 +24,9 @@ const ORDER_INCLUDE = {
   warehouse: {
     select: { id: true, code: true, name: true },
   },
+  client: {
+    select: { id: true, code: true, name: true, email: true, phone: true },
+  },
   createdUser: {
     select: { id: true, firstName: true, lastName: true, email: true },
   },
@@ -45,7 +48,7 @@ export class SalesOrdersRepository {
     if (filters.status) where['status'] = filters.status;
     if (filters.priority) where['priority'] = filters.priority;
     if (filters.customerName) {
-      where['customerName'] = { contains: filters.customerName };
+      where['client'] = { name: { contains: filters.customerName } };
     }
     if (filters.fromDate || filters.toDate) {
       const orderDate: Record<string, Date> = {};
@@ -55,14 +58,14 @@ export class SalesOrdersRepository {
     }
 
     const [items, total] = await Promise.all([
-      this.prisma.salesOrder.findMany({
+      (this.prisma as any).salesOrder.findMany({
         where,
         include: ORDER_INCLUDE,
         orderBy: [{ priority: 'desc' }, { orderDate: 'asc' }],
         skip,
         take: limit,
       }),
-      this.prisma.salesOrder.count({ where }),
+      (this.prisma as any).salesOrder.count({ where }),
     ]);
 
     return {
@@ -75,14 +78,14 @@ export class SalesOrdersRepository {
   }
 
   async findOne(id: number) {
-    return this.prisma.salesOrder.findUnique({
+    return (this.prisma as any).salesOrder.findUnique({
       where: { id },
       include: ORDER_INCLUDE,
     });
   }
 
   async findByOrderNumber(orderNumber: string) {
-    return this.prisma.salesOrder.findUnique({
+    return (this.prisma as any).salesOrder.findUnique({
       where: { orderNumber },
       include: ORDER_INCLUDE,
     });
@@ -94,18 +97,11 @@ export class SalesOrdersRepository {
     const orderNumber = await this.generateOrderNumber();
     const totalAmount = dto.lines.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0);
 
-    return this.prisma.salesOrder.create({
+    return (this.prisma as any).salesOrder.create({
       data: {
         orderNumber,
         warehouseId,
-        customerName: dto.customerName,
-        customerCode: dto.customerCode,
-        customerPhone: dto.customerPhone,
-        customerEmail: dto.customerEmail,
-        shippingAddress: dto.shippingAddress,
-        shippingCity: dto.shippingCity,
-        shippingState: dto.shippingState,
-        shippingZipCode: dto.shippingZipCode,
+        clientId: dto.clientId,
         orderDate: new Date(),
         requiredDate: dto.requiredDate ? new Date(dto.requiredDate) : undefined,
         priority: dto.priority ?? 'normal',
@@ -131,17 +127,10 @@ export class SalesOrdersRepository {
   }
 
   async update(id: number, dto: UpdateSalesOrderDto) {
-    return this.prisma.salesOrder.update({
+    return (this.prisma as any).salesOrder.update({
       where: { id },
       data: {
-        customerName: dto.customerName,
-        customerCode: dto.customerCode,
-        customerPhone: dto.customerPhone,
-        customerEmail: dto.customerEmail,
-        shippingAddress: dto.shippingAddress,
-        shippingCity: dto.shippingCity,
-        shippingState: dto.shippingState,
-        shippingZipCode: dto.shippingZipCode,
+        clientId: dto.clientId,
         requiredDate: dto.requiredDate ? new Date(dto.requiredDate) : undefined,
         notes: dto.notes,
       },
@@ -150,7 +139,7 @@ export class SalesOrdersRepository {
   }
 
   async updatePriority(id: number, priority: string) {
-    return this.prisma.salesOrder.update({
+    return (this.prisma as any).salesOrder.update({
       where: { id },
       data: { priority },
       include: ORDER_INCLUDE,
@@ -158,7 +147,7 @@ export class SalesOrdersRepository {
   }
 
   async updateStatus(id: number, status: SalesOrderStatus, extra?: { shippedDate?: Date }) {
-    return this.prisma.salesOrder.update({
+    return (this.prisma as any).salesOrder.update({
       where: { id },
       data: {
         status,
@@ -169,14 +158,14 @@ export class SalesOrdersRepository {
   }
 
   async updateLineStatus(lineId: number, status: string) {
-    return this.prisma.salesOrderLine.update({
+    return (this.prisma as any).salesOrderLine.update({
       where: { id: lineId },
       data: { status },
     });
   }
 
   async cancel(id: number) {
-    return this.prisma.salesOrder.update({
+    return (this.prisma as any).salesOrder.update({
       where: { id },
       data: {
         status: 'cancelled',
@@ -194,21 +183,21 @@ export class SalesOrdersRepository {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   async getPrimaryWarehouse() {
-    return this.prisma.warehouse.findFirst({
+    return (this.prisma as any).warehouse.findFirst({
       where: { isActive: true },
       orderBy: { id: 'asc' },
     });
   }
 
   async getProductById(productId: number) {
-    return this.prisma.product.findUnique({
+    return (this.prisma as any).product.findUnique({
       where: { id: productId },
     });
   }
 
   private async generateOrderNumber(): Promise<string> {
     const year = new Date().getFullYear();
-    const count = await this.prisma.salesOrder.count({
+    const count = await (this.prisma as any).salesOrder.count({
       where: {
         orderNumber: { startsWith: `SO-${year}-` },
       },

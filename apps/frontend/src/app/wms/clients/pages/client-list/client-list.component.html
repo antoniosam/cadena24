@@ -1,0 +1,166 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Directorio de Clientes</h1>
+      <p class="page-subtitle">Gestiona la base de datos de tus clientes</p>
+    </div>
+    <button type="button" class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i> Nuevo Cliente
+    </button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="form-group">
+        <label class="form-label">Buscar</label>
+        <div class="input-group">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            class="form-control"
+            placeholder="Nombre, código o email..."
+          />
+          <button class="btn-secondary" (click)="onSearch()">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select (change)="onFilterStatus($event)" class="form-control">
+          <option value="">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (state.loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando clientes...</p>
+    </div>
+  } @else if (state.hasError()) {
+    <div class="alert-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+      <button class="btn-sm btn-secondary ms-3" (click)="state.loadClients()">Reintentar</button>
+    </div>
+  } @else if (!state.hasClients()) {
+    <div class="empty-state">
+      <i class="bi bi-people empty-icon"></i>
+      <h3>No se encontraron clientes</h3>
+      <p>Ajusta los filtros o crea un nuevo cliente para comenzar.</p>
+      <button class="btn-primary" (click)="onCreate()">Crear Primer Cliente</button>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Ubicación</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (client of state.clients(); track client.id) {
+            <tr class="clickable" (click)="onEdit(client.id)">
+              <td>
+                <span class="client-code">{{ client.code }}</span>
+              </td>
+              <td>
+                <div class="client-name">{{ client.name }}</div>
+              </td>
+              <td>
+                <div class="client-contact">
+                  @if (client.email) {
+                    <div class="contact-item">
+                      <i class="bi bi-envelope"></i> {{ client.email }}
+                    </div>
+                  }
+                  @if (client.phone) {
+                    <div class="contact-item">
+                      <i class="bi bi-telephone"></i> {{ client.phone }}
+                    </div>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="client-location">
+                  @if (client.city || client.state) {
+                    {{ client.city }}{{ client.city && client.state ? ', ' : '' }}{{ client.state }}
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="client.isActive"
+                  [class.badge-secondary]="!client.isActive"
+                >
+                  {{ client.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="table-actions">
+                <button type="button" class="btn-icon" (click)="onEdit(client.id)" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn-icon"
+                  [class.text-success]="!client.isActive"
+                  [class.text-danger]="client.isActive"
+                  (click)="onToggleStatus(client, $event)"
+                  [title]="client.isActive ? 'Desactivar' : 'Activar'"
+                >
+                  <i
+                    class="bi"
+                    [class.bi-toggle-on]="client.isActive"
+                    [class.bi-toggle-off]="!client.isActive"
+                  ></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (state.totalPages() > 1) {
+      <div class="pagination">
+        <button
+          class="btn-pagination"
+          [disabled]="state.currentPage() === 1"
+          (click)="onPageChange(state.currentPage() - 1)"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        @for (page of pages; track page) {
+          <button
+            class="btn-pagination"
+            [class.active]="state.currentPage() === page"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        }
+        <button
+          class="btn-pagination"
+          [disabled]="state.currentPage() === state.totalPages()"
+          (click)="onPageChange(state.currentPage() + 1)"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    }
+  }
+</div>

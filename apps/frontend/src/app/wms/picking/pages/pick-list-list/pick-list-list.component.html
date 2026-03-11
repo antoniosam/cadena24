@@ -74,7 +74,7 @@
                 <td>
                   <span class="code-text">{{ pickList.salesOrder?.orderNumber || '—' }}</span>
                 </td>
-                <td>{{ pickList.salesOrder?.customerName || '—' }}</td>
+                <td>{{ pickList.salesOrder?.client?.name || '—' }}</td>
                 <td>
                   <span [class]="'badge ' + getStatusBadgeClass(pickList.status)">
                     {{ getStatusLabel(pickList.status) }}

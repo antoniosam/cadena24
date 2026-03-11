@@ -125,6 +125,36 @@ export const appRoutes: Routes = [
         title: 'Ubicaciones — Cadena24 WMS',
       },
       {
+        path: 'wms/clients',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./wms/clients/pages/client-list/client-list.component').then(
+                (m) => m.ClientListComponent
+              ),
+            pathMatch: 'full',
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./wms/clients/pages/client-form/client-form.component').then(
+                (m) => m.ClientFormComponent
+              ),
+            title: 'Nuevo Cliente — Cadena24 WMS',
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('./wms/clients/pages/client-form/client-form.component').then(
+                (m) => m.ClientFormComponent
+              ),
+            title: 'Editar Cliente — Cadena24 WMS',
+          },
+        ],
+        title: 'Clientes — Cadena24 WMS',
+      },
+      {
         path: 'wms/inventory',
         loadComponent: () =>
           import('./wms/inventory/pages/inventory-list/inventory-list.component').then(

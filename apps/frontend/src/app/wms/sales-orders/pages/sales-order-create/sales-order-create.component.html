@@ -17,110 +17,29 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
-    <!-- Información del Cliente -->
+    <!-- Selección del Cliente -->
     <div class="form-section">
       <h2 class="section-title">Información del Cliente</h2>
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="customerName">
-            Nombre del Cliente <span class="required">*</span>
-          </label>
-          <input
-            id="customerName"
-            type="text"
-            formControlName="customerName"
-            class="form-control"
-            placeholder="Empresa XYZ S.A."
-          />
-          @if (fieldError('customerName')) {
-            <span class="field-error">{{ fieldError('customerName') }}</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="customerCode">Código de Cliente</label>
-          <input
-            id="customerCode"
-            type="text"
-            formControlName="customerCode"
-            class="form-control"
-            placeholder="CLI-001"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="customerPhone">Teléfono</label>
-          <input
-            id="customerPhone"
-            type="text"
-            formControlName="customerPhone"
-            class="form-control"
-            placeholder="555-1234"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="customerEmail">Email</label>
-          <input
-            id="customerEmail"
-            type="email"
-            formControlName="customerEmail"
-            class="form-control"
-            placeholder="compras@empresa.com"
-          />
-          @if (fieldError('customerEmail')) {
-            <span class="field-error">{{ fieldError('customerEmail') }}</span>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Dirección de Entrega -->
-    <div class="form-section">
-      <h2 class="section-title">Dirección de Entrega</h2>
-      <div class="form-grid">
         <div class="form-group full-width">
-          <label class="form-label" for="shippingAddress">Dirección</label>
-          <input
-            id="shippingAddress"
-            type="text"
-            formControlName="shippingAddress"
+          <label class="form-label" for="clientId"> Cliente <span class="required">*</span> </label>
+          <select
+            id="clientId"
+            formControlName="clientId"
             class="form-control"
-            placeholder="Av. Principal 123"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="shippingCity">Ciudad</label>
-          <input
-            id="shippingCity"
-            type="text"
-            formControlName="shippingCity"
-            class="form-control"
-            placeholder="Guadalajara"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="shippingState">Estado</label>
-          <input
-            id="shippingState"
-            type="text"
-            formControlName="shippingState"
-            class="form-control"
-            placeholder="Jalisco"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="shippingZipCode">Código Postal</label>
-          <input
-            id="shippingZipCode"
-            type="text"
-            formControlName="shippingZipCode"
-            class="form-control"
-            placeholder="44100"
-          />
+            [disabled]="loadingClients()"
+          >
+            <option [value]="null">Seleccionar cliente...</option>
+            @for (client of clients(); track client.id) {
+              <option [value]="client.id">{{ client.code }} — {{ client.name }}</option>
+            }
+          </select>
+          @if (fieldError('clientId')) {
+            <span class="field-error">{{ fieldError('clientId') }}</span>
+          }
+          @if (loadingClients()) {
+            <span class="field-helper text-muted">Cargando clientes...</span>
+          }
         </div>
       </div>
     </div>

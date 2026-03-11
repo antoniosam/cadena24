@@ -7,7 +7,10 @@ const PICK_LIST_INCLUDE = {
     select: {
       id: true,
       orderNumber: true,
-      customerName: true,
+      clientId: true,
+      client: {
+        select: { id: true, name: true, code: true },
+      },
       status: true,
     },
   },

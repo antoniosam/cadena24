@@ -1,5 +1,6 @@
 import { Product } from './product.interface';
 import { IUserSummary } from './user.interface';
+import { Client } from './client.interface';
 
 export type SalesOrderStatus = 'pending' | 'picking' | 'picked' | 'shipped' | 'cancelled';
 export type SalesOrderPriority = 'low' | 'normal' | 'high' | 'urgent';
@@ -9,18 +10,7 @@ export interface SalesOrder {
   id: number;
   orderNumber: string;
   warehouseId: number;
-
-  // Customer info
-  customerName: string;
-  customerCode?: string;
-  customerPhone?: string;
-  customerEmail?: string;
-
-  // Shipping address
-  shippingAddress?: string;
-  shippingCity?: string;
-  shippingState?: string;
-  shippingZipCode?: string;
+  clientId: number;
 
   orderDate: Date;
   requiredDate?: Date;
@@ -42,6 +32,7 @@ export interface SalesOrder {
     code: string;
     name: string;
   };
+  client?: Client;
   createdUser?: IUserSummary;
 }
 
@@ -72,14 +63,7 @@ export interface CreateSalesOrderLineDto {
 }
 
 export interface CreateSalesOrderDto {
-  customerName: string;
-  customerCode?: string;
-  customerPhone?: string;
-  customerEmail?: string;
-  shippingAddress?: string;
-  shippingCity?: string;
-  shippingState?: string;
-  shippingZipCode?: string;
+  clientId: number;
   requiredDate?: Date;
   priority?: SalesOrderPriority;
   notes?: string;
@@ -87,14 +71,7 @@ export interface CreateSalesOrderDto {
 }
 
 export interface UpdateSalesOrderDto {
-  customerName?: string;
-  customerCode?: string;
-  customerPhone?: string;
-  customerEmail?: string;
-  shippingAddress?: string;
-  shippingCity?: string;
-  shippingState?: string;
-  shippingZipCode?: string;
+  clientId?: number;
   requiredDate?: Date;
   notes?: string;
 }

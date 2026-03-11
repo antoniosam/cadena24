@@ -48,37 +48,9 @@ export class CreateSalesOrderLineDto {
 }
 
 export class CreateSalesOrderDto {
-  @IsString()
+  @IsInt()
   @IsNotEmpty()
-  customerName!: string;
-
-  @IsString()
-  @IsOptional()
-  customerCode?: string;
-
-  @IsString()
-  @IsOptional()
-  customerPhone?: string;
-
-  @IsEmail()
-  @IsOptional()
-  customerEmail?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingAddress?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingCity?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingState?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingZipCode?: string;
+  clientId!: number;
 
   @IsDateString()
   @IsOptional()
@@ -101,37 +73,9 @@ export class CreateSalesOrderDto {
 // ── Update ────────────────────────────────────────────────────────────────────
 
 export class UpdateSalesOrderDto {
-  @IsString()
+  @IsInt()
   @IsOptional()
-  customerName?: string;
-
-  @IsString()
-  @IsOptional()
-  customerCode?: string;
-
-  @IsString()
-  @IsOptional()
-  customerPhone?: string;
-
-  @IsEmail()
-  @IsOptional()
-  customerEmail?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingAddress?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingCity?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingState?: string;
-
-  @IsString()
-  @IsOptional()
-  shippingZipCode?: string;
+  clientId?: number;
 
   @IsDateString()
   @IsOptional()

@@ -10,6 +10,7 @@ import { PickingModule } from './picking/picking.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { ReportsModule } from './reports/reports.module';
+import { ClientsModule } from './clients/clients.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReportsModule } from './reports/reports.module';
     DashboardModule,
     AlertsModule,
     ReportsModule,
+    ClientsModule,
   ],
   exports: [
     ProductsModule,
@@ -37,6 +39,7 @@ import { ReportsModule } from './reports/reports.module';
     DashboardModule,
     AlertsModule,
     ReportsModule,
+    ClientsModule,
   ],
 })
 export class WmsModule {}

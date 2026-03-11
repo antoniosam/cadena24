@@ -61,62 +61,64 @@
       <div class="info-card">
         <h2 class="card-title">Información del Cliente</h2>
         <div class="info-rows">
-          <div class="info-row">
-            <span class="info-label">Nombre</span>
-            <span class="info-value">{{ order.customerName }}</span>
-          </div>
-          @if (order.customerCode) {
+          @if (order.client) {
+            <div class="info-row">
+              <span class="info-label">Nombre</span>
+              <span class="info-value">{{ order.client.name }}</span>
+            </div>
             <div class="info-row">
               <span class="info-label">Código</span>
               <span class="info-value"
-                ><span class="code-text">{{ order.customerCode }}</span></span
+                ><span class="code-text">{{ order.client.code }}</span></span
               >
             </div>
-          }
-          @if (order.customerPhone) {
-            <div class="info-row">
-              <span class="info-label">Teléfono</span>
-              <span class="info-value">{{ order.customerPhone }}</span>
-            </div>
-          }
-          @if (order.customerEmail) {
-            <div class="info-row">
-              <span class="info-label">Email</span>
-              <span class="info-value">{{ order.customerEmail }}</span>
-            </div>
+            @if (order.client.phone) {
+              <div class="info-row">
+                <span class="info-label">Teléfono</span>
+                <span class="info-value">{{ order.client.phone }}</span>
+              </div>
+            }
+            @if (order.client.email) {
+              <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ order.client.email }}</span>
+              </div>
+            }
+          } @else {
+            <p class="info-empty">ID de Cliente: {{ order.clientId }}</p>
           }
         </div>
       </div>
 
-      <!-- Envío -->
+      <!-- Envío (Desde el Cliente) -->
       <div class="info-card">
         <h2 class="card-title">Dirección de Entrega</h2>
         <div class="info-rows">
-          @if (order.shippingAddress) {
+          @if (order.client?.address) {
             <div class="info-row">
               <span class="info-label">Dirección</span>
-              <span class="info-value">{{ order.shippingAddress }}</span>
+              <span class="info-value">{{ order.client?.address }}</span>
             </div>
           }
-          @if (order.shippingCity) {
+          @if (order.client?.city) {
             <div class="info-row">
               <span class="info-label">Ciudad</span>
-              <span class="info-value">{{ order.shippingCity }}</span>
+              <span class="info-value">{{ order.client?.city }}</span>
             </div>
           }
-          @if (order.shippingState) {
+          @if (order.client?.state) {
             <div class="info-row">
               <span class="info-label">Estado</span>
-              <span class="info-value">{{ order.shippingState }}</span>
+              <span class="info-value">{{ order.client?.state }}</span>
             </div>
           }
-          @if (order.shippingZipCode) {
+          @if (order.client?.zipCode) {
             <div class="info-row">
               <span class="info-label">C.P.</span>
-              <span class="info-value">{{ order.shippingZipCode }}</span>
+              <span class="info-value">{{ order.client?.zipCode }}</span>
             </div>
           }
-          @if (!order.shippingAddress && !order.shippingCity) {
+          @if (!order.client?.address && !order.client?.city) {
             <p class="info-empty">Sin dirección de entrega registrada</p>
           }
         </div>

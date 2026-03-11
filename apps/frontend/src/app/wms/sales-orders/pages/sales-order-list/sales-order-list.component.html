@@ -94,9 +94,11 @@
                 </td>
                 <td>
                   <div class="customer-info">
-                    <strong>{{ order.customerName }}</strong>
-                    @if (order.customerCode) {
-                      <small>{{ order.customerCode }}</small>
+                    @if (order.client) {
+                      <strong>{{ order.client.name }}</strong>
+                      <small>{{ order.client.code }}</small>
+                    } @else {
+                      <span class="text-muted">ID: {{ order.clientId }}</span>
                     }
                   </div>
                 </td>

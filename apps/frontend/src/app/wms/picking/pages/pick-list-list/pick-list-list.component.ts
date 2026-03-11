@@ -152,7 +152,7 @@ export class PickListListComponent implements OnInit {
   }
 
   getOrderDisplay(order: SalesOrder): string {
-    return `${order.orderNumber} - ${order.customerName}`;
+    return `${order.orderNumber} - ${order.client?.name || 'ID: ' + order.clientId}`;
   }
 
   getPriorityClass(priority: string): string {

@@ -24,7 +24,12 @@ export interface PickList {
   salesOrder?: {
     id: number;
     orderNumber: string;
-    customerName: string;
+    clientId: number;
+    client: {
+      id: number;
+      name: string;
+      code: string;
+    };
     status: string;
   };
   warehouse?: {
