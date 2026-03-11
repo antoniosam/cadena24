@@ -68,7 +68,7 @@
             <tr>
               <td>{{ item.product?.name || item.productId }}</td>
               <td>
-                <span class="path-text">{{ item.level?.fullPath || item.levelId }}</span>
+                <span class="path-text">{{ item.location?.name || item.locationId }}</span>
               </td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.availableQuantity }}</td>
@@ -121,10 +121,10 @@
                 </td>
                 <td>{{ tx.quantity }}</td>
                 <td>
-                  <span class="path-text">{{ tx.fromLevel?.fullPath || '—' }}</span>
+                  <span class="path-text">{{ tx.fromLocation?.name || '—' }}</span>
                 </td>
                 <td>
-                  <span class="path-text">{{ tx.toLevel?.fullPath || '—' }}</span>
+                  <span class="path-text">{{ tx.toLocation?.name || '—' }}</span>
                 </td>
                 <td>{{ tx.referenceType }}{{ tx.referenceId ? ' / ' + tx.referenceId : '' }}</td>
               </tr>

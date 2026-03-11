@@ -120,7 +120,11 @@
                 <!-- Product -->
                 <div class="form-group">
                   <label class="form-label required">Producto</label>
-                  <select class="form-select" formControlName="productId">
+                  <select
+                    class="form-select"
+                    formControlName="productId"
+                    (change)="onProductChange($index)"
+                  >
                     <option [ngValue]="null">Seleccionar producto...</option>
                     @for (p of products(); track p.id) {
                       <option [value]="p.id">{{ p.code }} — {{ p.name }}</option>
@@ -146,15 +150,41 @@
                   }
                 </div>
 
-                <!-- From Location -->
+                <!-- From Location (filtered by product stock) -->
                 <div class="form-group">
                   <label class="form-label required">Ubicación Origen</label>
-                  <select class="form-select" formControlName="fromLocationId">
-                    <option [ngValue]="null">Seleccionar origen...</option>
-                    @for (loc of locations(); track loc.id) {
-                      <option [value]="loc.id">{{ loc.fullPath ?? loc.name }}</option>
-                    }
-                  </select>
+                  @if (isLoadingFromLocations($index)) {
+                    <select
+                      class="form-select"
+                      formControlName="fromLocationId"
+                      [attr.disabled]="true"
+                    >
+                      <option [ngValue]="null">Buscando ubicaciones con existencia...</option>
+                    </select>
+                  } @else if (!line.get('productId')?.value) {
+                    <select
+                      class="form-select"
+                      formControlName="fromLocationId"
+                      [attr.disabled]="true"
+                    >
+                      <option [ngValue]="null">Selecciona primero un producto</option>
+                    </select>
+                  } @else if (getLineFromLocations($index).length === 0) {
+                    <select
+                      class="form-select"
+                      formControlName="fromLocationId"
+                      [attr.disabled]="true"
+                    >
+                      <option [ngValue]="null">Sin existencia en ninguna ubicación</option>
+                    </select>
+                  } @else {
+                    <select class="form-select" formControlName="fromLocationId">
+                      <option [ngValue]="null">Seleccionar origen...</option>
+                      @for (loc of getLineFromLocations($index); track loc.id) {
+                        <option [value]="loc.id">{{ loc.fullPath ?? loc.name }}</option>
+                      }
+                    </select>
+                  }
                   @if (lineError($index, 'fromLocationId')) {
                     <span class="form-error">{{ lineError($index, 'fromLocationId') }}</span>
                   }

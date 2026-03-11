@@ -39,7 +39,7 @@ export class InventoryStateService {
   // ==================== INVENTORY ====================
   loadInventory(filters?: {
     productId?: string;
-    levelId?: string;
+    locationId?: string;
     warehouseId?: string;
     status?: string;
   }) {

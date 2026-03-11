@@ -20,7 +20,7 @@ export class InventoryApiService {
 
   getInventory(filters?: {
     productId?: string;
-    levelId?: string;
+    locationId?: string;
     warehouseId?: string;
     status?: string;
   }): Observable<Inventory[]> {
@@ -46,8 +46,8 @@ export class InventoryApiService {
     return this.http.get<Inventory[]>(`${this.apiUrl}/product/${productId}`);
   }
 
-  getStockByLocation(levelId: string): Observable<Inventory[]> {
-    return this.http.get<Inventory[]>(`${this.apiUrl}/location/${levelId}`);
+  getStockByLocation(locationId: string): Observable<Inventory[]> {
+    return this.http.get<Inventory[]>(`${this.apiUrl}/location/${locationId}`);
   }
 
   reserveInventory(data: ReserveInventoryDto): Observable<void> {
