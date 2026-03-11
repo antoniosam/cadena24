@@ -265,3 +265,8 @@ $zindex-tooltip: 1070;
 // ============================================================
 @import 'theme'; // _theme.scss — Parte B: component overrides
 @import 'theme-additional'; // _theme-additional.scss — dark mode, extras
+
+.input-group .form-control {
+  border-left: none;
+  border: 1px solid #d1d5db;
+}
