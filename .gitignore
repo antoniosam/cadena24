@@ -24,6 +24,7 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 .opencode
+log_mcp-mariadb.txt
 
 # misc
 /.sass-cache
