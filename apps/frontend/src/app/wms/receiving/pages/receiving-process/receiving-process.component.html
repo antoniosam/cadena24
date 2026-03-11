@@ -21,45 +21,47 @@
     </div>
 
     @if (successMessage()) {
-      <div class="alert alert-success">{{ successMessage() }}</div>
+      <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> {{ successMessage() }}
+      </div>
     }
 
-    <!-- View Only Mode: Show order details -->
+    <!-- View Only Mode -->
     @if (isViewOnly()) {
       <div class="detail-view">
         <div class="card">
           <h3>Información de la Orden</h3>
           <div class="info-grid">
             <div class="info-item">
-              <label>Número de Orden:</label>
+              <label>Número de Orden</label>
               <span>{{ order.orderNumber }}</span>
             </div>
             <div class="info-item">
-              <label>Proveedor:</label>
+              <label>Proveedor</label>
               <span>{{ order.supplierName }}</span>
             </div>
             <div class="info-item">
-              <label>Almacén:</label>
+              <label>Almacén</label>
               <span>{{ order.warehouse?.name }}</span>
             </div>
             <div class="info-item">
-              <label>Fecha Esperada:</label>
+              <label>Fecha Esperada</label>
               <span>{{ order.expectedDate | date: 'medium' }}</span>
             </div>
             <div class="info-item">
-              <label>Estado:</label>
+              <label>Estado</label>
               <span [class]="'badge ' + getStatusBadgeClass(order.status)">
                 {{ getStatusLabel(order.status) }}
               </span>
             </div>
             <div class="info-item">
-              <label>Código PO:</label>
+              <label>Código PO</label>
               <span>{{ order.purchaseOrderNumber || 'N/A' }}</span>
             </div>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mt-card">
           <h3>Líneas de Productos</h3>
           <table class="table">
             <thead>
@@ -94,110 +96,36 @@
         </div>
       </div>
     } @else {
-      <!-- Process Mode: Show processing UI -->
+      <!-- Process Mode: Location → Scanner → Lines -->
       <div class="receiving-grid">
-        <!-- Left Panel: Barcode Scanner & Line Details -->
-        <div class="scanner-panel">
-          <div class="card">
-            <h3>Escanear Código de Barras</h3>
-            <div class="scanner-input">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Escanear o ingresar código de barras..."
-                [value]="barcodeInput()"
-                (input)="onBarcodeInput($event)"
-                (keypress)="onBarcodeKeyPress($event)"
-                autofocus
-              />
+        <!-- Panel 1: Location Selection (FIRST) -->
+        <div class="locations-panel">
+          <div class="card" [class.card-warning]="locationWarning()">
+            <div class="card-header-row">
+              <h3>
+                <i class="bi bi-geo-alt"></i>
+                Ubicación de Recepción
+              </h3>
+              @if (selectedLocation()) {
+                <span class="selected-badge">
+                  <i class="bi bi-check-circle-fill"></i>
+                  {{ selectedLocation()!.name }}
+                </span>
+              } @else {
+                <span class="unselected-badge">
+                  <i class="bi bi-exclamation-circle"></i>
+                  Sin seleccionar
+                </span>
+              }
             </div>
 
-            @if (scannedLine(); as line) {
-              <div class="scanned-product">
-                <h4>Producto Escaneado</h4>
-                <div class="product-details">
-                  <p><strong>Código:</strong> {{ line.product?.code }}</p>
-                  <p><strong>Nombre:</strong> {{ line.product?.name }}</p>
-                  <p>
-                    <strong>Esperado:</strong> {{ line.expectedQuantity }} {{ line.product?.uom }}
-                  </p>
-                  <p>
-                    <strong>Ya Recibido:</strong> {{ line.receivedQuantity }}
-                    {{ line.product?.uom }}
-                  </p>
-                  <p>
-                    <strong>Estado:</strong>
-                    <span [class]="'badge ' + getLineStatusBadge(line.status)">
-                      {{ getLineStatusLabel(line.status) }}
-                    </span>
-                  </p>
-                </div>
-
-                <div class="quantity-inputs">
-                  <div class="form-group">
-                    <label>Cantidad Recibida:</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      [value]="receivedQuantity()"
-                      (input)="receivedQuantity.set(+$any($event.target).value)"
-                      min="0"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label>Cantidad Dañada:</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      [value]="damageQuantity()"
-                      (input)="damageQuantity.set(+$any($event.target).value)"
-                      min="0"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label>Cantidad Buena:</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      [value]="receivedQuantity() - damageQuantity()"
-                      disabled
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label>Notas:</label>
-                    <textarea
-                      class="form-control"
-                      rows="3"
-                      [value]="notes()"
-                      (input)="notes.set($any($event.target).value)"
-                      placeholder="Observaciones opcionales..."
-                    ></textarea>
-                  </div>
-                </div>
-
-                <button
-                  class="btn btn-primary btn-block"
-                  (click)="onReceiveLine()"
-                  [disabled]="!selectedLocation() || processing()"
-                >
-                  @if (processing()) {
-                    Procesando...
-                  } @else {
-                    Confirmar Recepción
-                  }
-                </button>
+            @if (locationWarning()) {
+              <div class="location-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Debes seleccionar una ubicación antes de confirmar la recepción
               </div>
             }
-          </div>
-        </div>
 
-        <!-- Center Panel: Location Selection -->
-        <div class="locations-panel">
-          <div class="card">
-            <h3>Seleccionar Ubicación de Recepción</h3>
             @if (state.loading()) {
               <div class="loading">Cargando ubicaciones...</div>
             } @else {
@@ -208,7 +136,10 @@
                     [class.selected]="selectedLocation()?.id === location.id"
                     (click)="selectLocation(location)"
                   >
-                    <div class="location-name">{{ location.name }}</div>
+                    <div class="location-name">
+                      <i class="bi bi-box"></i>
+                      {{ location.name }}
+                    </div>
                     <div class="location-path">{{ location.fullPath }}</div>
                     <div class="location-capacity">Capacidad: {{ location.capacity }}</div>
                   </div>
@@ -220,23 +151,169 @@
           </div>
         </div>
 
-        <!-- Right Panel: Order Lines Status -->
+        <!-- Panel 2: Barcode Scanner (SECOND) -->
+        <div class="scanner-panel">
+          <div class="card">
+            <h3><i class="bi bi-upc-scan"></i> Escanear Producto</h3>
+            <div class="scanner-input" [class.scanner-input--blocked]="!selectedLocation()">
+              <input
+                id="barcode-input"
+                type="text"
+                class="form-control"
+                placeholder="Escanear o ingresar código de barras..."
+                [value]="barcodeInput()"
+                (input)="onBarcodeInput($event)"
+                (keypress)="onBarcodeKeyPress($event)"
+                autofocus
+              />
+              @if (!selectedLocation()) {
+                <p class="scanner-hint">
+                  <i class="bi bi-arrow-left-circle"></i>
+                  Selecciona una ubicación primero
+                </p>
+              }
+            </div>
+
+            @if (scannedLine(); as line) {
+              <div class="scanned-product">
+                <h4><i class="bi bi-box-seam"></i> Producto Escaneado</h4>
+                <div class="product-details">
+                  <div class="product-detail-row">
+                    <span class="detail-label">Código</span>
+                    <span class="code-text">{{ line.product?.code }}</span>
+                  </div>
+                  <div class="product-detail-row">
+                    <span class="detail-label">Nombre</span>
+                    <span>{{ line.product?.name }}</span>
+                  </div>
+                  <div class="product-detail-row">
+                    <span class="detail-label">Esperado</span>
+                    <span>{{ line.expectedQuantity }} {{ line.product?.uom }}</span>
+                  </div>
+                  <div class="product-detail-row">
+                    <span class="detail-label">Ya recibido</span>
+                    <span>{{ line.receivedQuantity }} {{ line.product?.uom }}</span>
+                  </div>
+                  <div class="product-detail-row">
+                    <span class="detail-label">Estado</span>
+                    <span [class]="'badge ' + getLineStatusBadge(line.status)">
+                      {{ getLineStatusLabel(line.status) }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="quantity-inputs">
+                  <div class="form-group">
+                    <label>Cantidad Recibida</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [value]="receivedQuantity()"
+                      (input)="receivedQuantity.set(+$any($event.target).value)"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cantidad Dañada</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [value]="damageQuantity()"
+                      (input)="damageQuantity.set(+$any($event.target).value)"
+                      min="0"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cantidad Buena</label>
+                    <input
+                      type="number"
+                      class="form-control good-qty"
+                      [value]="receivedQuantity() - damageQuantity()"
+                      disabled
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label>Notas</label>
+                    <textarea
+                      class="form-control"
+                      rows="2"
+                      [value]="notes()"
+                      (input)="notes.set($any($event.target).value)"
+                      placeholder="Observaciones opcionales..."
+                    ></textarea>
+                  </div>
+                </div>
+
+                @if (!selectedLocation()) {
+                  <div class="confirm-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Selecciona una ubicación para confirmar
+                  </div>
+                }
+
+                <button
+                  class="btn btn-primary btn-block"
+                  (click)="onReceiveLine()"
+                  [disabled]="processing()"
+                >
+                  @if (processing()) {
+                    <i class="bi bi-hourglass-split"></i> Procesando...
+                  } @else {
+                    <i class="bi bi-check-lg"></i> Confirmar Recepción
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Panel 3: Order Lines Status (THIRD) -->
         <div class="lines-panel">
           <div class="card">
-            <h3>Estado de Líneas</h3>
+            <h3><i class="bi bi-list-check"></i> Estado de Líneas</h3>
+
+            <!-- Progress bar -->
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">{{ progressLabel() }}</span>
+                <span
+                  class="progress-percent"
+                  [class.progress-percent--done]="progressPercent() === 100"
+                >
+                  {{ progressPercent() }}%
+                </span>
+              </div>
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [style.width.%]="progressPercent()"
+                  [class.progress-fill--done]="progressPercent() === 100"
+                ></div>
+              </div>
+            </div>
+
             <div class="lines-list">
               @for (line of order.lines; track line.id) {
                 <div class="line-item" [class.completed]="line.status === 'received'">
-                  <div class="line-product">{{ line.product?.name }}</div>
-                  <div class="line-status">
+                  <div class="line-top">
+                    <span class="line-product">{{ line.product?.name }}</span>
                     <span [class]="'badge ' + getLineStatusBadge(line.status)">
                       {{ getLineStatusLabel(line.status) }}
                     </span>
                   </div>
                   <div class="line-quantities">
-                    {{ line.receivedQuantity }} / {{ line.expectedQuantity }}
+                    <span
+                      >{{ line.receivedQuantity }} / {{ line.expectedQuantity }}
+                      {{ line.product?.uom }}</span
+                    >
                     @if (line.damageQuantity > 0) {
-                      <span class="damage-indicator">({{ line.damageQuantity }} dañados)</span>
+                      <span class="damage-indicator">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        {{ line.damageQuantity }} dañados
+                      </span>
                     }
                   </div>
                 </div>
@@ -249,6 +326,7 @@
                 (click)="completeReceiving()"
                 [disabled]="state.hasPendingLines() || processing()"
               >
+                <i class="bi bi-check-all"></i>
                 Completar Recepción
               </button>
             </div>
@@ -257,6 +335,9 @@
       </div>
     }
   } @else {
-    <div class="loading-state">Cargando orden de recepción...</div>
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>Cargando orden de recepción...</span>
+    </div>
   }
 </div>

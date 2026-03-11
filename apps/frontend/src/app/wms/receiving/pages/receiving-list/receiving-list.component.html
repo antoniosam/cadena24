@@ -1,16 +1,19 @@
-<div class="receiving-list-container">
+<div class="page-container">
   <div class="page-header">
-    <h1>Órdenes de Recepción</h1>
-    <button class="btn btn-primary" (click)="onCreate()">
-      <i class="bi bi-plus"></i> Nueva Orden de Recepción
+    <div>
+      <h1 class="page-title">Órdenes de Recepción</h1>
+      <p class="page-subtitle">Gestión de recepciones de mercancía</p>
+    </div>
+    <button class="btn-primary" (click)="onCreate()">
+      <i class="bi bi-plus-lg"></i>
+      Nueva Orden de Recepción
     </button>
   </div>
 
-  <div class="filters-section">
+  <div class="filters-bar">
     <div class="filter-group">
-      <label>Estado:</label>
-      <select (change)="onFilterStatus($any($event.target).value || null)">
-        <option value="">Todos</option>
+      <select class="search-input" (change)="onFilterStatus($any($event.target).value || null)">
+        <option value="">Todos los estados</option>
         <option value="pending">Pendiente</option>
         <option value="in_progress">En Proceso</option>
         <option value="completed">Completado</option>
@@ -18,20 +21,29 @@
       </select>
     </div>
 
-    <button class="btn btn-secondary" (click)="clearFilters()">Limpiar Filtros</button>
+    <label class="checkbox-label" style="cursor: pointer" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
+    </label>
   </div>
 
   @if (state.loading()) {
-    <div class="loading-spinner">Cargando...</div>
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando órdenes...</span>
+    </div>
   }
 
   @if (state.hasError()) {
-    <div class="alert alert-danger">{{ state.error() }}</div>
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
   }
 
-  @if (state.hasOrders()) {
-    <div class="table-responsive">
-      <table class="table">
+  @if (state.hasOrders() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
         <thead>
           <tr>
             <th>Número de Orden</th>
@@ -46,37 +58,40 @@
         <tbody>
           @for (order of state.receivingOrders(); track order.id) {
             <tr>
-              <td>{{ order.orderNumber }}</td>
+              <td>
+                <span class="code-text">{{ order.orderNumber }}</span>
+              </td>
               <td>{{ order.supplierName }}</td>
               <td>{{ order.warehouse?.name }}</td>
               <td>{{ order.expectedDate | date: 'short' }}</td>
               <td>
-                <span [class]="'badge ' + getStatusBadgeClass(order.status)">
+                <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
                   {{ getStatusLabel(order.status) }}
                 </span>
               </td>
               <td>{{ order.lines?.length || 0 }}</td>
               <td>
                 <div class="action-buttons">
-                  <button class="btn btn-sm btn-info" (click)="onView(order.id)" title="Ver">
+                  <button (click)="onView(order.id)" class="btn-action btn-edit" title="Ver">
                     <i class="bi bi-eye"></i>
                   </button>
                   @if (order.status === 'pending' || order.status === 'in_progress') {
                     <button
-                      class="btn btn-sm btn-primary"
+                      class="btn-action btn-edit"
                       (click)="onProcess(order.id)"
                       title="Procesar"
+                      style="color: var(--color-success, #16a34a)"
                     >
-                      <i class="bi bi-check"></i>
+                      <i class="bi bi-check-lg"></i>
                     </button>
                   }
                   @if (order.status === 'pending') {
                     <button
-                      class="btn btn-sm btn-danger"
+                      class="btn-action btn-delete"
                       (click)="onCancel(order.id, order.orderNumber)"
                       title="Cancelar"
                     >
-                      <i class="bi bi-x"></i>
+                      <i class="bi bi-x-lg"></i>
                     </button>
                   }
                 </div>
@@ -89,25 +104,28 @@
 
     <div class="pagination">
       <button
-        class="btn btn-secondary"
-        [disabled]="state.currentPage() === 1"
         (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
       >
-        Anterior
+        <i class="bi bi-chevron-left"></i> Anterior
       </button>
-      <span>Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
       <button
-        class="btn btn-secondary"
-        [disabled]="state.currentPage() === state.totalPages()"
         (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
       >
-        Siguiente
+        Siguiente <i class="bi bi-chevron-right"></i>
       </button>
     </div>
-  } @else {
-    <div class="empty-state">
-      <p>No hay órdenes de recepción</p>
-      <button class="btn btn-primary" (click)="onCreate()">Crear Primera Orden</button>
+  }
+
+  @if (!state.hasOrders() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-inbox"></i>
+      <span>No hay órdenes de recepción</span>
+      <button class="btn-primary" (click)="onCreate()">Crear Primera Orden</button>
     </div>
   }
 </div>

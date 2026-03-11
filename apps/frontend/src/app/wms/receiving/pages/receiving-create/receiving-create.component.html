@@ -90,9 +90,14 @@
     <div class="card">
       <div class="card-header-with-action">
         <h3>Productos a Recibir</h3>
-        <button type="button" class="btn btn-primary btn-sm" (click)="addLine()">
-          <i class="bi bi-plus"></i> Agregar Producto
-        </button>
+        <div class="action-buttons">
+          <button type="button" class="btn btn-success btn-sm" (click)="openBulkImportModal()">
+            <i class="bi bi-file-earmark-excel"></i> Importar desde Excel
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="addLine()">
+            <i class="bi bi-plus"></i> Agregar Producto
+          </button>
+        </div>
       </div>
 
       @if (loadingProducts()) {
@@ -185,4 +190,12 @@
       </button>
     </div>
   </form>
+
+  <!-- Bulk Import Modal -->
+  @if (showBulkImportModal()) {
+    <app-product-bulk-import-modal
+      (productsImported)="onProductsImported($event)"
+      (closed)="onBulkImportClosed()"
+    />
+  }
 </div>

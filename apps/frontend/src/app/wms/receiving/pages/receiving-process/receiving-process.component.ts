@@ -6,6 +6,8 @@ import { ReceivingStateService } from '../../services/receiving-state.service';
 import { ReceivingApiService } from '../../services/receiving-api.service';
 import { Location, ReceivingOrderLine } from '@cadena24-wms/shared';
 
+const LAST_LOCATION_KEY = 'receiving_last_location';
+
 @Component({
   selector: 'app-receiving-process',
   standalone: true,
@@ -28,6 +30,7 @@ export class ReceivingProcessComponent implements OnInit {
 
   // Receiving form
   selectedLocation = signal<Location | null>(null);
+  locationWarning = signal<boolean>(false);
   receivedQuantity = signal<number>(0);
   damageQuantity = signal<number>(0);
   notes = signal<string>('');
@@ -35,20 +38,39 @@ export class ReceivingProcessComponent implements OnInit {
   processing = signal<boolean>(false);
   successMessage = signal<string | null>(null);
 
+  // Progress computed from order lines
+  progressPercent = computed(() => {
+    const order = this.state.selectedOrder();
+    if (!order?.lines?.length) return 0;
+    const received = order.lines.filter(
+      (l) => l.status === 'received' || l.status === 'partial'
+    ).length;
+    return Math.round((received / order.lines.length) * 100);
+  });
+
+  progressLabel = computed(() => {
+    const order = this.state.selectedOrder();
+    if (!order?.lines?.length) return '0 / 0 líneas';
+    const received = order.lines.filter(
+      (l) => l.status === 'received' || l.status === 'partial'
+    ).length;
+    return `${received} / ${order.lines.length} líneas`;
+  });
+
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    // Check if this is the detail view (:id) or process view (:id/process)
     const isProcessRoute = this.route.snapshot.url.some((segment) => segment.path === 'process');
 
-    // If not process route, this is just a detail view
     this.isViewOnly.set(!isProcessRoute);
 
     if (id) {
       this.state.loadReceivingOrder(id);
       this.state.loadReceivingLocations(id);
 
-      // Only auto-start if this is the process route and order is pending
       if (isProcessRoute) {
+        // Restore last selected location from localStorage
+        this.restoreLastLocation();
+
         setTimeout(() => {
           const order = this.state.selectedOrder();
           if (order && order.status === 'pending') {
@@ -56,6 +78,31 @@ export class ReceivingProcessComponent implements OnInit {
           }
         }, 500);
       }
+    }
+  }
+
+  /** Tries to restore the last used location once locations are available */
+  private restoreLastLocation() {
+    const saved = localStorage.getItem(LAST_LOCATION_KEY);
+    if (!saved) return;
+
+    try {
+      const lastLocation: Location = JSON.parse(saved);
+      // Wait for locations to load, then match by id
+      const tryRestore = () => {
+        const locations = this.state.availableLocations();
+        if (locations.length === 0) {
+          setTimeout(tryRestore, 300);
+          return;
+        }
+        const match = locations.find((l) => l.id === lastLocation.id);
+        if (match) {
+          this.selectedLocation.set(match);
+        }
+      };
+      tryRestore();
+    } catch {
+      localStorage.removeItem(LAST_LOCATION_KEY);
     }
   }
 
@@ -80,7 +127,6 @@ export class ReceivingProcessComponent implements OnInit {
     const input = (event.target as HTMLInputElement).value;
     this.barcodeInput.set(input);
 
-    // Auto-search when barcode is entered (e.g., after Enter key)
     if (input.length > 5) {
       this.searchProductByBarcode(input);
     }
@@ -99,7 +145,6 @@ export class ReceivingProcessComponent implements OnInit {
     const order = this.state.selectedOrder();
     if (!order || !order.lines) return;
 
-    // Find line with matching product barcode
     const line = order.lines.find((l) => l.product?.barcodes?.some((b) => b.barcode === barcode));
 
     if (line) {
@@ -107,6 +152,11 @@ export class ReceivingProcessComponent implements OnInit {
       this.receivedQuantity.set(line.expectedQuantity);
       this.damageQuantity.set(0);
       this.successMessage.set(`Producto encontrado: ${line.product?.name}`);
+
+      // Show location warning if none selected
+      if (!this.selectedLocation()) {
+        this.locationWarning.set(true);
+      }
     } else {
       this.scannedLine.set(null);
       alert(`Producto con código de barras ${barcode} no encontrado en esta orden`);
@@ -115,6 +165,9 @@ export class ReceivingProcessComponent implements OnInit {
 
   selectLocation(location: Location) {
     this.selectedLocation.set(location);
+    this.locationWarning.set(false);
+    // Persist selection for next time
+    localStorage.setItem(LAST_LOCATION_KEY, JSON.stringify(location));
   }
 
   onReceiveLine() {
@@ -122,8 +175,13 @@ export class ReceivingProcessComponent implements OnInit {
     const line = this.scannedLine();
     const location = this.selectedLocation();
 
-    if (!order || !line || !location) {
-      alert('Debe escanear un producto y seleccionar una ubicación');
+    if (!location) {
+      this.locationWarning.set(true);
+      return;
+    }
+
+    if (!order || !line) {
+      alert('Debe escanear un producto antes de confirmar');
       return;
     }
 
@@ -158,6 +216,7 @@ export class ReceivingProcessComponent implements OnInit {
           );
           this.resetForm();
           this.processing.set(false);
+          this.focusBarcodeInput();
         },
         error: (err) => {
           alert('Error al recibir línea: ' + (err.error?.message || err.message));
@@ -194,10 +253,17 @@ export class ReceivingProcessComponent implements OnInit {
     });
   }
 
+  focusBarcodeInput() {
+    setTimeout(() => {
+      const input = document.getElementById('barcode-input') as HTMLInputElement | null;
+      input?.focus();
+    }, 50);
+  }
+
   resetForm() {
     this.barcodeInput.set('');
     this.scannedLine.set(null);
-    this.selectedLocation.set(null);
+    // NOTE: selectedLocation is intentionally NOT reset — persists for the session
     this.receivedQuantity.set(0);
     this.damageQuantity.set(0);
     this.notes.set('');

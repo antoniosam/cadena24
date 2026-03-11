@@ -5,12 +5,13 @@ import { Router } from '@angular/router';
 import { ReceivingApiService } from '../../services/receiving-api.service';
 import { ProductsApiService } from '../../../products/services/products-api.service';
 import { WarehousesApiService } from '../../../warehouses/services/warehouses-api.service';
-import { Product, Warehouse } from '@cadena24-wms/shared';
+import { Product, Warehouse, CreateReceivingOrderLineDto } from '@cadena24-wms/shared';
+import { ProductBulkImportModalComponent } from '../../components/product-bulk-import-modal/product-bulk-import-modal.component';
 
 @Component({
   selector: 'app-receiving-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ProductBulkImportModalComponent],
   templateUrl: './receiving-create.component.html',
   styleUrl: './receiving-create.component.scss',
 })
@@ -20,6 +21,9 @@ export class ReceivingCreateComponent implements OnInit {
   private receivingApi = inject(ReceivingApiService);
   private productsApi = inject(ProductsApiService);
   private warehousesApi = inject(WarehousesApiService);
+
+  // Signal for bulk import modal visibility
+  showBulkImportModal = signal<boolean>(false);
 
   form: FormGroup;
   warehouses = signal<Warehouse[]>([]);
@@ -169,5 +173,35 @@ export class ReceivingCreateComponent implements OnInit {
     if (ctrl.hasError('required')) return 'Requerido';
     if (ctrl.hasError('min')) return 'Mayor a 0';
     return 'Inválido';
+  }
+
+  openBulkImportModal(): void {
+    this.showBulkImportModal.set(true);
+  }
+
+  onBulkImportClosed(): void {
+    this.showBulkImportModal.set(false);
+  }
+
+  onProductsImported(importedLines: CreateReceivingOrderLineDto[]): void {
+    // Clear existing lines
+    while (this.lines.length > 0) {
+      this.lines.removeAt(0);
+    }
+
+    // Add imported lines to form
+    importedLines.forEach((line) => {
+      const lineGroup = this.createLineFormGroup();
+      lineGroup.patchValue({
+        productId: line.productId,
+        expectedQuantity: line.expectedQuantity,
+        unitCost: line.unitCost || 0,
+      });
+      this.lines.push(lineGroup);
+    });
+
+    // Success message
+    this.error.set(null);
+    alert(`${importedLines.length} productos importados exitosamente`);
   }
 }
