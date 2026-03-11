@@ -9,3 +9,7 @@ export * from './location.interface';
 export * from './inventory.interface';
 export * from './receiving.interface';
 export * from './movement.interface';
+export * from './sales-order.interface';
+export * from './picking.interface';
+export * from './product-import.interface';
+export * from './dashboard.interface';

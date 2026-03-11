@@ -148,7 +148,7 @@ describe('AuthService', () => {
       expect(jwtService.sign).toHaveBeenCalledTimes(2);
     });
 
-    it('should sign access token with JWT_SECRET and expiresIn 15m', async () => {
+    it('should sign access token with JWT_SECRET and expiresIn 4h', async () => {
       await service.login(mockUser, mockRes);
 
       expect(jwtService.sign).toHaveBeenNthCalledWith(
@@ -156,7 +156,7 @@ describe('AuthService', () => {
         { sub: mockUser.id, email: mockUser.email, role: mockUser.role },
         expect.objectContaining({
           secret: configService.getOrThrow('JWT_SECRET'),
-          expiresIn: '15m',
+          expiresIn: '4h',
         })
       );
     });

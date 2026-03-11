@@ -32,15 +32,15 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  inventoryTransactions InventoryTransaction[]
-  inventoryAdjustmentsApproved InventoryAdjustment[] @relation("ApprovedBy")
-  inventoryAdjustmentsCreated  InventoryAdjustment[] @relation("CreatedBy")
-  receivingOrdersCreated       ReceivingOrder[]      @relation("CreatedBy")
-  receivingOrdersReceived      ReceivingOrder[]      @relation("ReceivedBy")
-  movementOrdersCreated        MovementOrder[]       @relation("CreatedBy")
-  movementOrdersExecuted       MovementOrder[]       @relation("ExecutedBy")
-  salesOrdersCreated           SalesOrder[]          @relation("CreatedBy")
-  pickListsAssigned            PickList[]            @relation("Picker")
+  inventoryTransactions        InventoryTransaction[]
+  inventoryAdjustmentsApproved InventoryAdjustment[]  @relation("ApprovedBy")
+  inventoryAdjustmentsCreated  InventoryAdjustment[]  @relation("CreatedBy")
+  receivingOrdersCreated       ReceivingOrder[]       @relation("CreatedBy")
+  receivingOrdersReceived      ReceivingOrder[]       @relation("ReceivedBy")
+  movementOrdersCreated        MovementOrder[]        @relation("CreatedBy")
+  movementOrdersExecuted       MovementOrder[]        @relation("ExecutedBy")
+  salesOrdersCreated           SalesOrder[]           @relation("CreatedBy")
+  pickListsAssigned            PickList[]             @relation("Picker")
 
   @@map("users")
 }
@@ -66,9 +66,9 @@ model Product {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  barcodes     ProductBarcode[]
-  inventories  Inventory[]
-  transactions InventoryTransaction[]
+  barcodes        ProductBarcode[]
+  inventories     Inventory[]
+  transactions    InventoryTransaction[]
   adjustmentLines InventoryAdjustmentLine[]
   receivingLines  ReceivingOrderLine[]
   movementLines   MovementOrderLine[]
@@ -107,14 +107,14 @@ model Warehouse {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  locations           Location[]
-  inventories         Inventory[]
-  transactions        InventoryTransaction[]
-  adjustments         InventoryAdjustment[]
-  receivingOrders     ReceivingOrder[]
-  movementOrders      MovementOrder[]
-  salesOrders         SalesOrder[]
-  pickLists           PickList[]
+  locations       Location[]
+  inventories     Inventory[]
+  transactions    InventoryTransaction[]
+  adjustments     InventoryAdjustment[]
+  receivingOrders ReceivingOrder[]
+  movementOrders  MovementOrder[]
+  salesOrders     SalesOrder[]
+  pickLists       PickList[]
 
   @@map("warehouses")
 }
@@ -141,15 +141,15 @@ model Location {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  warehouse   Warehouse   @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-  inventories Inventory[]
-  transactionsFrom InventoryTransaction[] @relation("FromLocation")
-  transactionsTo   InventoryTransaction[] @relation("ToLocation")
-  adjustmentLines  InventoryAdjustmentLine[]
-  receivingLines   ReceivingOrderLine[]
-  movementLinesFrom MovementOrderLine[] @relation("FromLocation")
-  movementLinesTo   MovementOrderLine[] @relation("ToLocation")
-  pickListLines    PickListLine[]
+  warehouse         Warehouse                 @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  inventories       Inventory[]
+  transactionsFrom  InventoryTransaction[]    @relation("FromLocation")
+  transactionsTo    InventoryTransaction[]    @relation("ToLocation")
+  adjustmentLines   InventoryAdjustmentLine[]
+  receivingLines    ReceivingOrderLine[]
+  movementLinesFrom MovementOrderLine[]       @relation("FromLocation")
+  movementLinesTo   MovementOrderLine[]       @relation("ToLocation")
+  pickListLines     PickListLine[]
 
   @@unique([warehouseId, zone, row, position, level])
   @@index([warehouseId])
@@ -197,11 +197,11 @@ model InventoryTransaction {
   userId          Int?
   createdAt       DateTime @default(now())
 
-  product      Product    @relation(fields: [productId], references: [id])
-  warehouse    Warehouse  @relation(fields: [warehouseId], references: [id])
-  fromLocation Location?  @relation("FromLocation", fields: [fromLocationId], references: [id])
-  toLocation   Location?  @relation("ToLocation", fields: [toLocationId], references: [id])
-  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product      Product   @relation(fields: [productId], references: [id])
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id])
+  fromLocation Location? @relation("FromLocation", fields: [fromLocationId], references: [id])
+  toLocation   Location? @relation("ToLocation", fields: [toLocationId], references: [id])
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([productId])
   @@index([warehouseId])
@@ -222,9 +222,9 @@ model InventoryAdjustment {
   createdAt        DateTime  @default(now())
   approvedAt       DateTime?
 
-  warehouse    Warehouse               @relation(fields: [warehouseId], references: [id])
-  approvedUser User?                   @relation("ApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
-  createdUser  User?                   @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  warehouse    Warehouse                 @relation(fields: [warehouseId], references: [id])
+  approvedUser User?                     @relation("ApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
+  createdUser  User?                     @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
   lines        InventoryAdjustmentLine[]
 
   @@index([warehouseId])
@@ -269,10 +269,10 @@ model ReceivingOrder {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  warehouse      Warehouse          @relation(fields: [warehouseId], references: [id])
-  createdUser    User?              @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
-  receivedUser   User?              @relation("ReceivedBy", fields: [receivedBy], references: [id], onDelete: SetNull)
-  lines          ReceivingOrderLine[]
+  warehouse    Warehouse            @relation(fields: [warehouseId], references: [id])
+  createdUser  User?                @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  receivedUser User?                @relation("ReceivedBy", fields: [receivedBy], references: [id], onDelete: SetNull)
+  lines        ReceivingOrderLine[]
 
   @@index([warehouseId])
   @@index([status])
@@ -316,9 +316,9 @@ model MovementOrder {
   createdAt    DateTime  @default(now())
   completedAt  DateTime?
 
-  warehouse    Warehouse         @relation(fields: [warehouseId], references: [id])
-  createdUser  User?             @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
-  executedUser User?             @relation("ExecutedBy", fields: [executedBy], references: [id], onDelete: SetNull)
+  warehouse    Warehouse           @relation(fields: [warehouseId], references: [id])
+  createdUser  User?               @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  executedUser User?               @relation("ExecutedBy", fields: [executedBy], references: [id], onDelete: SetNull)
   lines        MovementOrderLine[]
 
   @@index([warehouseId])
@@ -372,8 +372,8 @@ model SalesOrder {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  warehouse   Warehouse      @relation(fields: [warehouseId], references: [id])
-  createdUser User?          @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  createdUser User?            @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
   lines       SalesOrderLine[]
   pickLists   PickList[]
 
@@ -384,19 +384,19 @@ model SalesOrder {
 }
 
 model SalesOrderLine {
-  id              Int    @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   salesOrderId    Int
   productId       Int
-  orderedQuantity Float  @default(0)
-  pickedQuantity  Float  @default(0)
-  shippedQuantity Float  @default(0)
-  unitPrice       Float  @default(0)
-  subtotal        Float  @default(0)
-  status          String @default("pending") @db.VarChar(20)
+  orderedQuantity Float   @default(0)
+  pickedQuantity  Float   @default(0)
+  shippedQuantity Float   @default(0)
+  unitPrice       Float   @default(0)
+  subtotal        Float   @default(0)
+  status          String  @default("pending") @db.VarChar(20)
   notes           String? @db.Text
 
-  salesOrder   SalesOrder   @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
-  product      Product      @relation(fields: [productId], references: [id])
+  salesOrder    SalesOrder     @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  product       Product        @relation(fields: [productId], references: [id])
   pickListLines PickListLine[]
 
   @@index([salesOrderId])
@@ -455,4 +455,23 @@ model PickListLine {
   @@index([productId])
   @@index([locationId])
   @@map("pick_list_lines")
+}
+
+model Alert {
+  id               Int      @id @default(autoincrement())
+  type             String   @db.VarChar(50)
+  severity         String   @db.VarChar(20)
+  title            String   @db.VarChar(255)
+  message          String   @db.Text
+  productId        Int?
+  orderId          Int?
+  locationId       Int?
+  isRead           Boolean  @default(false)
+  suggestedActions String?  @db.Text // JSON string
+  createdAt        DateTime @default(now())
+
+  @@index([type])
+  @@index([severity])
+  @@index([isRead])
+  @@map("alerts")
 }

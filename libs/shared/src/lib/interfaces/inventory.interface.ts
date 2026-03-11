@@ -1,6 +1,7 @@
 import { Product } from './product.interface';
 
-export interface InventoryLevel {
+export interface InventoryLocation {
+  name: string;
   fullPath: string;
   barcode: string;
 }
@@ -8,7 +9,7 @@ export interface InventoryLevel {
 export interface Inventory {
   id: string;
   productId: string;
-  levelId: string;
+  locationId: string;
   warehouseId: string;
 
   quantity: number;
@@ -21,15 +22,15 @@ export interface Inventory {
   updatedAt: Date;
 
   product?: Product;
-  level?: InventoryLevel;
+  location?: InventoryLocation;
 }
 
 export interface InventoryTransaction {
   id: string;
   productId: string;
   warehouseId: string;
-  fromLevelId?: string;
-  toLevelId?: string;
+  fromLocationId?: string;
+  toLocationId?: string;
 
   quantity: number;
   transactionType: 'RECEIVE' | 'MOVE' | 'PICK' | 'ADJUST' | 'DAMAGE';
@@ -43,8 +44,8 @@ export interface InventoryTransaction {
   createdAt: Date;
 
   product?: Product;
-  fromLevel?: { fullPath: string };
-  toLevel?: { fullPath: string };
+  fromLocation?: { name: string; fullPath: string };
+  toLocation?: { name: string; fullPath: string };
   user?: { name: string; email: string };
 }
 
@@ -52,7 +53,7 @@ export interface InventoryAdjustmentLine {
   id: string;
   adjustmentId: string;
   productId: string;
-  levelId: string;
+  locationId: string;
 
   systemQuantity: number;
   physicalQuantity: number;
@@ -61,7 +62,7 @@ export interface InventoryAdjustmentLine {
   createdAt: Date;
 
   product?: Product;
-  level?: InventoryLevel;
+  location?: InventoryLocation;
 }
 
 export interface InventoryAdjustment {
@@ -86,7 +87,7 @@ export interface InventoryAdjustment {
 
 export interface CreateAdjustmentLineDto {
   productId: string;
-  levelId: string;
+  locationId: string;
   systemQuantity: number;
   physicalQuantity: number;
 }
