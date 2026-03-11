@@ -79,6 +79,19 @@ export class LocationsService {
     return this.repository.findByWarehouse(warehouseId);
   }
 
+  async findByProduct(productId: number, warehouseId?: number) {
+    // Validate product exists
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${productId} not found`);
+    }
+
+    return this.repository.findByProduct(productId, warehouseId);
+  }
+
   async update(id: number, updateLocationDto: UpdateLocationDto) {
     await this.findOne(id); // Validate exists
 

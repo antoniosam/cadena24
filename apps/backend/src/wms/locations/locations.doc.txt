@@ -131,7 +131,66 @@ GET /api/wms/locations?warehouseId=1&type=storage&availableOnly=true&page=1&limi
 
 ---
 
-### 3. Get Location by Barcode
+### 3. Get Locations by Product (with stock)
+**GET** `/api/wms/locations/by-product/:productId`
+
+Retrieves all active locations that have stock (`quantity > 0`) for the specified product. Used in movement order forms to populate the "Origin Location" dropdown after a product is selected.
+
+**Path Parameters:**
+- `productId` (number) - Product ID
+
+**Query Parameters:**
+- `warehouseId` (number, optional) - Filter results to a specific warehouse
+
+**Example Request:**
+```
+GET /api/wms/locations/by-product/5?warehouseId=1
+```
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 3,
+    "warehouseId": 1,
+    "zone": "A",
+    "row": "02",
+    "position": "01",
+    "level": "1",
+    "barcode": "WH01-A-02-01-1",
+    "fullPath": "WH01/A/02/01/1",
+    "name": "Zone A - Row 2 - Position 1 - Level 1",
+    "type": "storage",
+    "isActive": true,
+    "warehouse": {
+      "id": 1,
+      "code": "WH01",
+      "name": "Main Warehouse"
+    },
+    "inventories": [
+      {
+        "quantity": 50,
+        "availableQuantity": 45,
+        "reservedQuantity": 5
+      }
+    ]
+  }
+]
+```
+
+**Business Rules:**
+- Only returns locations where `inventories.quantity > 0` for the given product
+- Only returns active locations (`isActive: true`)
+- Results are sorted by `fullPath` ascending
+- If no locations have stock, returns an empty array `[]`
+
+**Errors:**
+- `404 Not Found` - If product doesn't exist
+- `401 Unauthorized` - If user is not authenticated
+
+---
+
+### 4. Get Location by Barcode
 **GET** `/api/wms/locations/barcode/:barcode`
 
 Retrieves a single location by its barcode.

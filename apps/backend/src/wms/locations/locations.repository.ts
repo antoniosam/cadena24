@@ -264,6 +264,44 @@ export class LocationsRepository {
     });
   }
 
+  async findByProduct(productId: number, warehouseId?: number) {
+    const where: any = {
+      isActive: true,
+      inventories: {
+        some: {
+          productId,
+          quantity: { gt: 0 },
+        },
+      },
+    };
+
+    if (warehouseId) {
+      where.warehouseId = warehouseId;
+    }
+
+    return this.prisma.location.findMany({
+      where,
+      orderBy: [{ fullPath: 'asc' }],
+      include: {
+        warehouse: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+          },
+        },
+        inventories: {
+          where: { productId },
+          select: {
+            quantity: true,
+            availableQuantity: true,
+            reservedQuantity: true,
+          },
+        },
+      },
+    });
+  }
+
   async remove(id: number) {
     return this.prisma.location.update({
       where: { id },

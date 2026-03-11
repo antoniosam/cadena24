@@ -31,6 +31,15 @@ export class LocationsController {
     return this.locationsService.findAll(query);
   }
 
+  @Get('by-product/:productId')
+  findByProduct(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Query('warehouseId') warehouseId?: string
+  ) {
+    const warehouseIdNum = warehouseId ? Number(warehouseId) : undefined;
+    return this.locationsService.findByProduct(productId, warehouseIdNum);
+  }
+
   @Get('barcode/:barcode')
   findByBarcode(@Param('barcode') barcode: string) {
     return this.locationsService.findByBarcode(barcode);

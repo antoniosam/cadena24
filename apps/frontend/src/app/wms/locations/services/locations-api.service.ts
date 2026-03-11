@@ -51,6 +51,14 @@ export class LocationsApiService {
     return this.http.get<LocationTreeNode[]>(`${this.apiUrl}/warehouse/${warehouseId}/tree`);
   }
 
+  getByProduct(productId: number, warehouseId?: number): Observable<Location[]> {
+    let params = new HttpParams();
+    if (warehouseId !== undefined) {
+      params = params.set('warehouseId', warehouseId.toString());
+    }
+    return this.http.get<Location[]>(`${this.apiUrl}/by-product/${productId}`, { params });
+  }
+
   create(data: CreateLocationDto): Observable<Location> {
     return this.http.post<Location>(this.apiUrl, data);
   }
