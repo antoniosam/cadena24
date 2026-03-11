@@ -1,0 +1,178 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Órdenes de Venta</h1>
+      <p class="page-subtitle">Gestión y seguimiento de órdenes de venta</p>
+    </div>
+    <div class="header-actions">
+      @if (state.urgentOrders().length > 0) {
+        <span class="badge badge-urgent">
+          <i class="bi bi-exclamation-triangle"></i>
+          {{ state.urgentOrders().length }} urgente(s)
+        </span>
+      }
+      <button class="btn-primary" (click)="onCreate()">
+        <i class="bi bi-plus-lg"></i>
+        Nueva Orden
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="customerSearch"
+        placeholder="Buscar por cliente..."
+        (keyup.enter)="onSearchCustomer()"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filter-select-group">
+      <label class="filter-label">Estado</label>
+      <select class="filter-select" (change)="onFilterStatus($event)">
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-select-group">
+      <label class="filter-label">Prioridad</label>
+      <select class="filter-select" (change)="onFilterPriority($event)">
+        @for (opt of priorityOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <button class="btn-filter-clear" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i> Limpiar
+    </button>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando órdenes...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (!state.loading()) {
+    @if (state.hasOrders()) {
+      <p class="results-info">{{ state.total() }} orden(es) encontrada(s)</p>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Cliente</th>
+              <th>Fecha Orden</th>
+              <th>Fecha Requerida</th>
+              <th>Prioridad</th>
+              <th>Estado</th>
+              <th>Total</th>
+              <th>Líneas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of state.salesOrders(); track order.id) {
+              <tr class="order-row" (click)="onView(order.id)">
+                <td>
+                  <span class="code-text">{{ order.orderNumber }}</span>
+                </td>
+                <td>
+                  <div class="customer-info">
+                    <strong>{{ order.customerName }}</strong>
+                    @if (order.customerCode) {
+                      <small>{{ order.customerCode }}</small>
+                    }
+                  </div>
+                </td>
+                <td>{{ order.orderDate | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  @if (order.requiredDate) {
+                    {{ order.requiredDate | date: 'dd/MM/yyyy' }}
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td>
+                  <span [class]="'badge ' + getPriorityBadgeClass(order.priority)">
+                    {{ getPriorityLabel(order.priority) }}
+                  </span>
+                </td>
+                <td>
+                  <span [class]="'badge ' + getStatusBadgeClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </td>
+                <td class="text-right">$ {{ order.totalAmount | number: '1.2-2' }}</td>
+                <td class="text-center">{{ order.lines?.length || 0 }}</td>
+                <td>
+                  <div class="action-buttons" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn-action btn-view"
+                      (click)="onView(order.id)"
+                      title="Ver detalle"
+                    >
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    @if (canCancel(order.status)) {
+                      <button
+                        class="btn-action btn-delete"
+                        (click)="onCancel(order.id, order.orderNumber, $event)"
+                        title="Cancelar orden"
+                      >
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (state.totalPages() > 1) {
+        <div class="pagination">
+          <button
+            class="btn-page"
+            [disabled]="state.currentPage() === 1"
+            (click)="onPageChange(state.currentPage() - 1)"
+          >
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+          <span class="page-info"
+            >Página {{ state.currentPage() }} de {{ state.totalPages() }}</span
+          >
+          <button
+            class="btn-page"
+            [disabled]="state.currentPage() === state.totalPages()"
+            (click)="onPageChange(state.currentPage() + 1)"
+          >
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    } @else {
+      <div class="state-box state-empty">
+        <i class="bi bi-clipboard-x"></i>
+        <span>No hay órdenes de venta</span>
+        <button class="btn-primary" (click)="onCreate()">Crear Primera Orden</button>
+      </div>
+    }
+  }
+</div>

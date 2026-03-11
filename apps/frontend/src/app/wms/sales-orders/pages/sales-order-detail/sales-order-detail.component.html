@@ -1,0 +1,218 @@
+<div class="page-container">
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando orden...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.selectedOrder(); as order) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button class="btn-secondary btn-sm" (click)="onBack()">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <div class="order-title">
+          <h1 class="page-title">{{ order.orderNumber }}</h1>
+          <span [class]="'badge ' + getStatusBadgeClass(order.status)">
+            {{ getStatusLabel(order.status) }}
+          </span>
+          <span [class]="'badge ' + getPriorityBadgeClass(order.priority)">
+            {{ getPriorityLabel(order.priority) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        @if (canChangePriority()) {
+          <div class="priority-selector">
+            <label class="priority-label">Prioridad:</label>
+            <select
+              class="priority-select"
+              [value]="order.priority"
+              (change)="onChangePriority($event)"
+            >
+              @for (opt of priorityOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        @if (canCancel()) {
+          <button class="btn-danger" (click)="onCancel()">
+            <i class="bi bi-x-circle"></i> Cancelar Orden
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-grid">
+      <!-- Cliente -->
+      <div class="info-card">
+        <h2 class="card-title">Información del Cliente</h2>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ order.customerName }}</span>
+          </div>
+          @if (order.customerCode) {
+            <div class="info-row">
+              <span class="info-label">Código</span>
+              <span class="info-value"
+                ><span class="code-text">{{ order.customerCode }}</span></span
+              >
+            </div>
+          }
+          @if (order.customerPhone) {
+            <div class="info-row">
+              <span class="info-label">Teléfono</span>
+              <span class="info-value">{{ order.customerPhone }}</span>
+            </div>
+          }
+          @if (order.customerEmail) {
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ order.customerEmail }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Envío -->
+      <div class="info-card">
+        <h2 class="card-title">Dirección de Entrega</h2>
+        <div class="info-rows">
+          @if (order.shippingAddress) {
+            <div class="info-row">
+              <span class="info-label">Dirección</span>
+              <span class="info-value">{{ order.shippingAddress }}</span>
+            </div>
+          }
+          @if (order.shippingCity) {
+            <div class="info-row">
+              <span class="info-label">Ciudad</span>
+              <span class="info-value">{{ order.shippingCity }}</span>
+            </div>
+          }
+          @if (order.shippingState) {
+            <div class="info-row">
+              <span class="info-label">Estado</span>
+              <span class="info-value">{{ order.shippingState }}</span>
+            </div>
+          }
+          @if (order.shippingZipCode) {
+            <div class="info-row">
+              <span class="info-label">C.P.</span>
+              <span class="info-value">{{ order.shippingZipCode }}</span>
+            </div>
+          }
+          @if (!order.shippingAddress && !order.shippingCity) {
+            <p class="info-empty">Sin dirección de entrega registrada</p>
+          }
+        </div>
+      </div>
+
+      <!-- Detalles -->
+      <div class="info-card">
+        <h2 class="card-title">Detalles de la Orden</h2>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Fecha Orden</span>
+            <span class="info-value">{{ order.orderDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          @if (order.requiredDate) {
+            <div class="info-row">
+              <span class="info-label">Fecha Requerida</span>
+              <span class="info-value">{{ order.requiredDate | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          }
+          @if (order.shippedDate) {
+            <div class="info-row">
+              <span class="info-label">Fecha de Envío</span>
+              <span class="info-value">{{ order.shippedDate | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          }
+          @if (order.warehouse) {
+            <div class="info-row">
+              <span class="info-label">Almacén</span>
+              <span class="info-value">{{ order.warehouse.name }}</span>
+            </div>
+          }
+          @if (order.notes) {
+            <div class="info-row">
+              <span class="info-label">Notas</span>
+              <span class="info-value">{{ order.notes }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Líneas -->
+    <div class="table-card">
+      <div class="table-card-header">
+        <h2 class="section-title">Líneas de la Orden</h2>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th class="text-center">Cant. Ordenada</th>
+            <th class="text-center">Cant. Surtida</th>
+            <th class="text-center">Cant. Enviada</th>
+            <th class="text-right">Precio Unit.</th>
+            <th class="text-right">Subtotal</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of order.lines; track line.id; let i = $index) {
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>
+                @if (line.product) {
+                  <div class="product-cell">
+                    <span class="code-text">{{ line.product.code }}</span>
+                    <span class="product-name">{{ line.product.name }}</span>
+                  </div>
+                } @else {
+                  ID: {{ line.productId }}
+                }
+              </td>
+              <td class="text-center">{{ line.orderedQuantity | number: '1.0-2' }}</td>
+              <td class="text-center">{{ line.pickedQuantity | number: '1.0-2' }}</td>
+              <td class="text-center">{{ line.shippedQuantity | number: '1.0-2' }}</td>
+              <td class="text-right">$ {{ line.unitPrice | number: '1.2-2' }}</td>
+              <td class="text-right">$ {{ line.subtotal | number: '1.2-2' }}</td>
+              <td>
+                <span [class]="'badge ' + getStatusBadgeClass(line.status)">
+                  {{ getLineStatusLabel(line.status) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6" class="text-right total-label"><strong>Total:</strong></td>
+            <td class="text-right total-amount">
+              <strong>$ {{ order.totalAmount | number: '1.2-2' }}</strong>
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</div>

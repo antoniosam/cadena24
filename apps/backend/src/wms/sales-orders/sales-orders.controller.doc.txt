@@ -1,0 +1,217 @@
+==============================================================================
+SALES ORDERS — ENDPOINT DOCUMENTATION
+Module: wms/sales-orders
+Guard: JwtAuthGuard (all endpoints)
+==============================================================================
+
+------------------------------------------------------------------------------
+POST /wms/sales-orders
+------------------------------------------------------------------------------
+Description : Create a new sales order. Validates stock availability and
+              automatically reserves inventory (FIFO) for all lines.
+              Assigns the primary active warehouse automatically.
+
+Body:
+  {
+    "customerName"    : string (required)
+    "customerCode"    : string (optional)
+    "customerPhone"   : string (optional)
+    "customerEmail"   : string (optional, email format)
+    "shippingAddress" : string (optional)
+    "shippingCity"    : string (optional)
+    "shippingState"   : string (optional)
+    "shippingZipCode" : string (optional)
+    "requiredDate"    : ISO date string (optional)
+    "priority"        : "low"|"normal"|"high"|"urgent" (default: "normal")
+    "notes"           : string (optional)
+    "lines": [
+      {
+        "productId" : number (required)
+        "quantity"  : number (required, > 0)
+        "unitPrice" : number (required, >= 0)
+        "notes"     : string (optional)
+      }
+    ]
+  }
+
+Response 201:
+  SalesOrder object with lines and relations
+
+Errors:
+  400 — Insufficient stock for one or more products
+  400 — Product is not active
+  404 — Primary warehouse not found
+  404 — Product not found
+
+Business rules:
+  - orderNumber auto-generated: SO-YYYY-NNNN
+  - totalAmount = sum(quantity * unitPrice) per line
+  - Inventory reserved FIFO (oldest records first)
+  - Initial status: "pending"
+
+------------------------------------------------------------------------------
+GET /wms/sales-orders
+------------------------------------------------------------------------------
+Description : List all sales orders with optional filters and pagination.
+
+Query params:
+  status       : "pending"|"picking"|"picked"|"shipped"|"cancelled"
+  priority     : "low"|"normal"|"high"|"urgent"
+  customerName : string (partial match)
+  fromDate     : ISO date string
+  toDate       : ISO date string
+  page         : number (default: 1)
+  limit        : number (default: 20)
+
+Response 200:
+  {
+    "items"      : SalesOrder[]
+    "total"      : number
+    "page"       : number
+    "limit"      : number
+    "totalPages" : number
+  }
+
+Ordering: priority DESC, orderDate ASC (urgent first, oldest first)
+
+------------------------------------------------------------------------------
+POST /wms/sales-orders/validate-stock
+------------------------------------------------------------------------------
+Description : Validate stock availability for a list of products before
+              creating an order. Does NOT modify any data.
+
+Body:
+  {
+    "items": [
+      { "productId": number, "quantity": number }
+    ]
+  }
+
+Response 200:
+  {
+    "valid": boolean,
+    "items": [
+      {
+        "productId"  : number
+        "requested"  : number
+        "available"  : number
+        "canFulfill" : boolean
+        "message"    : string (only when canFulfill = false)
+      }
+    ]
+  }
+
+------------------------------------------------------------------------------
+GET /wms/sales-orders/:id
+------------------------------------------------------------------------------
+Description : Get full details of a single sales order including lines.
+
+Response 200: SalesOrder object with lines, warehouse, createdUser
+
+Errors:
+  404 — Order not found
+
+------------------------------------------------------------------------------
+GET /wms/sales-orders/:id/can-pick
+------------------------------------------------------------------------------
+Description : Check whether a sales order is ready to generate a pick list.
+
+Response 200:
+  {
+    "canPick"      : boolean
+    "orderId"      : number
+    "orderNumber"  : string
+    "status"       : string
+    "pendingLines" : number
+    "reason"       : string (only when canPick = false)
+  }
+
+Condition: canPick = true only when status = "pending"
+
+------------------------------------------------------------------------------
+PATCH /wms/sales-orders/:id
+------------------------------------------------------------------------------
+Description : Update customer and shipping information of an order.
+              Not allowed for cancelled or shipped orders.
+
+Body: (all optional)
+  customerName, customerCode, customerPhone, customerEmail,
+  shippingAddress, shippingCity, shippingState, shippingZipCode,
+  requiredDate, notes
+
+Response 200: Updated SalesOrder
+
+Errors:
+  400 — Order is cancelled or shipped
+  404 — Order not found
+
+------------------------------------------------------------------------------
+PATCH /wms/sales-orders/:id/priority
+------------------------------------------------------------------------------
+Description : Change the processing priority of a sales order.
+              Affects the order in which pick lists are generated.
+
+Body:
+  { "priority": "low"|"normal"|"high"|"urgent" }
+
+Response 200: Updated SalesOrder
+
+Errors:
+  400 — Order is shipped or cancelled
+  404 — Order not found
+
+------------------------------------------------------------------------------
+POST /wms/sales-orders/:id/reserve-inventory
+------------------------------------------------------------------------------
+Description : Manually trigger inventory reservation for a pending order.
+              Normally called automatically on order creation.
+
+Response 200: { "success": true, "message": string }
+
+Errors:
+  400 — Order is not in "pending" status
+  404 — Order not found
+
+------------------------------------------------------------------------------
+POST /wms/sales-orders/:id/release-inventory
+------------------------------------------------------------------------------
+Description : Release all inventory reservations for an order.
+              Called automatically on cancellation.
+
+Response 200: { "success": true, "message": string }
+
+Errors:
+  404 — Order not found
+
+------------------------------------------------------------------------------
+DELETE /wms/sales-orders/:id
+------------------------------------------------------------------------------
+Description : Cancel a sales order and release all inventory reservations.
+
+Response 200: Cancelled SalesOrder
+
+Errors:
+  400 — Order is already shipped
+  400 — Order is already cancelled
+  404 — Order not found
+
+Business rules:
+  - All non-shipped lines set to "cancelled"
+  - Inventory reservations released automatically
+
+==============================================================================
+ENTITY REFERENCE
+==============================================================================
+
+SalesOrder status flow:
+  pending → picking → picked → shipped
+  pending|picking|picked → cancelled
+
+SalesOrderLine status flow:
+  pending → picking → picked → shipped
+  pending|picking|picked → cancelled
+
+Priority ordering (highest to lowest):
+  urgent > high > normal > low
+
+==============================================================================
