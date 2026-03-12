@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,6 +23,7 @@ export class ReceivingCreateComponent implements OnInit {
   private productsApi = inject(ProductsApiService);
   private providersApi = inject(ProvidersApiService);
   private warehousesApi = inject(WarehousesApiService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Signal for bulk import modal visibility
   showBulkImportModal = signal<boolean>(false);
@@ -122,6 +123,7 @@ export class ReceivingCreateComponent implements OnInit {
   removeLine(index: number): void {
     if (this.lines.length > 1) {
       this.lines.removeAt(index);
+      this.cdr.detectChanges();
     }
   }
 
@@ -216,12 +218,14 @@ export class ReceivingCreateComponent implements OnInit {
     this.showBulkImportModal.set(false);
   }
 
+  onImportFinished(): void {
+    this.cdr.detectChanges();
+  }
+
   onProductsImported(importedLines: CreateReceivingOrderLineDto[]): void {
     // Clear existing lines
-    while (this.lines.length > 0) {
-      this.lines.removeAt(0);
-    }
-
+    this.lines.clear();
+ this.cdr.detectChanges();
     // Add imported lines to form
     importedLines.forEach((line) => {
       const lineGroup = this.createLineFormGroup();
@@ -236,5 +240,6 @@ export class ReceivingCreateComponent implements OnInit {
     // Success message
     this.error.set(null);
     alert(`${importedLines.length} productos importados exitosamente`);
+    this.cdr.detectChanges();
   }
 }

@@ -24,6 +24,7 @@ export class ProductBulkImportModalComponent {
   // Outputs
   productsImported = output<CreateReceivingOrderLineDto[]>();
   closed = output<void>();
+  importFinished = output<void>();
 
   // State
   step = signal<'upload' | 'preview' | 'processing' | 'result'>('upload');
@@ -272,6 +273,7 @@ export class ProductBulkImportModalComponent {
   }
 
   finishImport(): void {
+    this.importFinished.emit();
     this.close();
   }
 }
