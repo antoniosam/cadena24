@@ -21,7 +21,7 @@ RUN apk add --no-cache openssl
 
 # Instalamos solo dependencias de PROD
 COPY package*.json ./
-RUN npm ci --omit=dev --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # --- TRUCO PARA PRISMA ---
 # Copiamos el binario de Prisma y sus dependencias de la etapa builder
