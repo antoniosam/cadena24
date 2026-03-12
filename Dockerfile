@@ -8,8 +8,12 @@ RUN npm ci --legacy-peer-deps
 # Copiamos Prisma y generamos el cliente
 COPY apps/backend/prisma ./apps/backend/prisma
 COPY apps/backend/prisma.config.ts ./apps/backend/prisma.config.ts
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
-    npx prisma generate --schema=apps/backend/prisma/schema.prisma
+
+# --- AQUÍ DEFINES LAS VARIABLES DUMMY PARA EL BUILD ---
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV JWT_SECRET="dummy_secret_only_for_build"
+# ------------------------------------------------------
+RUN npx prisma generate --schema=apps/backend/prisma/schema.prisma
 
 COPY . .
 RUN npm run build:prod:frontend && npm run build:prod:backend
