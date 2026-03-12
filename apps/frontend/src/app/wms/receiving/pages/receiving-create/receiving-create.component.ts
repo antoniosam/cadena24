@@ -149,10 +149,19 @@ export class ReceivingCreateComponent implements OnInit {
 
     const formValue = this.form.value;
 
+    const selectedProviderId = Number(formValue.providerId);
+    const selectedProvider = this.providers().find((p) => p.id === selectedProviderId);
+
+    // Remove providerId as it's not expected by the backend
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { providerId, ...restFormValue } = formValue;
+
     // Convert expectedDate to Date if provided
-    const dto = {
-      ...formValue,
+    const dto: any = {
+      ...restFormValue,
       warehouseId: Number(formValue.warehouseId),
+      supplierName: selectedProvider?.name || 'Unknown',
+      supplierCode: selectedProvider?.code,
       expectedDate: formValue.expectedDate ? new Date(formValue.expectedDate) : undefined,
       lines: formValue.lines.map((line: any) => ({
         productId: Number(line.productId),
@@ -225,7 +234,7 @@ export class ReceivingCreateComponent implements OnInit {
   onProductsImported(importedLines: CreateReceivingOrderLineDto[]): void {
     // Clear existing lines
     this.lines.clear();
- this.cdr.detectChanges();
+    this.cdr.detectChanges();
     // Add imported lines to form
     importedLines.forEach((line) => {
       const lineGroup = this.createLineFormGroup();
