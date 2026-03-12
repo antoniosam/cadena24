@@ -250,9 +250,9 @@ export class ReceivingService {
       productCode: item.product.code,
       productName: item.product.name,
       damageQuantity: item.damageQuantity,
-      receivedDate: item.receivedAt,
+      receivedDate: item.receivedAt ?? new Date(),
       locationName: item.location?.name,
-      notes: item.notes,
+      notes: item.notes ?? undefined,
     }));
   }
 }
