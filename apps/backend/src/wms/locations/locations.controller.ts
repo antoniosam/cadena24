@@ -31,6 +31,11 @@ export class LocationsController {
     return this.locationsService.findAll(query);
   }
 
+  @Get('by-classification/:classificationId')
+  findAvailableByClassification(@Param('classificationId', ParseIntPipe) classificationId: number) {
+    return this.locationsService.findAvailableByClassification(classificationId);
+  }
+
   @Get('by-product/:productId')
   findByProduct(
     @Param('productId', ParseIntPipe) productId: number,

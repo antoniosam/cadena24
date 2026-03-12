@@ -79,6 +79,14 @@ export class LocationsService {
     return this.repository.findByWarehouse(warehouseId);
   }
 
+  async findAvailableByClassification(classificationId: number) {
+    const locations = await this.repository.findAvailableByClassification(classificationId);
+    return locations.filter((loc) => {
+      const currentUsage = loc.inventories.reduce((sum, inv) => sum + inv.quantity, 0);
+      return currentUsage < loc.capacity;
+    });
+  }
+
   async findByProduct(productId: number, warehouseId?: number) {
     // Validate product exists
     const product = await this.prisma.product.findUnique({

@@ -348,6 +348,14 @@ export const appRoutes: Routes = [
             title: 'Procesar Recepción — Cadena24 WMS',
           },
           {
+            path: ':id/user-process',
+            loadComponent: () =>
+              import('./wms/receiving/pages/receiving-user-process/receiving-user-process.component').then(
+                (m) => m.ReceivingUserProcessComponent
+              ),
+            title: 'Asignar Usuario a Recepción — Cadena24 WMS',
+          },
+          {
             path: 'damaged',
             loadComponent: () =>
               import('./wms/receiving/pages/damaged-review/damaged-review.component').then(

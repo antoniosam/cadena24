@@ -173,6 +173,15 @@ export class ReceivingRepository {
     });
   }
 
+  async assignUser(id: number, userId: number) {
+    return this.prisma.receivingOrder.update({
+      where: { id },
+      data: {
+        assignedTo: userId,
+      },
+    });
+  }
+
   async startReceiving(id: number) {
     return this.prisma.receivingOrder.update({
       where: { id },

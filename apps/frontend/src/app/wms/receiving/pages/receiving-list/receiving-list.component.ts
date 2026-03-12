@@ -43,6 +43,10 @@ export class ReceivingListComponent implements OnInit {
     this.router.navigate(['/wms/receiving', id, 'process']);
   }
 
+  onAssignUser(id: number) {
+    this.router.navigate(['/wms/receiving', id, 'user-process']);
+  }
+
   onCancel(id: number, orderNumber: string) {
     if (
       confirm(`¿Está seguro de cancelar la orden ${orderNumber}? Esta acción no se puede deshacer.`)

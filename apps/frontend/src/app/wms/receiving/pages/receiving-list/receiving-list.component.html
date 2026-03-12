@@ -84,6 +84,14 @@
                     >
                       <i class="bi bi-check-lg"></i>
                     </button>
+                    <button
+                      class="btn-action btn-edit"
+                      (click)="onAssignUser(order.id)"
+                      title="Asignar Usuario"
+                      style="color: var(--color-primary, #3b82f6)"
+                    >
+                      <i class="bi bi-person-plus"></i>
+                    </button>
                   }
                   @if (order.status === 'pending') {
                     <button

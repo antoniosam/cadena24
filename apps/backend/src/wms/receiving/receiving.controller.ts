@@ -19,6 +19,7 @@ import {
   ReceiveLineDto,
   QueryReceivingOrderDto,
   QueryDamagedItemsDto,
+  AssignUserDto,
 } from './dto';
 import { JwtAuthGuard } from '../../app/auth/guards/jwt-auth.guard';
 
@@ -57,6 +58,14 @@ export class ReceivingController {
     return this.receivingService.findOne(id);
   }
 
+  @Get(':id/filtered-products/:userId')
+  getFilteredProducts(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('userId', ParseIntPipe) userId: number
+  ) {
+    return this.receivingService.getFilteredProductsForUser(id, userId);
+  }
+
   @Get(':id/receiving-locations')
   async getReceivingLocations(@Param('id', ParseIntPipe) id: number) {
     const order = await this.receivingService.findOne(id);
@@ -66,6 +75,11 @@ export class ReceivingController {
   @Patch(':id/start')
   startReceiving(@Param('id', ParseIntPipe) id: number) {
     return this.receivingService.startReceiving(id);
+  }
+
+  @Patch(':id/assign-user')
+  assignUser(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignUserDto) {
+    return this.receivingService.assignUser(id, dto.userId);
   }
 
   @Post(':id/receive-line')

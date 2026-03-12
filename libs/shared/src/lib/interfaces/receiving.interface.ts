@@ -90,13 +90,23 @@ export interface ReceivingOrdersResponse {
   totalPages: number;
 }
 
+export interface AssignUserDto {
+  userId: number;
+}
+
 export interface DamagedItem {
   id: number;
   receivingOrderNumber: string;
   productCode: string;
   productName: string;
   damageQuantity: number;
-  receivedDate?: Date;
+  receivedDate: Date;
   locationName?: string;
   notes?: string;
+}
+
+export interface QueryDamagedItemsDto {
+  warehouseId?: number;
+  fromDate?: Date;
+  toDate?: Date;
 }

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { DamagedItem } from '@cadena24-wms/shared';
 import { ReceivingRepository } from './receiving.repository';
 import {
   CreateReceivingOrderDto,
@@ -72,6 +73,28 @@ export class ReceivingService {
     }
 
     return this.repository.startReceiving(id);
+  }
+
+  async getFilteredProductsForUser(orderId: number, userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { classificationId: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.classificationId) {
+      throw new BadRequestException('User does not have a classification');
+    }
+
+    const order = await this.findOne(orderId);
+    if (!order.lines) {
+      return [];
+    }
+
+    return order.lines.filter((line) => line.product?.classificationId === user.classificationId);
   }
 
   async getReceivingLocations(warehouseId: number) {
@@ -163,6 +186,18 @@ export class ReceivingService {
 
     return updatedLine;
   }
+  async assignUser(id: number, userId: number) {
+    const order = await this.findOne(id);
+
+    // Validate user exists
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return this.repository.assignUser(id, userId);
+  }
+
   async completeReceiving(id: number, receivedBy: number) {
     const order = await this.findOne(id);
 
@@ -206,7 +241,7 @@ export class ReceivingService {
     return this.repository.cancel(id);
   }
 
-  async getDamagedItems(query: QueryDamagedItemsDto) {
+  async getDamagedItems(query: QueryDamagedItemsDto): Promise<DamagedItem[]> {
     const items = await this.repository.getDamagedItems(query);
 
     return items.map((item) => ({

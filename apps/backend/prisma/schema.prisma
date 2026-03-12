@@ -39,6 +39,7 @@ model User {
   inventoryAdjustmentsCreated  InventoryAdjustment[]  @relation("CreatedBy")
   receivingOrdersCreated       ReceivingOrder[]       @relation("CreatedBy")
   receivingOrdersReceived      ReceivingOrder[]       @relation("ReceivedBy")
+  receivingOrdersAssigned      ReceivingOrder[]       @relation("AssignedTo")
   movementOrdersCreated        MovementOrder[]        @relation("CreatedBy")
   movementOrdersExecuted       MovementOrder[]        @relation("ExecutedBy")
   salesOrdersCreated           SalesOrder[]           @relation("CreatedBy")
@@ -274,12 +275,14 @@ model ReceivingOrder {
   notes               String?   @db.Text
   createdBy           Int?
   receivedBy          Int?
+  assignedTo          Int?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
   warehouse    Warehouse            @relation(fields: [warehouseId], references: [id])
   createdUser  User?                @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
   receivedUser User?                @relation("ReceivedBy", fields: [receivedBy], references: [id], onDelete: SetNull)
+  assignedUser User?                @relation("AssignedTo", fields: [assignedTo], references: [id], onDelete: SetNull)
   lines        ReceivingOrderLine[]
 
   @@index([warehouseId])

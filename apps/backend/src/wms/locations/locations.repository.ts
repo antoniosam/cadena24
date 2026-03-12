@@ -299,6 +299,22 @@ export class LocationsRepository {
     });
   }
 
+  async findAvailableByClassification(classificationId: number) {
+    return this.prisma.location.findMany({
+      where: {
+        classificationId,
+        isActive: true,
+      },
+      include: {
+        inventories: {
+          select: {
+            quantity: true,
+          },
+        },
+      },
+    });
+  }
+
   async findByProduct(productId: number, warehouseId?: number) {
     const where: any = {
       isActive: true,

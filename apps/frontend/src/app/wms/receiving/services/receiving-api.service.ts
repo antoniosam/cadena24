@@ -8,6 +8,7 @@ import {
   ReceiveLineDto,
   QueryReceivingOrderDto,
   DamagedItem,
+  QueryDamagedItemsDto,
   Location,
 } from '@cadena24-wms/shared';
 import { environment } from '../../../../environments/environment';
@@ -35,6 +36,16 @@ export class ReceivingApiService {
     }
 
     return this.http.get<ReceivingOrdersResponse>(this.apiUrl, { params });
+  }
+
+  getFilteredProductsForUser(orderId: number, userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${orderId}/filtered-products/${userId}`);
+  }
+
+  getLocationsForUser(classificationId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/wms/locations/by-classification/${classificationId}`
+    );
   }
 
   getReceivingOrder(id: number): Observable<ReceivingOrder> {
@@ -65,11 +76,11 @@ export class ReceivingApiService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getDamagedItems(filters?: {
-    warehouseId?: number;
-    fromDate?: Date;
-    toDate?: Date;
-  }): Observable<DamagedItem[]> {
+  assignUser(orderId: number, userId: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${orderId}/assign-user/${userId}`, {});
+  }
+
+  getDamagedItems(filters?: QueryDamagedItemsDto): Observable<DamagedItem[]> {
     let params = new HttpParams();
 
     if (filters) {

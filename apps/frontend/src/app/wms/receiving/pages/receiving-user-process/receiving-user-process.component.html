@@ -1,0 +1,70 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Asignar Usuario a Recepción</h1>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando orden...</span>
+    </div>
+  } @else if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  } @else if (state.selectedOrder(); as order) {
+    <div class="card">
+      <h3>Orden: {{ order.orderNumber }}</h3>
+      <p>Proveedor: {{ order.supplierName }}</p>
+
+      <form [formGroup]="userForm" (ngSubmit)="onAssign()">
+        <div class="form-group">
+          <label>Seleccionar Usuario</label>
+          <select formControlName="user" class="form-control">
+            <option [ngValue]="null">-- Seleccione un usuario --</option>
+            @for (user of users(); track user.id) {
+              <option [ngValue]="user">
+                {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (selectedUser() && filteredLines().length > 0) {
+          <div class="mt-3">
+            <h4>Productos para clasificación: {{ selectedUser()?.classification?.name }}</h4>
+            <ul class="list-group">
+              @for (line of filteredLines(); track line.id) {
+                <li class="list-group-item">
+                  {{ line.product?.name }} - Cantidad: {{ line.expectedQuantity }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (selectedUser() && availableLocations().length > 0) {
+          <div class="mt-3">
+            <h4>Ubicaciones:</h4>
+            <ul class="list-group">
+              @for (loc of availableLocations(); track loc.id) {
+                <li class="list-group-item">
+                  <strong>{{ loc.warehouse?.name }}</strong> - {{ loc.name }}
+                </li>
+              }
+            </ul>
+          </div>
+        } @else if (selectedUser() && filteredLines().length === 0) {
+          <div class="mt-3 text-warning">
+            No hay productos que coincidan con la clasificación del usuario seleccionado.
+          </div>
+        }
+
+        <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || processing()">
+          {{ processing() ? 'Asignando...' : 'Asignar Usuario' }}
+        </button>
+      </form>
+    </div>
+  }
+</div>

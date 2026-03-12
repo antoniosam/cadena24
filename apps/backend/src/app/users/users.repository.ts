@@ -138,6 +138,10 @@ export class UsersRepository {
     await this.prisma.user.delete({ where: { id } });
   }
 
+  async count(): Promise<number> {
+    return this.prisma.user.count();
+  }
+
   async existsById(id: number): Promise<boolean> {
     const count = await this.prisma.user.count({ where: { id } });
     return count > 0;
