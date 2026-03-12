@@ -1,0 +1,124 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Clasificaciones</h1>
+      <p class="page-subtitle">Gestión de clasificaciones del sistema</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="onCreate()">
+        <i class="bi bi-plus-lg"></i>
+        Nueva Clasificación
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        [value]="state.searchTerm()"
+        (input)="onSearch($event)"
+        placeholder="Buscar por código o nombre..."
+        class="search-input"
+      />
+    </div>
+    <label class="clean-filters-label" (click)="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Limpiar Filtros
+    </label>
+  </div>
+
+  @if (state.loading()) {
+    <div class="state-box">
+      <div class="spinner"></div>
+      <span>Cargando clasificaciones...</span>
+    </div>
+  }
+
+  @if (state.hasError()) {
+    <div class="state-box state-error">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ state.error() }}
+    </div>
+  }
+
+  @if (state.hasClassifications() && !state.loading()) {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (classification of state.classifications(); track classification.id) {
+            <tr>
+              <td>{{ classification.id }}</td>
+              <td>
+                <span class="code-text">{{ classification.code }}</span>
+              </td>
+              <td>{{ classification.name }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-active]="classification.isActive"
+                  [class.badge-inactive]="!classification.isActive"
+                >
+                  {{ classification.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    (click)="onEdit(classification.id)"
+                    class="btn-action btn-edit"
+                    title="Editar"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    (click)="onDelete(classification.id)"
+                    class="btn-action btn-delete"
+                    title="Desactivar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        (click)="onPageChange(state.currentPage() - 1)"
+        [disabled]="state.currentPage() === 1"
+        class="btn-page"
+      >
+        <i class="bi bi-chevron-left"></i> Anterior
+      </button>
+      <span class="page-info">Página {{ state.currentPage() }} de {{ state.totalPages() }}</span>
+      <button
+        (click)="onPageChange(state.currentPage() + 1)"
+        [disabled]="state.currentPage() === state.totalPages()"
+        class="btn-page"
+      >
+        Siguiente <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  }
+
+  @if (!state.hasClassifications() && !state.loading() && !state.hasError()) {
+    <div class="state-box state-empty">
+      <i class="bi bi-tags"></i>
+      <span>No se encontraron clasificaciones</span>
+    </div>
+  }
+</div>

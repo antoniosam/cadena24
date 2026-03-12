@@ -15,3 +15,4 @@ export * from './client.interface';
 export * from './product-import.interface';
 export * from './dashboard.interface';
 export * from './provider.interface';
+export * from './classification.interface';

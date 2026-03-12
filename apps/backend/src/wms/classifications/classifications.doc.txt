@@ -1,0 +1,61 @@
+API Classifications
+===================
+
+Base path: /api/wms/classifications
+
+1. Listar clasificaciones (Paginado)
+   GET /api/wms/classifications
+   Query Params:
+     - page (number, opcional, default: 1)
+     - limit (number, opcional, default: 20)
+     - search (string, opcional)
+     - isActive (boolean, opcional)
+   Response: 200 OK
+   {
+     "items": [
+       {
+         "id": 1,
+         "code": "CLASS-001",
+         "name": "General",
+         "isActive": true,
+         "createdAt": "2024-03-20T10:00:00Z",
+         "updatedAt": "2024-03-20T10:00:00Z"
+       }
+     ],
+     "total": 1,
+     "page": 1,
+     "limit": 20,
+     "totalPages": 1
+   }
+
+2. Obtener una clasificación por ID
+   GET /api/wms/classifications/:id
+   Response: 200 OK
+   {
+     "id": 1,
+     ...
+   }
+   Errors: 404 Not Found si no existe.
+
+3. Crear clasificación
+   POST /api/wms/classifications
+   Body:
+   {
+     "code": "CLASS-001", // required, string
+     "name": "General", // required, string
+     "isActive": true // optional, boolean, default: true
+   }
+   Response: 201 Created
+
+4. Actualizar clasificación
+   PATCH /api/wms/classifications/:id
+   Body:
+   {
+     "name": "General Modificado",
+     "isActive": false
+   }
+   Response: 200 OK
+
+5. Eliminar clasificación (Soft delete)
+   DELETE /api/wms/classifications/:id
+   Response: 200 OK (isActive = false)

@@ -95,6 +95,36 @@ export const appRoutes: Routes = [
         title: 'Proveedores — Cadena24 WMS',
       },
       {
+        path: 'wms/classifications',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./wms/classifications/pages/classification-list/classification-list.component').then(
+                (m) => m.ClassificationListComponent
+              ),
+            pathMatch: 'full',
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./wms/classifications/pages/classification-form/classification-form.component').then(
+                (m) => m.ClassificationFormComponent
+              ),
+            title: 'Nueva Clasificación — Cadena24 WMS',
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./wms/classifications/pages/classification-form/classification-form.component').then(
+                (m) => m.ClassificationFormComponent
+              ),
+            title: 'Editar Clasificación — Cadena24 WMS',
+          },
+        ],
+        title: 'Clasificaciones — Cadena24 WMS',
+      },
+      {
         path: 'wms/warehouses',
         children: [
           {
