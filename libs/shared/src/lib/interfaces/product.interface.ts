@@ -35,6 +35,12 @@ export interface Product {
   // Relaciones
   barcodes?: ProductBarcode[];
   inventories?: any[];
+  classificationId?: number;
+  classification?: {
+    id: number;
+    code: string;
+    name: string;
+  };
 }
 
 export interface CreateProductDto {
@@ -53,6 +59,7 @@ export interface CreateProductDto {
   height?: number;
   depth?: number;
   isActive?: boolean;
+  classificationId: number;
 }
 
 export interface ProductsResponse {

@@ -68,6 +68,9 @@ model Product {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  classificationId Int?             @map("classification_id")
+  classification   Classification?  @relation(fields: [classificationId], references: [id])
+
   barcodes        ProductBarcode[]
   inventories     Inventory[]
   transactions    InventoryTransaction[]
@@ -142,6 +145,9 @@ model Location {
   isActive           Boolean  @default(true)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  classificationId   Int?             @map("classification_id")
+  classification     Classification?  @relation(fields: [classificationId], references: [id])
 
   warehouse         Warehouse                 @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   inventories       Inventory[]
@@ -390,6 +396,8 @@ model Classification {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   users     User[]
+  products  Product[]
+  locations Location[]
 
   @@map("classifications")
 }

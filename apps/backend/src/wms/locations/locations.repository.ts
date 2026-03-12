@@ -34,6 +34,13 @@ export class LocationsRepository {
             name: true,
           },
         },
+        classification: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+          },
+        },
       },
     });
   }
@@ -101,6 +108,13 @@ export class LocationsRepository {
               name: true,
             },
           },
+          classification: {
+            select: {
+              id: true,
+              code: true,
+              name: true,
+            },
+          },
         },
       }),
       this.prisma.location.count({ where }),
@@ -143,6 +157,13 @@ export class LocationsRepository {
       where: { barcode },
       include: {
         warehouse: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+          },
+        },
+        classification: {
           select: {
             id: true,
             code: true,
@@ -245,6 +266,13 @@ export class LocationsRepository {
               name: true,
             },
           },
+          classification: {
+            select: {
+              id: true,
+              code: true,
+              name: true,
+            },
+          },
         },
       });
     }
@@ -254,6 +282,13 @@ export class LocationsRepository {
       data,
       include: {
         warehouse: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+          },
+        },
+        classification: {
           select: {
             id: true,
             code: true,

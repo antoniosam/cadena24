@@ -23,6 +23,7 @@ export class ProductsRepository {
       },
       include: {
         barcodes: true,
+        classification: true,
       },
     });
   }
@@ -71,6 +72,7 @@ export class ProductsRepository {
         where,
         include: {
           barcodes: true,
+          classification: true,
           inventories: {
             select: {
               quantity: true,
@@ -100,6 +102,7 @@ export class ProductsRepository {
       where: { id },
       include: {
         barcodes: true,
+        classification: true,
         inventories: {
           include: {
             location: {
@@ -118,6 +121,7 @@ export class ProductsRepository {
       where: { code },
       include: {
         barcodes: true,
+        classification: true,
       },
     });
   }
@@ -186,6 +190,7 @@ export class ProductsRepository {
       data: updateData,
       include: {
         barcodes: true,
+        classification: true,
       },
     });
   }

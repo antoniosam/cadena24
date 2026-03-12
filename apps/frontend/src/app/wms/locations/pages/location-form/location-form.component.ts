@@ -2,10 +2,11 @@ import { Component, OnInit, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Warehouse } from '@cadena24-wms/shared';
+import { Warehouse, Classification } from '@cadena24-wms/shared';
 import { LocationsApiService } from '../../services/locations-api.service';
 import { LocationsStateService } from '../../services/locations-state.service';
 import { WarehousesApiService } from '../../../warehouses/services/warehouses-api.service';
+import { ClassificationsApiService } from '../../../classifications/services/classifications-api.service';
 
 @Component({
   selector: 'app-location-form',
@@ -20,12 +21,14 @@ export class LocationFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private locationsApi = inject(LocationsApiService);
   private warehousesApi = inject(WarehousesApiService);
+  private classificationsApi = inject(ClassificationsApiService);
   protected state = inject(LocationsStateService);
 
   locationForm: FormGroup;
   isEditMode = false;
   locationId: number | null = null;
   warehouses = signal<Warehouse[]>([]);
+  classifications = signal<Classification[]>([]);
 
   // Computed full path preview
   fullPathPreview = computed(() => {
@@ -41,6 +44,7 @@ export class LocationFormComponent implements OnInit {
   constructor() {
     this.locationForm = this.fb.group({
       warehouseId: [null, Validators.required],
+      classificationId: [null, Validators.required],
       zone: ['', [Validators.required, Validators.maxLength(50)]],
       row: ['', [Validators.required, Validators.maxLength(50)]],
       position: ['', [Validators.required, Validators.maxLength(50)]],
@@ -62,6 +66,10 @@ export class LocationFormComponent implements OnInit {
       next: (res) => this.warehouses.set(res.items),
     });
 
+    this.classificationsApi.getClassifications({ isActive: true, limit: 100 }).subscribe({
+      next: (res) => this.classifications.set(res.items),
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -76,6 +84,7 @@ export class LocationFormComponent implements OnInit {
         this.state.selectedLocation.set(location);
         this.locationForm.patchValue({
           warehouseId: location.warehouseId,
+          classificationId: location.classificationId,
           zone: location.zone,
           row: location.row,
           position: location.position,

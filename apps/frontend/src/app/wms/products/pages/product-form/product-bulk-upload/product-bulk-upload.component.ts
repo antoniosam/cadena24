@@ -245,6 +245,7 @@ export class ProductBulkUploadComponent {
       height: 0,
       depth: 0,
       isActive: true,
+      classificationId: 1,
     };
   }
 

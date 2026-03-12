@@ -65,4 +65,8 @@ export class CreateLocationDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean = true;
+
+  @IsInt()
+  @IsNotEmpty()
+  classificationId!: number;
 }

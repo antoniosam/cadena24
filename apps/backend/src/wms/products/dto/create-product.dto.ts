@@ -82,4 +82,8 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean = true;
+
+  @IsNumber()
+  @IsNotEmpty()
+  classificationId!: number;
 }

@@ -22,6 +22,12 @@ export interface Location {
     code: string;
     name: string;
   };
+  classificationId?: number;
+  classification?: {
+    id: number;
+    code: string;
+    name: string;
+  };
 }
 
 export interface CreateLocationDto {
@@ -39,6 +45,7 @@ export interface CreateLocationDto {
   maxWeight?: number;
   allowMixedProducts?: boolean;
   isActive?: boolean;
+  classificationId: number;
 }
 
 export interface UpdateLocationDto {
@@ -55,6 +62,7 @@ export interface UpdateLocationDto {
   maxWeight?: number;
   allowMixedProducts?: boolean;
   isActive?: boolean;
+  classificationId?: number;
 }
 
 export interface QueryLocationDto {

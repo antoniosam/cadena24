@@ -69,6 +69,7 @@
             <th>Ruta Completa</th>
             <th>Nombre</th>
             <th>Almacén</th>
+            <th>Clasificación</th>
             <th>Tipo</th>
             <th>Capacidad</th>
             <th>Altura</th>
@@ -87,6 +88,7 @@
               </td>
               <td>{{ location.name }}</td>
               <td>{{ location.warehouse?.name || '—' }}</td>
+              <td>{{ location.classification?.name || '—' }}</td>
               <td>
                 <span class="badge badge-type">{{ getTypeLabel(location.type) }}</span>
               </td>

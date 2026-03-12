@@ -5,6 +5,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ProductsStateService } from '../../services/products-state.service';
 import { ProductsApiService } from '../../services/products-api.service';
 import { ProductBulkUploadComponent } from './product-bulk-upload/product-bulk-upload.component';
+import { ClassificationsApiService } from '../../../classifications/services/classifications-api.service';
+import { Classification } from '@cadena24-wms/shared';
 
 @Component({
   selector: 'app-product-form',
@@ -19,11 +21,13 @@ export class ProductFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(ProductsApiService);
   protected state = inject(ProductsStateService);
+  private classificationsApi = inject(ClassificationsApiService);
 
   form: FormGroup;
   isEditMode = false;
   productId: number | null = null;
   showBulkUpload = signal<boolean>(false);
+  classifications = signal<Classification[]>([]);
 
   constructor() {
     this.form = this.fb.group({
@@ -42,10 +46,15 @@ export class ProductFormComponent implements OnInit {
       height: [0, [Validators.min(0)]],
       depth: [0, [Validators.min(0)]],
       isActive: [true],
+      classificationId: [null, [Validators.required]],
     });
   }
 
   ngOnInit(): void {
+    this.classificationsApi.getClassifications({ isActive: true, limit: 100 }).subscribe({
+      next: (res: any) => this.classifications.set(res.items),
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -72,6 +81,7 @@ export class ProductFormComponent implements OnInit {
             height: product.height ?? 0,
             depth: product.depth ?? 0,
             isActive: product.isActive,
+            classificationId: product.classificationId,
           });
         },
       });

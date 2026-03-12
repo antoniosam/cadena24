@@ -60,6 +60,7 @@
             <th>Nombre</th>
             <th>Código de Barras</th>
             <th>Categoría</th>
+            <th>Clasificación</th>
             <th>UOM</th>
             <th>Stock Mín.</th>
             <th>Estado</th>
@@ -77,6 +78,7 @@
                 <span class="code-text">{{ getBarcode(product) }}</span>
               </td>
               <td>{{ product.category || '—' }}</td>
+              <td>{{ product.classification?.name || '—' }}</td>
               <td>{{ product.uom }}</td>
               <td>{{ product.minStock }}</td>
               <td>
