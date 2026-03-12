@@ -44,4 +44,4 @@ EXPOSE 3000
 # Usamos 'npx' para que resuelva el path correctamente o el path directo
 #CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema=apps/backend/prisma/schema.prisma --config=apps/backend/prisma.config.ts && node dist/apps/backend/main.js"]
 # Cambiamos 'migrate deploy' por 'db push'
-CMD ["sh", "-c", "npx prisma db push --schema=apps/backend/prisma/schema.prisma --accept-data-loss && node dist/apps/backend/main.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma db push --schema=apps/backend/prisma/schema.prisma --accept-data-loss && node dist/apps/backend/main.js"]
