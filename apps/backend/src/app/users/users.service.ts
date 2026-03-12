@@ -75,6 +75,7 @@ export class UsersService {
       password: hashed,
       birthday: dto.birthday ? new Date(dto.birthday) : null,
       role: dto.role,
+      classificationId: dto.classificationId,
     });
 
     return {
@@ -108,6 +109,7 @@ export class UsersService {
             ? null
             : new Date(dto.birthday)
           : undefined,
+      classificationId: dto.classificationId,
     });
 
     return {

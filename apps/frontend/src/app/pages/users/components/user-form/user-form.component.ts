@@ -1,7 +1,24 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ICreateUser, IUpdateUser, IUser, ROLE_LABELS, RoleCode } from '@cadena24-wms/shared';
+import {
+  ICreateUser,
+  IUpdateUser,
+  IUser,
+  ROLE_LABELS,
+  RoleCode,
+  Classification,
+} from '@cadena24-wms/shared';
+import { ClassificationsApiService } from '../../../../wms/classifications/services/classifications-api.service';
 
 export type FormMode = 'create' | 'edit';
 
@@ -12,7 +29,7 @@ export type FormMode = 'create' | 'edit';
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss',
 })
-export class UserFormComponent implements OnChanges {
+export class UserFormComponent implements OnChanges, OnInit {
   @Input() mode: FormMode = 'create';
   @Input() user: IUser | null = null;
   @Input() saving = false;
@@ -25,9 +42,19 @@ export class UserFormComponent implements OnChanges {
   readonly roleLabels = ROLE_LABELS;
 
   form: FormGroup;
+  classifications: Classification[] = [];
+  private classificationsApi = inject(ClassificationsApiService);
 
   constructor(private readonly fb: FormBuilder) {
     this.form = this.buildForm();
+  }
+
+  ngOnInit(): void {
+    this.classificationsApi.getClassifications({ limit: 100, isActive: true }).subscribe({
+      next: (res) => {
+        this.classifications = res.items;
+      },
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -38,6 +65,7 @@ export class UserFormComponent implements OnChanges {
         email: this.user.email,
         birthday: this.user.birthday ? this.user.birthday.substring(0, 10) : null,
         role: this.user.role,
+        classificationId: this.user.classificationId ?? null,
       });
     }
     if (changes['mode']) {
@@ -58,6 +86,7 @@ export class UserFormComponent implements OnChanges {
       email: ['', [Validators.required, Validators.email]],
       birthday: [null],
       role: [RoleCode.USER, [Validators.required]],
+      classificationId: [null],
       password: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
@@ -76,6 +105,7 @@ export class UserFormComponent implements OnChanges {
         password: value.password,
         birthday: value.birthday ?? undefined,
         role: value.role,
+        classificationId: value.classificationId ? Number(value.classificationId) : undefined,
       };
       this.saved.emit(dto);
     } else {
@@ -84,6 +114,7 @@ export class UserFormComponent implements OnChanges {
         lastName: value.lastName,
         email: value.email,
         birthday: value.birthday ?? null,
+        classificationId: value.classificationId ? Number(value.classificationId) : null,
       };
       this.saved.emit(dto);
     }

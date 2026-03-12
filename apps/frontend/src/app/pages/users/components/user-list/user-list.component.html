@@ -25,6 +25,7 @@
           <th>Nombre</th>
           <th>Correo</th>
           <th>Rol</th>
+          <th>Clasificación</th>
           <th>Estado</th>
           <th class="text-center">Acciones</th>
         </tr>
@@ -39,6 +40,13 @@
               <span class="badge {{ getRoleBadgeClass(user.role) }}">
                 {{ roleLabels[user.role] }}
               </span>
+            </td>
+            <td>
+              @if (user.classification) {
+                <span class="badge bg-info text-dark">{{ user.classification.name }}</span>
+              } @else {
+                <span class="text-muted fst-italic">Sin clasif.</span>
+              }
             </td>
             <td>
               <div class="form-check form-switch mb-0">

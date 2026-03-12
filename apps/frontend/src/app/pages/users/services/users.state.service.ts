@@ -111,6 +111,8 @@ export class UsersStateService {
               lastName: created.lastName,
               role: created.role,
               active: created.active,
+              classificationId: created.classificationId,
+              classification: created.classification,
             },
           ]);
         }
@@ -140,6 +142,8 @@ export class UsersStateService {
                     email: updated.email,
                     firstName: updated.firstName,
                     lastName: updated.lastName,
+                    classificationId: updated.classificationId,
+                    classification: updated.classification,
                   }
                 : u
             )

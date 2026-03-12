@@ -12,6 +12,7 @@ export interface CreateUserData {
   password: string;
   birthday?: Date | null;
   role?: RoleCode;
+  classificationId?: number;
 }
 
 export interface UpdateUserData {
@@ -19,6 +20,7 @@ export interface UpdateUserData {
   firstName?: string;
   lastName?: string;
   birthday?: Date | null;
+  classificationId?: number | null;
 }
 
 @Injectable()
@@ -52,6 +54,7 @@ export class UsersRepository {
         skip,
         take: limit,
         orderBy: { [sortBy]: sortOrder },
+        include: { classification: true },
       }),
       this.prisma.user.count({ where }),
     ]);
@@ -60,12 +63,18 @@ export class UsersRepository {
   }
 
   async findById(id: number): Promise<IUser | null> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { classification: true },
+    });
     return user ? toUser(user) : null;
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: { classification: true },
+    });
     return user ? toUser(user) : null;
   }
 
@@ -86,7 +95,9 @@ export class UsersRepository {
         password: data.password,
         birthday: data.birthday ?? null,
         role: data.role ?? 'USER',
+        classificationId: data.classificationId ?? null,
       },
+      include: { classification: true },
     });
     return toUser(user);
   }
@@ -99,7 +110,9 @@ export class UsersRepository {
         ...(data.firstName !== undefined && { firstName: data.firstName }),
         ...(data.lastName !== undefined && { lastName: data.lastName }),
         ...(data.birthday !== undefined && { birthday: data.birthday }),
+        ...(data.classificationId !== undefined && { classificationId: data.classificationId }),
       },
+      include: { classification: true },
     });
     return toUser(user);
   }
@@ -116,6 +129,7 @@ export class UsersRepository {
     const user = await this.prisma.user.update({
       where: { id },
       data: { active: !current!.active },
+      include: { classification: true },
     });
     return toUser(user);
   }

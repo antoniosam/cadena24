@@ -9,6 +9,8 @@ type PrismaUser = {
   birthday: Date | null;
   role: string;
   active: boolean;
+  classificationId?: number | null;
+  classification?: any;
   refreshToken?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +26,8 @@ export function toUser(user: PrismaUser): IUser {
     birthday: user.birthday ? user.birthday.toISOString() : null,
     role: user.role as RoleCode,
     active: user.active,
+    classificationId: user.classificationId ?? null,
+    classification: user.classification,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -37,6 +41,8 @@ export function toUserSummary(user: PrismaUser): IUserSummary {
     firstName: user.firstName,
     lastName: user.lastName,
     role: user.role as RoleCode,
+    classificationId: user.classificationId ?? null,
+    classification: user.classification,
     active: user.active,
   };
 }

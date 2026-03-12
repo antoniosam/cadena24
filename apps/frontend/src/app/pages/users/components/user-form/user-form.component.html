@@ -57,8 +57,8 @@
         </div>
       </div>
 
-      <!-- Row 3: role + password (password only in create mode) -->
-      <div class="row g-3 mb-4">
+      <!-- Row 3: role + classification -->
+      <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label class="form-label">Rol <span class="text-danger">*</span></label>
           <select class="form-select" [class.is-invalid]="isInvalid('role')" formControlName="role">
@@ -67,7 +67,20 @@
             }
           </select>
         </div>
-        @if (mode === 'create') {
+        <div class="col-md-6">
+          <label class="form-label">Clasificación</label>
+          <select class="form-select" formControlName="classificationId">
+            <option [value]="null">Sin clasificación</option>
+            @for (cls of classifications; track cls.id) {
+              <option [value]="cls.id">{{ cls.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 4: password (only in create mode) -->
+      @if (mode === 'create') {
+        <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label">Contraseña <span class="text-danger">*</span></label>
             <input
@@ -81,8 +94,8 @@
               <div class="invalid-feedback">{{ getError('password') }}</div>
             }
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- Actions -->
       <div class="d-flex gap-2 justify-content-end">

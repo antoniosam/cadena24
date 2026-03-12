@@ -1,4 +1,12 @@
-import { IsEmail, IsEnum, IsISO8601, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsISO8601,
+  IsOptional,
+  IsString,
+  Length,
+  IsNumber,
+} from 'class-validator';
 import { ICreateUser, RoleCode } from '@cadena24-wms/shared';
 
 export class CreateUserDto implements ICreateUser {
@@ -24,4 +32,8 @@ export class CreateUserDto implements ICreateUser {
   @IsOptional()
   @IsEnum(RoleCode, { message: 'El rol no es válido' })
   role?: RoleCode;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'La clasificación debe ser un número válido' })
+  classificationId?: number;
 }
