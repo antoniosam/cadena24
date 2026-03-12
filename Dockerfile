@@ -19,9 +19,9 @@ FROM node:20.19.0-alpine
 WORKDIR /app
 RUN apk add --no-cache openssl
 
-# Instalamos solo dependencias de PROD
+# Instalamos  dependencias
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # --- TRUCO PARA PRISMA ---
 # Copiamos el binario de Prisma y sus dependencias de la etapa builder
