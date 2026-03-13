@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ export class PickListListComponent implements OnInit {
   private api = inject(PickingApiService);
   private salesOrdersApi = inject(SalesOrdersApiService);
   protected state = inject(PickingStateService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Generate modal state
   showGenerateModal = false;
@@ -68,10 +69,12 @@ export class PickListListComponent implements OnInit {
       next: (response) => {
         this.pendingOrders = response.items;
         this.loadingPendingOrders = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.generateError = 'Error al cargar las órdenes pendientes';
         this.loadingPendingOrders = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -97,10 +100,12 @@ export class PickListListComponent implements OnInit {
         this.closeGenerateModal();
         this.state.loadPickLists();
         this.router.navigate(['/wms/picking', pickList.id]);
+        this.cdr.markForCheck();
       },
       (msg) => {
         this.generating = false;
         this.generateError = msg;
+        this.cdr.markForCheck();
       }
     );
   }
