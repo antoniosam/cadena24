@@ -24,6 +24,8 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 .opencode
+.claude
+CLAUDE.md
 log_mcp-mariadb.txt
 
 # misc
@@ -56,4 +58,4 @@ Thumbs.db
 nul
 debug/*
 !debug/.gitkeep
-/.claude
+
