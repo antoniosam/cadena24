@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { WmsModule } from '../wms/wms.module';
+import { DocsModule } from '../docs/docs.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WmsModule } from '../wms/wms.module';
     UsersModule,
     AuthModule,
     WmsModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [
